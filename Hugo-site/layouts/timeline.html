@@ -1,6 +1,6 @@
 {{/* The Timelines page (content/timelines.md, layout: timeline).
      Three separate timelines, in the map's colours: green for palaces with a model, white for unmodeled
-     palaces (data/planned.yaml), brown for extant palaces (data/extant.yaml).
+     palaces (data/unmodeled.yaml), brown for extant palaces (data/extant.yaml).
      The scale runs from 1400 to 1800. A bar that starts earlier begins at the left edge with an arrow pointing left;
      one that continues later ends at the right edge with an arrow pointing right. */}}
 {{ define "main" }}
@@ -15,7 +15,7 @@
       "url" .RelPermalink "start" .Params.start "end" .Params.end) }}
 {{ end }}
 {{ $unmodeled := slice }}
-{{ range sort hugo.Data.planned "start" }}
+{{ range sort hugo.Data.unmodeled "start" }}
   {{ $end := default $today .end }}
   {{ $dates := cond (eq .end nil) (printf "%d–today" .start) (cond (eq .start .end) (printf "%d" .start) (printf "%d–%d" .start .end)) }}
   {{ $unmodeled = $unmodeled | append (dict "name" .name "dates" $dates "url" "" "start" .start "end" $end) }}

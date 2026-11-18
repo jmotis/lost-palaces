@@ -38,7 +38,7 @@
     <div class="pin-groups" id="pin-groups">
       {{ range slice
           (dict "kind" "model" "label" "Models" "count" (len $palaces))
-          (dict "kind" "unmodeled" "label" "Unmodeled" "count" (len hugo.Data.planned))
+          (dict "kind" "unmodeled" "label" "Unmodeled" "count" (len hugo.Data.unmodeled))
           (dict "kind" "extant" "label" "Extant" "count" (len hugo.Data.extant)) }}
       <details class="pin-group">
         <summary><i class="dot{{ if ne .kind "model" }} {{ .kind }}{{ end }}" aria-hidden="true"></i><span class="pg-label">{{ .label }}</span> <span class="pg-count">({{ .count }})</span></summary>
@@ -67,7 +67,7 @@
     {{ warnf "No coordinates for %q in data/coordinates.yaml: it is left off the map" $id }}
   {{ end }}
 {{ end }}
-{{ range hugo.Data.planned }}
+{{ range hugo.Data.unmodeled }}
   {{ $p := . }}
   {{ with index $coords.sites .id }}
     {{ $pins = $pins | append (dict "id" $p.id "name" $p.name "place" $p.place "start" $p.start "end" $p.end "lat" .lat "lon" .lon "far" (default false $p.far) "kind" "unmodeled") }}
