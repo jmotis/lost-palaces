@@ -1,0 +1,91 @@
+{{/* The Map page (content/map.md, layout: map). */}}
+{{ define "head" }}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+{{ end }}
+
+{{ define "main" }}
+{{ $palaces := (where site.RegularPages "Section" "palaces").ByWeight }}
+<main id="content" class="wrap section section-last">
+  <h1 class="page-title">{{ .Params.heading | default .Title }}</h1>
+  {{ with .Content }}<div class="section-intro">{{ . }}</div>{{ end }}
+  <div class="map-layout">
+    <div id="map" role="region" aria-label="Map of palace sites, centred on Whitehall">
+      <noscript><p style="padding:24px;margin:0">The map needs JavaScript. Every palace is listed below it.</p></noscript>
+    </div>
+
+    {{/* The selected palace, right under the map. map.js fills it. */}}
+    <div class="map-card" id="map-card" aria-live="polite"></div>
+
+    {{/* Year filter: two range inputs on one track. Pins and lists show only palaces standing at some point in the chosen years.
+         Shown by map.js (it does nothing without JavaScript). */}}
+    <fieldset class="year-filter" id="year-filter" hidden>
+      <legend><span id="yf-count">Showing all palaces</span> standing <span id="yf-prep">between</span> <output id="yf-from-out" for="yf-from">1400</output><span id="yf-and"> and <output id="yf-to-out" for="yf-to">1800</output></span></legend>
+      <button type="button" class="yf-reset" id="yf-reset" hidden>Show all years</button>
+      <div class="yf-slider">
+        <div class="yf-track" aria-hidden="true"><div class="yf-range" id="yf-range"></div></div>
+        <label class="sr-only" for="yf-from">From year</label>
+        <input type="range" id="yf-from" min="1400" max="1800" step="1" value="1400">
+        <label class="sr-only" for="yf-to">To year</label>
+        <input type="range" id="yf-to" min="1400" max="1800" step="1" value="1800">
+      </div>
+      <div class="yf-scale" aria-hidden="true">{{ range seq 1400 50 1800 }}<span>{{ . }}</span>{{ end }}</div>
+      {{/* Screen readers hear the result once a handle is let go; the heading above shows it as you drag. */}}
+      <p class="sr-only" id="yf-status" aria-live="polite"></p>
+    </fieldset>
+
+    {{/* The lists are a text alternative to the map, grouped by pin colour. They double as its key. Closed to start (add `open` to the <details> to start them open). */}}
+    <h2 class="pin-groups-title" id="pin-groups-title">Palaces on the map</h2>
+    <div class="pin-groups" id="pin-groups">
+      {{ range slice
+          (dict "kind" "model" "label" "Models" "count" (len $palaces))
+          (dict "kind" "unmodeled" "label" "Unmodeled" "count" (len hugo.Data.planned))
+          (dict "kind" "extant" "label" "Extant" "count" (len hugo.Data.extant)) }}
+      <details class="pin-group">
+        <summary><i class="dot{{ if ne .kind "model" }} {{ .kind }}{{ end }}" aria-hidden="true"></i><span class="pg-label">{{ .label }}</span> <span class="pg-count">({{ .count }})</span></summary>
+        <ul class="pin-list" data-kind="{{ .kind }}"></ul>
+      </details>
+      {{ end }}
+    </div>
+  </div>
+</main>
+{{ end }}
+
+{{ define "scripts" }}
+{{ $palaces := (where site.RegularPages "Section" "palaces").ByWeight }}
+{{/* Every coordinate comes from data/coordinates.yaml, keyed by palace id. */}}
+{{ $coords := hugo.Data.coordinates }}
+{{ $pins := slice }}
+{{ range $palaces }}
+  {{ $p := . }}
+  {{ $id := .File.ContentBaseName }}
+  {{ with index $coords.sites $id }}
+    {{ $pins = $pins | append (dict
+        "id" $id "name" $p.Params.name "title" $p.Title
+        "start" $p.Params.start "end" $p.Params.end "place" $p.Params.place "url" $p.RelPermalink
+        "lat" .lat "lon" .lon "kind" "model") }}
+  {{ else }}
+    {{ warnf "No coordinates for %q in data/coordinates.yaml: it is left off the map" $id }}
+  {{ end }}
+{{ end }}
+{{ range hugo.Data.planned }}
+  {{ $p := . }}
+  {{ with index $coords.sites .id }}
+    {{ $pins = $pins | append (dict "id" $p.id "name" $p.name "place" $p.place "start" $p.start "end" $p.end "lat" .lat "lon" .lon "far" (default false $p.far) "kind" "unmodeled") }}
+  {{ else }}
+    {{ warnf "No coordinates for %q in data/coordinates.yaml: it is left off the map" .id }}
+  {{ end }}
+{{ end }}
+{{ range hugo.Data.extant }}
+  {{ $p := . }}
+  {{ with index $coords.sites .id }}
+    {{ $pins = $pins | append (dict "id" $p.id "name" $p.name "title" $p.title "place" $p.place "visit" (default "" $p.visit) "visitLabel" (default (printf "Visit %s" $p.title) $p.visit_label) "far" (default false $p.far) "start" $p.start "startLabel" $p.start_label "lat" .lat "lon" .lon "kind" "extant") }}
+  {{ else }}
+    {{ warnf "No coordinates for %q in data/coordinates.yaml: it is left off the map" .id }}
+  {{ end }}
+{{ end }}
+<script id="map-data" type="application/json">{{ dict "centre" (dict "lat" $coords.map_centre.lat "lon" $coords.map_centre.lon) "pins" $pins | jsonify | safeJS }}</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+{{ with resources.Get "js/map.js" | minify | fingerprint }}
+<script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}"></script>
+{{ end }}
+{{ end }}

@@ -1,0 +1,1435 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Baynard’s Castle, 1428–1670: a 3D model</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Layout: full-bleed 3D scene; a slim control panel floats top-left, a building card bottom-right. Phone: panel becomes a bottom sheet. */
+:root {
+  --ink: #1d2830;
+  --ink-soft: #52606a;
+  --panel: rgba(236, 240, 238, 0.94);
+  --panel-line: #c5cdca;
+  --accent: #2f6b66;      /* Thames green */
+  --gilt: #a8822a;        /* selection */
+  --sky-top: #b9c6cb;
+  --sky-bottom: #e6e4da;
+  --chip: #dfe5e2;
+  --ctl-line: #6f7d85;   /* outlines of buttons: at least 3:1 against the panel */
+  --font-display: "IM Fell English SC", "Iowan Old Style", Georgia, serif;
+  --font-italic: "IM Fell English", "Iowan Old Style", Georgia, serif;
+  --font-ui: "Source Sans 3", -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e2e6e3; --ink-soft: #9aa7ae; --panel: rgba(20, 27, 32, 0.93); --panel-line: #33414a;
+    --accent: #84c0b8; --gilt: #d8b45a; --sky-top: #3a4852; --sky-bottom: #77807f; --chip: #26323a; --ctl-line: #73838c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e2e6e3; --ink-soft: #9aa7ae; --panel: rgba(20, 27, 32, 0.93); --panel-line: #33414a;
+  --accent: #84c0b8; --gilt: #d8b45a; --sky-top: #3a4852; --sky-bottom: #77807f; --chip: #26323a; --ctl-line: #73838c;
+  color-scheme: dark;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--sky-bottom); color: var(--ink); font-family: var(--font-ui); overflow: hidden; }
+#scene { position: fixed; inset: 0; background: linear-gradient(var(--sky-top), var(--sky-bottom) 70%); }
+#scene canvas { display: block; touch-action: none; }
+
+#panel {
+  position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px));
+  width: 300px; max-height: calc(100% - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overflow-y: auto; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 6px;
+  padding: 16px 18px; display: grid; gap: 14px; backdrop-filter: blur(6px); z-index: 5;
+}
+.eyebrow { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
+h1 { font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1; margin: 2px 0 0; text-wrap: balance; }
+.lede { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--ink-soft); }
+.group { display: grid; gap: 8px; }
+.group-title { margin: 0; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: var(--ink-soft); }
+.views { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.view-btn { background: var(--chip); border: 1px solid var(--ctl-line); border-radius: 4px; padding: 7px 8px; font-size: 13px; text-align: left; }
+.view-btn:hover { border-color: var(--accent); }
+.view-btn[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); font-weight: 600; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; font-size: 13px; }
+.row input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); }
+.row output { font-variant-numeric: tabular-nums; color: var(--ink-soft); font-size: 12px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.check input { accent-color: var(--accent); }
+figure { margin: 0; display: grid; gap: 6px; }
+figure button { padding: 0; border: 1px solid var(--panel-line); border-radius: 3px; overflow: hidden; background: none; display: block; }
+figure img { display: block; width: 100%; }
+figcaption { font-family: var(--font-italic); font-style: italic; font-size: 13px; color: var(--ink-soft); line-height: 1.35; }
+.refs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.ref { padding: 0; border: 1px solid var(--panel-line); border-radius: 3px; background: var(--chip); display: grid; text-align: left; overflow: hidden; }
+.ref:hover { border-color: var(--accent); }
+.ref img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.ref span { font-size: 11px; line-height: 1.25; padding: 4px 5px; color: var(--ink-soft); }
+.year-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+#year-out { font-family: var(--font-display); font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--ink); }
+.play { background: var(--chip); border: 1px solid var(--ctl-line); border-radius: 4px; padding: 5px 9px; font-size: 12px; }
+.play:hover { border-color: var(--accent); }
+#year { width: 100%; accent-color: var(--accent); }
+.event { margin: 0; font-size: 13px; line-height: 1.45; min-height: 2.9em; }
+.event b { font-weight: 600; }
+#year-badge { position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--panel-line); border-radius: 6px; padding: 4px 12px; font-family: var(--font-display); font-size: 22px; z-index: 4; pointer-events: none; font-variant-numeric: tabular-nums; }
+.hint { margin: 0; font-size: 12px; line-height: 1.45; color: var(--ink-soft); }
+.howto summary { cursor: pointer; list-style: revert; }
+.howto summary .group-title { display: inline; }
+#bld-list { list-style: none; margin: 8px 0 0; padding: 2px; display: grid; gap: 4px; max-height: 260px; overflow-y: auto; }
+#bld-list button { width: 100%; text-align: left; background: var(--chip); border: 1px solid var(--ctl-line); border-radius: 4px; padding: 6px 8px; font-size: 13px; }
+#bld-list button:hover { border-color: var(--accent); }
+#bld-list button[aria-current="true"] { border-color: var(--gilt); box-shadow: inset 0 0 0 1px var(--gilt); font-weight: 600; }
+.howto ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; }
+#thurley-note:empty { display: none; }
+#nav { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); display: grid; gap: 6px; z-index: 5; }
+#nav button { width: 40px; height: 40px; display: grid; place-items: center; background: var(--panel); border: 1px solid var(--ctl-line); border-radius: 6px; color: var(--ink); padding: 0; backdrop-filter: blur(6px); }
+#nav button:hover { border-color: var(--accent); color: var(--accent); }
+#nav svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#nav .sep { height: 4px; }
+.bib { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
+.bib li { padding-left: 1.4em; text-indent: -1.4em; }
+.bib a { color: var(--accent); }
+.bib ul { list-style: none; margin: 4px 0 0; padding: 0 0 0 1.4em; display: grid; gap: 3px; }
+.bib ul li { padding-left: 1.4em; text-indent: -1.4em; }
+.bib a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.note { font-size: 12px; line-height: 1.45; color: var(--ink-soft); border-top: 1px solid var(--panel-line); padding-top: 10px; margin: 0; }
+.swatches { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 12px; color: var(--ink-soft); }
+.swatches span { display: inline-flex; align-items: center; gap: 5px; }
+.swatches i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; border: 1px solid rgba(0,0,0,.2); }
+#toggle-panel { display: none; }
+
+#info {
+  position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  width: 340px; max-width: calc(100% - 32px); background: var(--panel); border: 1px solid var(--panel-line);
+  border-top: 3px solid var(--gilt); border-radius: 6px; padding: 14px 16px 16px; z-index: 6; backdrop-filter: blur(6px);
+  display: grid; gap: 8px;
+  max-height: calc(100% - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); overflow-y: auto; box-sizing: border-box;
+}
+#info h2 { font-family: var(--font-display); font-weight: 400; font-size: 23px; margin: 0; line-height: 1.1; padding-right: 28px; }
+#info .meta { display: flex; flex-wrap: wrap; gap: 6px; }
+#info .meta span { font-size: 12px; background: var(--chip); padding: 2px 7px; border-radius: 3px; font-variant-numeric: tabular-nums; }
+#info p { margin: 0; font-size: 13.5px; line-height: 1.5; }
+#info .close { position: absolute; top: 8px; right: 8px; border: 0; background: none; font-size: 20px; line-height: 1; padding: 4px 8px; color: var(--ink-soft); }
+
+.label {
+  font-family: var(--font-italic); font-style: italic; font-size: 13px; color: #1d2830; background: rgba(244, 241, 232, 0.85);
+  padding: 1px 6px; border-radius: 2px; white-space: nowrap; pointer-events: none; border: 1px solid rgba(29,40,48,.25);
+}
+.label.minor { font-size: 11.5px; opacity: .85; }
+#labels.off .label { display: none; }
+
+#compass {
+  position: fixed; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: calc(max(16px, env(safe-area-inset-left, 0px)) + 316px);
+  width: 54px; height: 54px; border-radius: 50%; background: var(--panel); border: 1px solid var(--panel-line);
+  display: grid; place-items: center; z-index: 4; pointer-events: none;
+}
+#compass .needle { width: 0; height: 0; display: grid; place-items: center; position: relative; }
+#compass .needle::before { content: ""; position: absolute; bottom: 0; left: -5px; border: 5px solid transparent; border-bottom: 17px solid var(--accent); border-top: 0; }
+#compass .needle::after { content: "N"; position: absolute; bottom: 17px; left: -4px; font-size: 10px; font-weight: 600; color: var(--accent); }
+
+#lightbox { position: fixed; inset: 0; background: rgba(10, 14, 18, 0.88); z-index: 20; display: grid; place-items: center; padding: 24px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); }
+#lightbox figure { max-width: 1000px; width: 100%; }
+#lightbox figcaption { color: #d7dcd8; }
+#lightbox .lb-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
+#lb-count { margin-right: auto; color: #d7dcd8; font-size: 13px; font-variant-numeric: tabular-nums; }
+#lightbox button:focus-visible { outline-color: #e6e9e6; }
+#lightbox button { background: none; border: 1px solid #6c7a80; color: #e6e9e6; border-radius: 4px; padding: 4px 12px; }
+
+#loading[hidden] { display: none; }
+#loading { position: fixed; inset: 0; display: grid; place-items: center; font-family: var(--font-italic); font-style: italic; color: var(--ink-soft); z-index: 1; pointer-events: none; }
+
+@media (max-width: 720px) {
+  #panel { top: auto; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); left: max(10px, env(safe-area-inset-left, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); width: auto; max-height: 46%; padding: 12px 14px; }
+  #panel.collapsed > :not(.head) { display: none; }
+  .head { display: flex; align-items: end; justify-content: space-between; gap: 8px; }
+  #toggle-panel { display: inline-block; background: var(--chip); border: 1px solid var(--ctl-line); border-radius: 4px; padding: 5px 10px; font-size: 12px; }
+  h1 { font-size: 24px; }
+  #info { bottom: auto; top: calc(10px + env(safe-area-inset-top, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); left: max(10px, env(safe-area-inset-left, 0px)); width: auto; max-width: none; max-height: 46%; }
+  #nav { top: calc(66px + env(safe-area-inset-top, 0px)); transform: none; right: max(12px, env(safe-area-inset-right, 0px)); }
+  #nav button { width: 44px; height: 44px; }
+  #compass { left: auto; right: max(12px, env(safe-area-inset-right, 0px)); bottom: auto; top: calc(12px + env(safe-area-inset-top, 0px)); width: 44px; height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div id="scene"></div>
+<div id="loading">Laying out the house…</div>
+
+<aside id="panel" aria-label="Model controls">
+  <div class="head">
+    <div>
+      <div class="eyebrow">A 3D Model, 1428–1670</div>
+      <h1>Baynard’s Castle</h1>
+    </div>
+    <button id="toggle-panel" type="button" aria-expanded="true">Hide</button>
+  </div>
+  <p class="lede">A riverside house in the City of London: rebuilt after a fire in 1428, remade by Henry VII about 1501, enlarged to the west about 1550 and burned in the Great Fire of 1666. Footprints come from Simon Thurley’s conjectural plan of about 1540; the phases come from the Museum of London’s records of the excavations of 1972–81; the river front follows Wyngaerde and Hollar. The house is thinly documented: heights, materials and most details are estimates, and each card says which.</p>
+
+  <div class="group" id="timeline">
+    <h2 class="group-title">Year</h2>
+    <div class="year-row"><output id="year-out" for="year">1540</output><button id="play" class="play" type="button">Play 1428–1670</button></div>
+    <input id="year" type="range" min="1428" max="1670" step="1" value="1540" list="year-marks" aria-label="Year">
+    <datalist id="year-marks"><option value="1428"></option><option value="1446"></option><option value="1461"></option><option value="1483"></option><option value="1501"></option><option value="1540"></option><option value="1546"></option><option value="1550"></option><option value="1551"></option><option value="1553"></option><option value="1560"></option><option value="1647"></option><option value="1666"></option><option value="1667"></option><option value="1670"></option></datalist>
+    <p id="year-event" class="event" aria-live="polite"></p>
+    <p class="hint">Three phases. 1428–1500: the four-winged house with two corner towers that the excavations record, drawn faint because nothing shows it above ground. About 1501: Henry VII’s river front of five towers and a watergate. About 1550 (shown from 1551): the west extension, whose footprint is an estimate, since no plan of it was available. The house burned in September 1666 and is gone from 1667, apart from one tower.</p>
+  </div>
+
+  <div class="group">
+    <h2 class="group-title">Views</h2>
+    <p class="hint">Drag to move · right-drag, Shift-drag or two fingers to turn · scroll or pinch to zoom · double-click to fly in</p>
+    <div class="views">
+      <button class="view-btn" data-view="overview" aria-pressed="true" type="button">Overview</button>
+      <button class="view-btn" data-view="plan" aria-pressed="false" type="button">Plan from above</button>
+      <button class="view-btn" data-view="river" aria-pressed="false" type="button">From the river</button>
+      <button class="view-btn" data-view="wyngaerde" aria-pressed="false" type="button">Wyngaerde’s side, c.&nbsp;1550</button>
+      <button class="view-btn" data-view="hollar" aria-pressed="false" type="button">Hollar’s side, 1647</button>
+      <button class="view-btn" data-view="garden" aria-pressed="false" type="button">Garden / second court</button>
+      <button class="view-btn" data-view="court" aria-pressed="false" type="button">Court</button>
+      <button class="view-btn" data-view="north" aria-pressed="false" type="button">From the north</button>
+    </div>
+    <label class="check" for="keys-on"><input id="keys-on" type="checkbox" checked> Keyboard shortcuts: + − zoom, [ ] turn, N north</label>
+  </div>
+
+  <details class="group howto" id="bld-list-wrap">
+    <summary><h2 class="group-title">Buildings standing in <span id="bld-list-year">1540</span></h2></summary>
+    <p class="hint">Choose a building to read about it; the view moves to it. The list follows the year.</p>
+    <ul id="bld-list"></ul>
+  </details>
+
+  <div class="group">
+    <h2 class="group-title">Layers</h2>
+    <label class="row" for="plan-op">Plan on the ground <output id="plan-op-out">100%</output>
+      <input id="plan-op" type="range" min="0" max="100" value="100"></label>
+    <label class="row" for="cover-op">Ground cover (estimated) <output id="cover-op-out">45%</output>
+      <input id="cover-op" type="range" min="0" max="100" value="45"></label>
+    <label class="check" for="show-thurley"><input id="show-thurley" type="checkbox"> Thurley's plan in red line <span id="thurley-phase" class="hint"></span></label>
+    <p id="thurley-note" class="hint"></p>
+    <label class="row" for="bld-op">Building opacity <output id="bld-op-out">100%</output>
+      <input id="bld-op" type="range" min="15" max="100" value="100"></label>
+    <label class="row" for="tide">Tide on the Thames (levels estimated) <output id="tide-out">Half tide</output>
+      <input id="tide" type="range" min="0" max="100" value="38"></label>
+    <label class="check" for="show-labels"><input id="show-labels" type="checkbox" checked> Labels</label>
+    <div class="swatches" aria-label="Colour key">
+      <span><i style="background:#b9b3a2"></i>Stone (estimated)</span>
+      <span><i style="background:#7d4a3c"></i>Brick (extension)</span>
+      <span><i style="background:#86493a"></i>Tile (estimated)</span>
+      <span><i style="background:#8a9196"></i>Lead (estimated)</span>
+      <span><i style="background:#9aa3a6"></i>Faint: undated or placeholder</span>
+    </div>
+  </div>
+
+  <details class="group howto">
+    <summary><h2 class="group-title">How to read this model</h2></summary>
+    <ul class="hint">
+      <li><b>Where.</b> Simon Thurley's plan (fig. 53 in <i>The Royal Palaces of Tudor England</i>), a conjectural plan of about 1540, is treated as ground truth for where the main house, the garden and the neighbours stood and how big they were.</li>
+      <li><b>When.</b> The phases come from the Museum of London's summaries of the excavations of 1972–81 (Schofield and Maloney 1998): the house of 1428, Henry VII's river towers, and the west extension of about 1550. Stow gives the fire of 1428 and the rebuilding of about 1501.</li>
+      <li><b>The west extension has no plan.</b> The excavation summaries say it had three brick wings, stone-faced to the river; the model lays them round Thurley's garden. That footprint is an estimate, and so the “plan decides” rule cannot be applied to it.</li>
+      <li><b>What it looked like.</b> Only the river front has pictures: Wyngaerde (about 1550) and Hollar (1647). Everything else about the appearance of the house is an estimate. Each card has a “From the sources” part and an “Estimate” part.</li>
+      <li><b>Names.</b> Thurley's plan names only the Garden, the Court and the Watergate. “West range”, “River range” and the like are descriptions made for this model.</li>
+      <li><b>Faint buildings</b> are those whose date or form is not established: the house before 1501 (it stood, but nothing shows its form), and the garden and the two neighbours before the plan's date of about 1540.</li>
+      <li><b>Scale.</b> About 0.158 m to a pixel of the plan photograph, measured from the plan's own metre bar; good to about 3%, and less good at the east edge, where the photographed page curls.</li>
+      <li><b>The plan on the ground</b> is a photograph of the printed plan. Under Layers it can be faded out, and the estimated ground surfaces faded in.</li>
+      <li><b>The Thames is tidal.</b> The Tide control raises and lowers the river. The ground and tide levels are estimates: no source used gives levels for this site.</li>
+    </ul>
+  </details>
+
+  <div class="group">
+    <h2 class="group-title">Historical Images</h2>
+    <div class="refs">
+      <button class="ref" type="button" data-ref="0"><img loading="lazy" decoding="async" src="assets/thurley-fig53-waterfront-c1540.jpg" alt="Thurley, conjectural plan of the Thames waterfront from Bridewell to Baynard's Castle, c. 1540"><span>Plan of the waterfront, c.&nbsp;1540</span></button>
+      <button class="ref" type="button" data-ref="1"><img loading="lazy" decoding="async" src="assets/thurley-fig53-baynards-plan.jpg" alt="Detail of Thurley's plan, c. 1540: Baynard's Castle, St Andrew by the Wardrobe and the King's Wardrobe"><span>Plan detail, c.&nbsp;1540</span></button>
+      <button class="ref" type="button" data-ref="2"><img loading="lazy" decoding="async" src="assets/wyngaerde-baynards-c1550.jpg" alt="Wyngaerde, Baynard's Castle from the river, c. 1550"><span>Wyngaerde, c.&nbsp;1550</span></button>
+      <button class="ref" type="button" data-ref="3"><img loading="lazy" decoding="async" src="assets/agas-c1560.jpg" alt="Detail of the Agas map of London showing Baynard's Castle, c. 1560"><span>Agas map, c.&nbsp;1560</span></button>
+      <button class="ref" type="button" data-ref="6"><img loading="lazy" decoding="async" src="assets/hollar-long-view-1647.jpg" alt="Hollar, Baynard's Castle from Bankside, detail of the Long View of London, 1647"><span>Hollar, 1647</span></button>
+      <button class="ref" type="button" data-ref="4"><img loading="lazy" decoding="async" src="assets/ogilby-morgan-1676.jpg" alt="Detail of Ogilby and Morgan's map of London, 1676, showing the site after the Great Fire"><span>Ogilby &amp; Morgan, 1676</span></button>
+      <button class="ref" type="button" data-ref="5"><img loading="lazy" decoding="async" src="assets/reconstruction-print-1784.jpg" alt="Reconstruction view of Baynard's Castle from the river, published 1784"><span>Reconstruction print, 1784</span></button>
+    </div>
+  </div>
+
+  <p class="note">The first three images are photographs of pages of Thurley’s book; the other three are from Marsden’s article of 1972. Thurley’s plan is a modern reconstruction, not a Tudor survey. Hollar’s view of 1647 is a detail of the scan on Wikimedia Commons.</p>
+
+  <div class="group" id="bibliography">
+    <h2 class="group-title">Bibliography</h2>
+    <ul class="bib">
+      <li>Jackson, Sophie, Jon Chandler, John Schofield and Hannah Pethen. <cite>The Puddle Dock Development, London EC4: Archaeological Desk-Based Assessment</cite>. London: Museum of London Archaeology Service, February 2009. Text only; its figures were not available.</li>
+      <li>Marsden, Peter. “Baynards Castle.” <cite>London Archaeologist</cite> 1, no. 14 (1972): 315–16. Written before the excavation.</li>
+      <li>Schofield, John, with Cath Maloney, eds. <cite>Archaeological Excavations in the City of London 1907–91</cite>. London: Museum of London, text of 1998; online version 2021, without illustrations. Entries GM152 (BC72), BC74, UT74, BC75, BYD81 and BEX90.</li>
+      <li>Stow, John. <cite>A Survey of London</cite>. Reprinted from the text of 1603, edited by C. L. Kingsford. Oxford: Clarendon Press, 1908, 1:65–67. <a href="https://www.british-history.ac.uk/no-series/survey-of-london-stow/1603/pp44-71" target="_blank" rel="noopener">British History Online<span class="sr"> (opens in a new tab)</span></a>. The text of 1598 was read in the <a href="https://mapoflondon.uvic.ca/edition/7.0/stow_1598_towers.htm" target="_blank" rel="noopener">Map of Early Modern London edition<span class="sr"> (opens in a new tab)</span></a>.</li>
+      <li>Thurley, Simon. <cite>The Royal Palaces of Tudor England: Architecture and Court Life, 1460–1547</cite>. New Haven and London: Yale University Press, 1993. Figs 51 and 53, and the passage beside fig. 51.</li>
+      <li>Not read directly: the Historic England scheduling description (list entry 1001965), known through the <a href="https://gatehouse-gazetteer.info/English%20sites/1890.html" target="_blank" rel="noopener">Gatehouse Gazetteer<span class="sr"> (opens in a new tab)</span></a>; the Royal Collection’s impression of Hollar’s Long View (<a href="https://rct.uk/collection/805316/london-the-long-view" target="_blank" rel="noopener">RCIN 805316<span class="sr"> (opens in a new tab)</span></a>).</li>
+      <li>Hollar, Wenceslaus. <cite>Long View of London from Bankside</cite>. Etching, 1647. Detail from the scan on <a href="https://commons.wikimedia.org/wiki/File:1647_Long_view_of_London_From_Bankside_-_Wenceslaus_Hollar_(cropped).jpg" target="_blank" rel="noopener">Wikimedia Commons<span class="sr"> (opens in a new tab)</span></a>.</li>
+    </ul>
+  </div>
+</aside>
+
+
+<section id="info" hidden aria-live="polite" aria-label="Selected building">
+  <button class="close" type="button" aria-label="Close">×</button>
+  <h2 id="info-title"></h2>
+  <div class="meta" id="info-meta"></div>
+  <p id="info-text"></p>
+</section>
+
+<div id="year-badge" aria-hidden="true">1540</div>
+<div id="compass" aria-hidden="true"><div class="needle"></div></div>
+<nav id="nav" aria-label="Move the view">
+  <button id="nav-in" type="button" title="Zoom in (+)" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button id="nav-out" type="button" title="Zoom out (−)" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+  <span class="sep"></span>
+  <button id="nav-left" type="button" title="Turn left ([)" aria-label="Turn left"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/></svg></button>
+  <button id="nav-right" type="button" title="Turn right (])" aria-label="Turn right"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4h-4"/></svg></button>
+  <button id="nav-north" type="button" title="Face north (N)" aria-label="Face north"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 16V8l6 8V8"/></svg></button>
+  <button id="nav-home" type="button" title="Back to the overview" aria-label="Back to the overview"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6 10v10h12V10"/></svg></button>
+</nav>
+
+<div id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Picture">
+  <figure>
+    <div class="lb-bar">
+      <span id="lb-count" aria-live="polite"></span>
+      <button type="button" id="lb-prev" title="Previous image (←)">← Previous</button>
+      <button type="button" id="lb-next" title="Next image (→)">Next →</button>
+      <button type="button" id="close-painting">Close</button>
+    </div>
+    <img id="lb-img" src="assets/wyngaerde-baynards-c1550.jpg" alt="">
+    <figcaption id="lb-cap"></figcaption>
+  </figure>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { MapControls } from 'three/addons/controls/MapControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+// ---------- Plan coordinate system ----------
+// All footprints are written in pixel coordinates of the base plan: a 1310 × 1730 crop of a photograph of Thurley's
+// fig. 53 ("The Thames waterfront from Bridewell to Baynard's Castle in c.1540. Conjectural plan from archaeological and
+// documentary evidence"). Plan top = north (the plan's north point), bottom = the Thames.
+const IMG_W = 1310, IMG_H = 1730;
+// Scale: metres per plan pixel, measured on the plan's own metre bar where the page lies flat (0–50 m = 317 px, and
+// 25 m = 161 px). The last 50 m of the bar measures 10% short because the page curls at its outer edge, so the east
+// tenth of the plan (the east range) is compressed east–west by up to that much. The photograph was not rectified.
+const S = 0.158, K = 0.75;   // K: size of the camera limits, shadow area and site bounds relative to the Whitehall template
+const CX = 840, CY = 1150;   // the model's origin: about the middle of the house and garden
+const DEG = Math.PI / 180;
+const YEAR_HOOKS = [];   // (year) => void: details that change with the year inside one building (called by setYear)
+const wx = (x) => (x - CX) * S, wz = (y) => (y - CY) * S;
+const P = (x, y, h = 0) => new THREE.Vector3(wx(x), h, wz(y));
+const BAY = 3.6, STOREY = 3.8;      // facade texture tile in metres
+// Outlines read off the plan, used for both the ground cover and the cards
+const GARDEN_POLY = [[634, 960], [870, 980], [822, 1296], [603, 1296]];
+const COURT_POLY = [[932, 1065], [992, 1067], [1005, 1300], [907, 1285]];
+const SECOND_COURT_POLY = [[677, 1011], [866, 1028], [826, 1262], [655, 1252]];   // ESTIMATE: the ground inside the three wings of c. 1550
+
+// ---------- Renderer / scene ----------
+const host = document.getElementById('scene');
+// Logarithmic depth: the ground is built in layers a few millimetres apart (plan, ground cover, paving, pebbles), and with
+// an ordinary depth buffer they could not be told apart from far away, so they flickered through each other when zoomed out.
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, logarithmicDepthBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = false;   // the scene is static: shadows are redrawn only when something changes
+const refreshShadows = () => { renderer.shadowMap.needsUpdate = true; };
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+host.appendChild(renderer.domElement);
+
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(innerWidth, innerHeight);
+Object.assign(labelRenderer.domElement.style, { position: 'absolute', top: '0', left: '0', pointerEvents: 'none' });
+labelRenderer.domElement.id = 'labels';
+host.appendChild(labelRenderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 1, 4000);
+// Map-style navigation: drag to move across the ground, right-drag (or Shift/Ctrl-drag, or two fingers) to turn
+// and tilt, scroll or pinch to zoom towards the point under the cursor, arrow keys to move.
+const controls = new MapControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.12;
+controls.zoomToCursor = true;
+controls.zoomSpeed = 1.4;
+controls.rotateSpeed = 0.6;
+controls.panSpeed = 1.1;
+controls.maxPolarAngle = 0.47 * Math.PI;
+controls.minDistance = 6;
+controls.maxDistance = 1300 * K;
+controls.keyPanSpeed = 25;
+// Arrow keys pressed in a slider or other form control belong to that control, not to the camera
+addEventListener('keydown', (e) => { if (e.key.startsWith('Arrow') && e.target.closest?.('input, select, textarea, summary, #bld-list')) e.stopPropagation(); }, true);
+controls.listenToKeyEvents(window);
+renderer.domElement.setAttribute('role', 'img');
+
+scene.add(new THREE.HemisphereLight(0xdfe7ea, 0x6b6250, 1.1));
+const sun = new THREE.DirectionalLight(0xfff1dc, 2.2);
+sun.position.set(-170 * K, 260 * K, 190 * K);            // afternoon sun from the south-west (plan bottom-left)
+sun.castShadow = true;
+const smallScreen = matchMedia('(max-width: 720px), (pointer: coarse)').matches;
+sun.shadow.mapSize.setScalar(smallScreen ? 2048 : 4096);   // a lighter shadow map on phones and tablets
+Object.assign(sun.shadow.camera, { left: -260 * K, right: 260 * K, top: 200 * K, bottom: -200 * K, near: 10, far: 900 * K });
+sun.shadow.bias = -0.0004;
+sun.shadow.normalBias = 0.4;
+scene.add(sun);
+
+
+// ---------- Ground: the plan itself ----------
+const texLoader = new THREE.TextureLoader();
+const hideLoading = () => { document.getElementById('loading').hidden = true; };
+const planTex = texLoader.load('assets/thurley-fig53-baynards-plan.jpg', hideLoading, undefined, hideLoading);   // also cleared if the plan image fails to load
+setTimeout(hideLoading, 8000);
+planTex.colorSpace = THREE.SRGBColorSpace;
+planTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+// The edge of the land, west to east, read off fig. 53: the waterfront running in from the west, the garden's river wall,
+// and the river face of the house between its corner towers. East of the house the plan stops at a short stub of wall,
+// so the last two points (a straight bank running east) are an ESTIMATE.
+const SHORE = [[-6000, 1180], [0, 1219], [600, 1300], [790, 1314], [822, 1343], [1076, 1377], [1100, 1398], [1310, 1400], [9000, 1400]];
+// Levels. Height 0 in the model is the ground surface of the house. NONE of the levels below comes from a source used for
+// this model: fig. 53 is a plan and gives no heights. They are the figures the template used for Whitehall (ground about
+// 2.7 m above the foreshore at the foot of the river wall), kept as ESTIMATES so that the Tide control still works.
+const OD0 = -2.7;                        // model height taken as 0 m OD (estimate)
+const FOOT = OD0, BED_Y = -5.2, FORE = 60;   // foreshore level at the foot of the river wall; channel bed; width of the foreshore slope (m)
+const TIDE_LOW = OD0 - 1.0, TIDE_HIGH = -0.6;
+const WATER_Y = TIDE_LOW + (TIDE_HIGH - TIDE_LOW) * .38;   // the level the Tide control opens at
+const RIVER = { water: null, tide: (WATER_Y - TIDE_LOW) / (TIDE_HIGH - TIDE_LOW), hooks: [] };
+function flatShape(pts, y, mat, planUV = false) {
+  const geo = new THREE.ShapeGeometry(new THREE.Shape(pts.map(([x, py]) => new THREE.Vector2(wx(x), -wz(py)))));
+  if (planUV) {   // map the plan image by plan pixel, so the cut-out keeps the image registered
+    const pos = geo.attributes.position, uv = geo.attributes.uv;
+    for (let i = 0; i < pos.count; i++) uv.setXY(i, (pos.getX(i) / S + CX) / IMG_W, 1 - (-pos.getY(i) / S + CY) / IMG_H);
+  }
+  const m = new THREE.Mesh(geo, mat);
+  m.rotation.x = -Math.PI / 2; m.position.y = y; m.receiveShadow = true;
+  scene.add(m); return m;
+}
+flatShape([[-6000, -6000], [9000, -6000], ...SHORE.slice().reverse()], -0.05, new THREE.MeshStandardMaterial({ color: 0x8c9468, roughness: 1 }));
+const planLand = [[0, 0], [IMG_W, 0], ...SHORE.slice(1, -1).reverse()];
+flatShape(planLand, -0.02, new THREE.MeshStandardMaterial({ color: 0xbdb49a, roughness: 1 }));
+const planMat = new THREE.MeshStandardMaterial({ map: planTex, roughness: 1, transparent: true, opacity: 1 });
+flatShape(planLand, 0.02, planMat, true);
+// ---------- Ground cover ----------
+// A layer over the plan, with its own opacity control. Fig. 53 labels the GARDEN and the COURT but shows no surfaces, and
+// Wyngaerde's view does not show the ground, so every surface here is an ESTIMATE: grass in the garden, gravel in the
+// court, packed earth elsewhere.
+const coverMats = [];
+{
+  const speck = (base, dots, n, r0, r1) => canvasTex(256, 256, (x, w, h) => {
+    x.fillStyle = base; x.fillRect(0, 0, w, h); let sd = 7;
+    const rnd = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
+    for (let k = 0; k < n; k++) { x.fillStyle = dots[Math.floor(rnd() * dots.length)]; const r = r0 + rnd() * (r1 - r0); x.beginPath(); x.ellipse(rnd() * w, rnd() * h, r, r * (.7 + rnd() * .5), rnd() * 3, 0, 7); x.fill(); }
+  });
+  const mat = (tex, metres) => { tex.repeat.set(1 / metres, 1 / metres); const m = new THREE.MeshStandardMaterial({ map: tex, roughness: 1, transparent: true, opacity: .9, depthWrite: false }); coverMats.push(m); return m; };
+  const earthM = mat(speck('#b9ab8c', ['#a89a7c', '#c7ba9c', '#9d9075', '#cfc4a8'], 2600, .8, 2.2), 6);
+  const gravelM = mat(speck('#d6caa6', ['#c8bb96', '#e2d8b8', '#bdb08c'], 3200, .6, 1.4), 5);
+  const grassM = mat(speck('#7d9258', ['#718650', '#889d62', '#6a7d4a', '#93a66c'], 3000, .8, 2.4), 7);
+  const lay = (pts, y, m, from, to) => { const o = flatShape(pts, y, m); o.renderOrder = .5 + y; if (from) Object.assign(o.userData, { fixture: true, fixtureFrom: from, fixtureTo: to ?? null }); return o; };
+  lay(planLand, .028, earthM);
+  lay(GARDEN_POLY, .031, grassM, 1, 1551);            // the garden of fig. 53, until the extension of about 1550
+  lay(SECOND_COURT_POLY, .033, gravelM, 1551, 1667);  // the second court (outline and surface estimated)
+  lay(COURT_POLY, .033, gravelM);
+}
+
+// ---------- Thurley's plan as an overlay ----------
+// The template switched between Thurley's phase plans by year. Only one plan of this house is among the sources (fig. 53,
+// c. 1540), and it is also the base plan, so it sits on itself with no fitting: plate pixel (u, v) -> plan pixel
+// (a*u - b*v + tx, b*u + a*v + ty) with a = 1, b = 0. A further plan for another period can be added as a second entry.
+const THURLEY = [
+  { from: 1501, to: 1551, label: 'fig. 53, c. 1540', note: "Thurley's conjectural plan of the Thames waterfront from Bridewell to Baynard's Castle about 1540, “from archaeological and documentary evidence”. It is the only plan of the house among the sources used, so it is shown from the rebuilding of about 1501 until the west extension of about 1550 replaced the garden it shows. The caption does not say which lines are excavated and which conjectural.", src: 'assets/thurley-fig53-baynards-plan.jpg', w: 1310, h: 1730, a: 1, b: 0, tx: 0, ty: 0, frame: [0, 0, 1310, 1730] },
+];
+const thurleyLayers = THURLEY.map((t) => {
+  const [u0, v0, u1, v1] = t.frame, map = (u, v) => P(t.a * u - t.b * v + t.tx, t.b * u + t.a * v + t.ty, 0.06);
+  const corners = [map(u0, v0), map(u1, v0), map(u1, v1), map(u0, v1)];
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(corners.flatMap((c) => [c.x, c.y, c.z]), 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute([u0 / t.w, 1 - v0 / t.h, u1 / t.w, 1 - v0 / t.h, u1 / t.w, 1 - v1 / t.h, u0 / t.w, 1 - v1 / t.h], 2));
+  geo.setIndex([0, 2, 1, 0, 3, 2]);
+  // clean the photograph: page tone to white, lines to dark red, so it reads over the ground
+  const tex = new THREE.CanvasTexture(document.createElement('canvas'));
+  const img = new Image(); img.src = t.src;
+  img.onload = () => {
+    const c = tex.image; c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+    const d = x.getImageData(0, 0, c.width, c.height), p = d.data;
+    for (let i = 0; i < p.length; i += 4) {
+      const l = (p[i] + p[i + 1] + p[i + 2]) / 3, k = Math.max(0, Math.min(1, (l - 105) / 55));   // 0 = line, 1 = paper
+      p[i] = 255 * k + 200 * (1 - k); p[i + 1] = 255 * k; p[i + 2] = 255 * k;
+    }
+    x.putImageData(d, 0, 0); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8; tex.needsUpdate = true; refreshShadows();
+  };
+  const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tex, blending: THREE.MultiplyBlending, premultipliedAlpha: true, transparent: true, depthWrite: false }));
+  m.renderOrder = 1; m.visible = false; m.userData.phase = t; scene.add(m);
+  return m;
+});
+
+// The Thames, with a river wall along the shoreline read off the plan
+{
+  flatShape([[-6000, 1100], [9000, 1100], [9000, 9000], [-6000, 9000]], BED_Y, new THREE.MeshStandardMaterial({ color: 0x675f4e, roughness: 1 }));   // close to the mud of the foreshore, so no seam shows through the water
+  const water = flatShape([...SHORE, [9000, 9000], [-6000, 9000]], WATER_Y, new THREE.MeshStandardMaterial({ color: 0x55767c, roughness: 0.25, metalness: 0.1, transparent: true, opacity: 0.82 }));
+  water.receiveShadow = false; RIVER.water = water;
+  // The Thames is tidal here. A sloping foreshore of mud and shingle runs out from the foot of the river wall, covered
+  // at high water and exposed at low water (see the Tide control). Its slope and width are estimates.
+  const mudM = new THREE.MeshStandardMaterial({ color: 0x6f6553, roughness: 1 });
+  const pos = [], idx = [];
+  const shoreNear = SHORE.filter(([x]) => x > -400 && x < 1700);
+  for (let i = 0; i < shoreNear.length - 1; i++) {
+    const [ax, ay] = shoreNear[i], [bx, by] = shoreNear[i + 1];
+    const a = P(ax, ay), b = P(bx, by), d = b.clone().sub(a), n = new THREE.Vector3(-d.z, 0, d.x).normalize();   // points into the river
+    const k = pos.length / 3;
+    for (const [p, off, y] of [[a, 0, FOOT], [b, 0, FOOT], [a, FORE, BED_Y + .05], [b, FORE, BED_Y + .05]]) pos.push(p.x + n.x * (off + .35), y, p.z + n.z * (off + .35));
+    idx.push(k, k + 2, k + 1, k + 1, k + 2, k + 3);
+  }
+  const mg = new THREE.BufferGeometry(); mg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); mg.setIndex(idx); mg.computeVertexNormals();
+  const mud = new THREE.Mesh(mg, mudM); mudM.side = THREE.DoubleSide; mud.receiveShadow = true; scene.add(mud);
+  const wallMat = new THREE.MeshStandardMaterial({ map: ashlar('#9a9282', 20, false), roughness: 1 });
+  for (let i = 0; i < SHORE.length - 1; i++) {
+    const a = P(...SHORE[i]), b = P(...SHORE[i + 1]);
+    const len = a.distanceTo(b);
+    const w = new THREE.Mesh(tiledBox(len + 0.6, -BED_Y, 0.6, 2.4, 2.4), wallMat);
+    w.position.set((a.x + b.x) / 2, BED_Y / 2, (a.z + b.z) / 2);
+    w.rotation.y = -Math.atan2(b.z - a.z, b.x - a.x);
+    w.receiveShadow = true; scene.add(w);
+  }
+}
+
+
+// ---------- Materials ----------
+function facadeTexture({ wall, glass = '#2b3338', frame = '#e3dccb', ww = 40, wh = 64, wy = 34, mullions = true, courses = true, checker = false, pediment = false, rustic = false }) {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d');
+  g.fillStyle = wall; g.fillRect(0, 0, 128, 128);
+  if (checker) {
+    for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) if ((i + j) % 2) { g.fillStyle = '#3d4144'; g.fillRect(i * 16, j * 16, 16, 16); }
+  }
+  for (let i = 0; i < 700; i++) {
+    g.fillStyle = `rgba(${Math.random() < .5 ? '0,0,0' : '255,255,255'},${Math.random() * 0.07})`;
+    g.fillRect(Math.random() * 128, Math.random() * 128, 4, 2);
+  }
+  if (courses) { g.fillStyle = 'rgba(0,0,0,0.05)'; for (let y = 0; y < 128; y += 5) g.fillRect(0, y, 128, 1); }
+  if (rustic) { g.fillStyle = 'rgba(0,0,0,0.08)'; for (let y = 0; y < 128; y += 16) g.fillRect(0, y, 128, 2); }
+  const x = (128 - ww) / 2;
+  g.fillStyle = frame; g.fillRect(x - 4, wy - 4, ww + 8, wh + 8);
+  if (pediment) { g.beginPath(); g.moveTo(x - 8, wy - 6); g.lineTo(64, wy - 18); g.lineTo(x + ww + 8, wy - 6); g.closePath(); g.fill(); }
+  g.fillStyle = glass; g.fillRect(x, wy, ww, wh);
+  if (mullions) { g.fillStyle = frame; g.fillRect(63, wy, 3, wh); g.fillRect(x, wy + wh * 0.32, ww, 3); }
+  g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(0, 124, 128, 4);   // storey band
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  return t;
+}
+const allMats = [];
+const M = (opts) => { const m = new THREE.MeshStandardMaterial({ roughness: 0.9, ...opts }); allMats.push(m); return m; };
+const wallColors = { brick: '#9a4f3a', tudor: '#7d4a3c', stone: '#d6ccb4', render: '#c9b893', checker: '#d8d0bc', grey: '#c6c4bb', hall: '#cbc4b2', lime: '#e4dcc8', darkstone: '#8c8679' };
+const mats = {
+  brick:  M({ map: facadeTexture({ wall: wallColors.brick }) }),
+  tudor:  M({ map: facadeTexture({ wall: wallColors.tudor, ww: 34, wh: 48, wy: 44, frame: '#cfc4ad' }) }),
+  stone:  M({ map: facadeTexture({ wall: wallColors.stone, ww: 34, wh: 66, wy: 36, frame: '#efe8d8', glass: '#30373b', pediment: true, rustic: true, courses: false, mullions: false }) }),
+  render: M({ map: facadeTexture({ wall: wallColors.render, ww: 36, wh: 56, wy: 40, frame: '#f0ead9' }) }),
+  hall: M({ map: ashlar('#cbc4b2', 16, false) }),
+  darkstone: M({ map: ashlar('#8c8679', 16, false) }),
+  lime: M({ map: facadeTexture({ wall: '#e4dcc8', ww: 36, wh: 54, wy: 40, frame: '#f2ede0' }) }),
+  grey: M({ map: facadeTexture({ wall: wallColors.grey, ww: 34, wh: 52, wy: 42, frame: '#ece8dc' }) }),
+  checker: M({ map: facadeTexture({ wall: wallColors.checker, ww: 22, wh: 40, wy: 48, checker: true, courses: false }) }),
+};
+const plain = Object.fromEntries(Object.entries(wallColors).map(([k, v]) => [k, M({ color: v })]));
+const roofs = {
+  slate: M({ color: 0x59636b, roughness: 0.8 }),
+  lead:  M({ color: 0x8a9196, roughness: 0.55, metalness: 0.15 }),
+  tile:  M({ color: 0x86493a, roughness: 0.95 }),
+};
+const dark = M({ color: 0x23282b });
+const white = M({ color: 0xe9e5da });
+const gilt = M({ color: 0xc19a3c, metalness: 0.6, roughness: 0.4 });
+const leaf = M({ color: 0x4f6b3a, roughness: 1, flatShading: true });
+const bark = M({ color: 0x5a4632 });
+
+// ---------- Geometry helpers ----------
+function facadeBox(w, h, d) {
+  const geo = new THREE.BoxGeometry(w, h, d);
+  const uv = geo.attributes.uv;
+  const ext = [d, d, 0, 0, w, w];   // +x, -x, +y, -y, +z, -z
+  for (let f = 0; f < 6; f++) for (let k = 0; k < 4; k++) {
+    const i = f * 4 + k;
+    if (!ext[f]) { uv.setXY(i, 0.02, 0.02); continue; }
+    uv.setXY(i, uv.getX(i) * Math.max(1, Math.round(ext[f] / BAY)), uv.getY(i) * Math.max(1, Math.round(h / STOREY)));
+  }
+  return geo;
+}
+// Hip or gable roof, ridge along local x. Group 0 = roof slopes, group 1 = gable ends (wall).
+function roofGeo(w, d, rh, hip) {
+  const r = hip ? Math.max(0, w / 2 - d / 2) : w / 2;
+  const A = [-w / 2, 0, -d / 2], B = [w / 2, 0, -d / 2], C = [w / 2, 0, d / 2], D = [-w / 2, 0, d / 2];
+  const R1 = [-r, rh, 0], R2 = [r, rh, 0];
+  const slopes = [A, R1, R2, A, R2, B, C, R2, R1, C, R1, D];
+  const ends = [B, R2, C, D, R1, A];
+  const pos = [...slopes, ...ends].flat();
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.computeVertexNormals();
+  geo.addGroup(0, slopes.length, 0);
+  geo.addGroup(slopes.length, ends.length, hip ? 0 : 1);
+  return geo;
+}
+function mesh(geo, mat, shadow = true) {
+  const m = new THREE.Mesh(geo, mat);
+  m.castShadow = shadow; m.receiveShadow = true;
+  return m;
+}
+function ogeeCap(r, h, mat) {
+  const pts = [[r * 1.08, 0], [r * 1.12, h * .06], [r * 1.0, h * .25], [r * .7, h * .5], [r * .3, h * .72], [r * .12, h * .86], [r * .08, h], [0, h]]
+    .map(([x, y]) => new THREE.Vector2(x, y));
+  return mesh(new THREE.LatheGeometry(pts, 8), mat);
+}
+function turret(r, h, wallMat, capMat = roofs.lead, capH = r * 2.6) {
+  const g = new THREE.Group();
+  const body = mesh(new THREE.CylinderGeometry(r, r, h, 8), wallMat); body.position.y = h / 2; g.add(body);
+  const cap = ogeeCap(r, capH, capMat); cap.position.y = h; g.add(cap);
+  const fin = mesh(new THREE.SphereGeometry(r * .16, 8, 6), gilt); fin.position.y = h + capH + r * .12; g.add(fin);
+  return g;
+}
+function lantern(r, h, wallMat = white, capMat = roofs.lead) {
+  return turret(r, h, wallMat, capMat, r * 2.2);
+}
+function crenellate(g, w, d, y, mat, size = 0.7) {
+  const merlon = new THREE.BoxGeometry(size, size * 1.2, size);
+  const edge = (len, fn) => { const n = Math.floor(len / (size * 2)); for (let i = 0; i <= n; i++) fn(-len / 2 + i * (len / n)); };
+  const add = (x, z) => { const m = mesh(merlon, mat); m.position.set(x, y + size * .6, z); g.add(m); };
+  edge(w, (x) => { add(x, -d / 2 + size / 2); add(x, d / 2 - size / 2); });
+  edge(d, (z) => { add(-w / 2 + size / 2, z); add(w / 2 - size / 2, z); });
+}
+
+// ---------- Building factory ----------
+// def: c=[px,py] centre on plan, w=length along angle a (plan px), d=depth (plan px), a=degrees (plan, y-down),
+//      h=eaves height (m), roof: gable|hip|flat, rh=roof rise (m), mat, roofMat
+const buildings = [], labels = [];
+function block(def) {
+  const w = def.w * S, d = def.d * S, h = def.h;
+  const g = new THREE.Group();
+  const wallMat = mats[def.mat || 'brick'];
+  const body = mesh(facadeBox(w, h, d), wallMat); body.position.y = h / 2; g.add(body);
+  const roofMat = roofs[def.roofMat || 'slate'];
+  const roof = def.roof || 'gable';
+  let top = h;
+  if (roof === 'flat') {
+    const cap = mesh(new THREE.BoxGeometry(w + .3, .5, d + .3), roofMat); cap.position.y = h + .25; g.add(cap); top = h + .5;
+  } else {
+    const rh = def.rh ?? Math.min(Math.min(w, d) * 0.36, 4.4);   // a single-pile roof: the views show no roofs as tall as a wide block under one steep pitch would need
+    const long = w >= d;
+    const rg = roofGeo(long ? w + .6 : d + .6, long ? d + .6 : w + .6, rh, roof === 'hip');
+    const r = mesh(rg, [roofMat, plain[def.mat || 'brick']]);
+    r.position.y = h; if (!long) r.rotation.y = Math.PI / 2;
+    g.add(r); top = h + rh;
+  }
+  g.position.copy(P(def.c[0], def.c[1]));
+  g.rotation.y = -(def.a || 0) * DEG;
+  g.userData = { def, w, d, h, top };
+  return g;
+}
+// Names that changed over time: def.names = [[from, to, name, short], ...] (none yet at this house: the sources used give one set of names)
+const nameAt = (def, y) => { const n = (def.names || []).find(([a, b]) => y >= a && y < b); return n ? { name: n[2], short: n[3] || n[2] } : { name: def.name, short: def.short || def.name }; };
+function register(g, def) {
+  g.userData.def = def;
+  g.userData.top = g.userData.top ?? def.h;
+  scene.add(g);
+  buildings.push(g);
+  if (def.label) {
+    const el = document.createElement('div');
+    el.className = 'label' + (def.label === 'minor' ? ' minor' : '');
+    el.textContent = def.short || def.name; g.userData.labelEl = el;
+    const lab = new CSS2DObject(el);
+    lab.position.set(g.userData.labelAt?.x ?? 0, (g.userData.top || def.h) + 4, g.userData.labelAt?.z ?? 0);   // labelAt: for groups left at the origin
+    g.add(lab);
+    labels.push({ lab, g });
+  }
+  return g;
+}
+const NO_STACKS = /shed|stable|gallery|hall|chapel|banqueting|masquing|tennis|stair|bastion|projection|cloister|gate|kitchen/i;
+const add = (def, extra) => {
+  const g = block(def), u = g.userData;
+  if (extra) extra(g, u);
+  else if (def.h >= 6 && def.roof !== 'flat' && Math.min(u.w, u.d) > 4 && !NO_STACKS.test(def.name || '')) {
+    // every lodging in the views has brick chimney stacks on its roof; plain blocks get one or two on the ridge
+    const long = u.w >= u.d, len = Math.max(u.w, u.d), at = len > 10 ? [-len / 4, len / 4] : [0];
+    chimneys(g, at.map((t) => (long ? [t, 0] : [0, t])), u.h + (u.top - u.h) * .55, 3.2);
+  }
+  return register(g, def);
+};
+// A first-floor gallery over lower storeys. Thurley marks these galleries "(above)": the gallery is on the first floor,
+// over rooms (lower: 'rooms') or, for the Stone Gallery, over a second gallery (lower: 'gallery'). Shown by a string course at
+// first-floor level, a continuous run of tall gallery windows above, and smaller windows and doors to the rooms below.
+const galFrameM = M({ color: 0xd8cfbc, roughness: .9 }), galGlassM = M({ color: 0x2b3338, roughness: .3 }), galDoorM = M({ color: 0x4a3a2a, roughness: 1 });
+function galleryOverRooms(g, u, { lower = 'rooms', doors = 3, faces = [1, -1] } = {}) {
+  const fl = Math.max(3.2, u.h * .45), up = u.h - fl, bay = 3.4, n = Math.max(2, Math.floor(u.w / bay));
+  const frameG = new THREE.BoxGeometry(2.0, up * .66, .14), glassG = new THREE.BoxGeometry(1.6, up * .58, .16);
+  const lowG = lower === 'gallery' ? new THREE.BoxGeometry(1.5, fl * .5, .16) : new THREE.BoxGeometry(.9, 1.1, .16), doorG = new THREE.BoxGeometry(1.2, 2.3, .18);
+  const parts = [[frameG, galFrameM], [glassG, galGlassM], [lowG, galGlassM], [doorG, galDoorM]].map(([geo, mat]) => ({ geo, mat, m: [] }));
+  const m4 = new THREE.Matrix4();
+  for (const sz of faces) {
+    const z = sz * (u.d / 2 + .08);
+    const band = mesh(new THREE.BoxGeometry(u.w + .25, .32, .2), galFrameM); band.position.set(0, fl, z); g.add(band);
+    for (let i = 0; i < n; i++) {
+      const x = -u.w / 2 + u.w * (i + .5) / n;
+      parts[0].m.push(m4.clone().makeTranslation(x, fl + up * .5, z)); parts[1].m.push(m4.clone().makeTranslation(x, fl + up * .5, z + sz * .02));
+    }
+    const lowN = lower === 'gallery' ? n : Math.max(2, Math.floor(u.w / 5.5));
+    for (let i = 0; i < lowN; i++) parts[2].m.push(m4.clone().makeTranslation(-u.w / 2 + u.w * (i + .5) / lowN, lower === 'gallery' ? fl * .5 : fl * .55, z));
+    if (lower === 'rooms') for (let i = 0; i < doors; i++) parts[3].m.push(m4.clone().makeTranslation(-u.w / 2 + u.w * (i + .5) / doors + 1.6, 1.15, z));
+  }
+  for (const p of parts) if (p.m.length) { const im = new THREE.InstancedMesh(p.geo, p.mat, p.m.length); p.m.forEach((mm, i) => im.setMatrixAt(i, mm)); im.castShadow = true; im.receiveShadow = true; g.add(im); }
+}
+
+
+const chimneyM = M({ color: 0x8f4b38 }), capM = M({ color: 0x6b382b }), paneM = M({ color: 0x2b3236, roughness: .4 });
+const whiteM = M({ color: 0xebe6d9 });
+const leadedM = M({ roughness: .4, map: canvasTex(64, 128, (x, w, h) => {
+  x.fillStyle = '#2b3236'; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(205,210,200,.3)';
+  for (let i = -h; i < w + h; i += 8) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + h, h); x.moveTo(i + h, 0); x.lineTo(i, h); x.stroke(); }
+  x.fillStyle = '#a8442e'; x.fillRect(w / 2 - 3, 0, 6, h); x.fillRect(0, h * .55, w, 5);
+}) });
+const glazeM = M({ roughness: .3, map: canvasTex(128, 128, (x, w, h) => {
+  x.fillStyle = '#3b474c'; x.fillRect(0, 0, w, h); x.fillStyle = '#e4dfd2';
+  for (let i = 0; i <= w; i += 16) x.fillRect(i - 1, 0, 3, h);
+  for (let j = 0; j <= h; j += 32) x.fillRect(0, j - 1, w, 3);
+}) });
+glazeM.map.repeat.set(6, 1);
+function chimneys(g, pts, base, hgt = 4) {
+  for (const [x, z] of pts) {
+    const c = mesh(new THREE.BoxGeometry(.9, hgt, .75), chimneyM); c.position.set(x, base + hgt / 2, z); g.add(c);
+    const cap = mesh(new THREE.BoxGeometry(1.15, .35, 1.0), capM); cap.position.set(x, base + hgt + .17, z); g.add(cap);
+  }
+}
+// Dormers on the slope of a roof whose ridge runs along local x.
+function dormers(g, u, n, side = -1, mat = plain.render, rh = 4) {
+  const span = u.w * .8, z = side * u.d * .28, y = u.h + rh * .44;
+  for (let i = 0; i < n; i++) {
+    const x = -span / 2 + span * (i + .5) / n;
+    const b = mesh(new THREE.BoxGeometry(1.3, 1.5, 1.8), mat); b.position.set(x, y + .45, z); g.add(b);
+    const w = mesh(new THREE.PlaneGeometry(.75, .9), paneM, false); w.position.set(x, y + .45, z + side * .91); w.rotation.y = side < 0 ? Math.PI : 0; g.add(w);
+    const r = mesh(roofGeo(1.9, 1.6, .8, false), [roofs.tile, mat]); r.rotation.y = Math.PI / 2; r.position.set(x, y + 1.2, z); g.add(r);
+  }
+}
+// Gables facing the park on a roof whose ridge runs along local x
+function crossGables(g, xs, h, d, mat, width = 3, rise = 2.6, side = -1, roofMat = roofs.tile) {
+  for (const x of xs) {
+    const r = mesh(roofGeo(3.9, width, rise, false), [roofMat, mat]); r.rotation.y = Math.PI / 2; r.position.set(x, h, side * (d / 2 - 1.65)); g.add(r);
+  }
+}
+// Perpendicular (late Gothic) traceried window: straight jambs and a pointed head
+const traceryM = M({ roughness: .35, map: canvasTex(64, 128, (x, w, h) => {
+  x.fillStyle = '#2a3135'; x.fillRect(0, 0, w, h);
+  x.fillStyle = '#d9d2c0';
+  for (const f of [.25, .5, .75]) x.fillRect(w * f - 2, 0, 4, h);
+  for (const f of [.45, .7]) x.fillRect(0, h * f, w, 3);
+  x.strokeStyle = '#d9d2c0'; x.lineWidth = 3;
+  for (const f of [.25, .5, .75]) { x.beginPath(); x.arc(w * f, h * .18, w * .11, 0, Math.PI * 2); x.stroke(); }
+}) });
+function pointedWindowGeo(w, hgt) {
+  const hs = hgt - w * .62, s = new THREE.Shape();
+  s.moveTo(-w / 2, 0); s.lineTo(w / 2, 0); s.lineTo(w / 2, hs);
+  s.quadraticCurveTo(w / 2, hs + w * .45, 0, hgt); s.quadraticCurveTo(-w / 2, hs + w * .45, -w / 2, hs); s.lineTo(-w / 2, 0);
+  const geo = new THREE.ShapeGeometry(s, 8), pos = geo.attributes.position, uv = geo.attributes.uv;
+  for (let i = 0; i < pos.count; i++) uv.setXY(i, pos.getX(i) / w + .5, pos.getY(i) / hgt);
+  return geo;
+}
+function gothicSides(g, u, n, wW, wH, y0, mat, pin = true) {
+  for (const sz of [-1, 1]) {
+    for (let i = 0; i < n; i++) {
+      const x = -u.w / 2 + u.w * (i + .5) / n;
+      const w = mesh(pointedWindowGeo(wW, wH), traceryM, false); w.position.set(x, y0, sz * (u.d / 2 + .03)); w.rotation.y = sz < 0 ? Math.PI : 0; g.add(w);
+    }
+    for (let i = 0; i <= n; i++) {
+      const x = -u.w / 2 + u.w * i / n;
+      const b = mesh(new THREE.BoxGeometry(.9, u.h + .6, 1.1), mat); b.position.set(x, (u.h + .6) / 2, sz * (u.d / 2 + .5)); g.add(b);
+      if (pin) { const p = mesh(new THREE.ConeGeometry(.38, 2.4, 4), mat); p.position.set(x, u.h + 1.8, sz * (u.d / 2 + .5)); p.rotation.y = Math.PI / 4; g.add(p); }
+    }
+  }
+}
+// Projecting bay window of stone with leaded casements, on the face at z (projecting towards side)
+const casementM = M({ roughness: .4, map: canvasTex(64, 64, (x, w, h) => {
+  x.fillStyle = '#2b3236'; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(205,210,200,.3)';
+  for (let i = -h; i < w + h; i += 7) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + h, h); x.moveTo(i + h, 0); x.lineTo(i, h); x.stroke(); }
+  x.fillStyle = '#ddd5c2'; for (const f of [.33, .66]) x.fillRect(w * f - 2, 0, 4, h); x.fillRect(0, h * .35, w, 4);
+  x.lineWidth = 5; x.strokeStyle = '#ddd5c2'; x.strokeRect(0, 0, w, h);
+}) });
+function bayWindow(g, x, z, side, y0, hgt, wid = 2.6, dep = .8, mat = plain.stone) {
+  const b = mesh(new THREE.BoxGeometry(wid, hgt, dep), mat); b.position.set(x, y0 + hgt / 2, z + side * dep / 2); g.add(b);
+  const floors = Math.max(1, Math.round(hgt / 3.4));
+  for (let k = 0; k < floors; k++) {
+    const w = mesh(new THREE.PlaneGeometry(wid - .45, 2.0), casementM, false);
+    w.position.set(x, y0 + 1.5 + k * hgt / floors, z + side * (dep + .02)); w.rotation.y = side < 0 ? Math.PI : 0; g.add(w);
+  }
+  const cap = mesh(new THREE.BoxGeometry(wid + .2, .3, dep + .2), mat); cap.position.set(x, y0 + hgt + .15, z + side * dep / 2); g.add(cap);
+}
+function canvasTex(w, h, draw) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+function ashlar(color, course, rustic) {
+  return canvasTex(128, 128, (g, w, h) => {
+    g.fillStyle = color; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 600; i++) { g.fillStyle = `rgba(${Math.random() < .5 ? '0,0,0' : '255,255,255'},${Math.random() * .06})`; g.fillRect(Math.random() * w, Math.random() * h, 5, 3); }
+    g.fillStyle = rustic ? 'rgba(40,30,20,.35)' : 'rgba(40,30,20,.16)';
+    for (let y = 0, r = 0; y < h; y += course, r++) {
+      g.fillRect(0, y, w, rustic ? 3 : 1);
+      for (let x = (r % 2) * 32; x < w; x += 64) g.fillRect(x, y, rustic ? 2 : 1, course);
+    }
+  });
+}
+function tiledBox(w, h, d, tw, th) {
+  const geo = new THREE.BoxGeometry(w, h, d), uv = geo.attributes.uv, ext = [d, d, w, w, w, w], ver = [h, h, d, d, h, h];
+  for (let f = 0; f < 6; f++) for (let k = 0; k < 4; k++) { const i = f * 4 + k; uv.setXY(i, uv.getX(i) * ext[f] / tw, uv.getY(i) * ver[f] / th); }
+  return geo;
+}
+
+// ---------- Baynard's Castle, 1428–1666 ----------
+// WHAT RESTS ON WHAT (read this before changing anything):
+//  - Position, footprint and scale of the main house, garden and neighbours: Thurley, The Royal Palaces of Tudor England,
+//    fig. 53, a conjectural plan of c. 1540. Corner points below were read off a photograph of the printed page.
+//  - Phases, and what was excavated: Schofield with Maloney (eds), Archaeological excavations in the City of London
+//    1907–91 (Museum of London, text of 1998; "the gazetteer" below), entries GM152/BC72, BC74, UT74, BC75, BYD81:
+//      * the house rebuilt after 1428 was trapezoidal, four wings round a courtyard, with two multi-angular south
+//        corner towers; the SE tower was roughly octagonal, c. 8 m across, with a garderobe serving three floors;
+//      * the north wing had a north gate and gate tower, with a cobbled entrance from Thames Street;
+//      * Henry VII refaced the river front with five projecting towers between the two older corner towers;
+//      * about 1550 the house was enlarged to the west with three new wings of brick, faced with stone to the river.
+//    The gazetteer gives NO plan (its online version has no illustrations), so the extension's footprint is an ESTIMATE:
+//    three wings 8 m deep laid round the garden enclosure of fig. 53.
+//  - Appearance: fig. 51 (Wyngaerde, c. 1550 per Thurley) for the Tudor river front; Hollar's Long View of 1647
+//    (assets/hollar-long-view-1647.jpg, a detail of the Wikimedia Commons scan) and the reconstruction print of 1784 in
+//    Marsden 1972 for the extension's river front and the round tower at its west end. TOWER TOPS (corrected 16 Nov 2026 after a full-size reading
+//    of fig. 51; redraw approved by the user): Wyngaerde draws the south-west tower FLAT-TOPPED with a parapet band and two
+//    small turrets with pointed roofs at its top; Hollar in 1647 draws both polygonal towers flat-topped with no turrets.
+//    So both towers are flat-topped throughout, and the south-west tower carries two small capped turrets until 1646
+//    (TURRETS_UNTIL below). An earlier version gave each tower one large cone, from a low-resolution misreading.
+//  - Everything else (all heights, roofs away from the river, windows, uses of ranges, surfaces, levels) is an ESTIMATE,
+//    and each card says so. Fig. 53 names only the GARDEN, the COURT and the Watergate; other names are descriptions.
+//  - Decision recorded 16 Nov 2026 (user): before 1501 the house is drawn FAINT. That stays. With the gazetteer it is no
+//    longer a pure placeholder (the four wings and corner towers are evidenced from 1428), but its form above ground is unknown.
+wallColors.rag = '#b9b3a2';
+mats.rag = M({ map: facadeTexture({ wall: wallColors.rag, ww: 30, wh: 50, wy: 42, frame: '#d9d2c0' }) });
+plain.rag = M({ color: wallColors.rag });
+const FIG53 = 'Thurley’s fig. 53 (conjectural plan of the waterfront about 1540)';
+const FIG51 = 'Thurley’s fig. 51 (Wyngaerde’s view, which Thurley dates about 1550)';
+const GAZ = 'the Museum of London’s gazetteer of City excavations (Schofield and Maloney 1998)';
+const HOLLAR = 'Hollar’s Long View of London, 1647';
+const FIRE = 1667;   // the house burned in the Great Fire of September 1666: it is shown through 1666 and gone from 1667
+const DATE_OLD = 'Rebuilt after the fire of 1428 · altered c. 1501 · burned 1666 · shown faint before 1501';
+const DATE_1501 = 'c. 1501 (Stow) · burned 1666';
+const DATE_EXT = 'About 1550 (shown from 1551) · burned 1666';
+const EST_WALL = 'The pale stone colour is an estimate: the gazetteer gives chalk, ragstone and mortar for the foundations only.';
+const BEFORE_1501 = 'Before 1501 it is drawn faint: the excavations show that it stood, but nothing used here shows what it looked like above ground.';
+const card = (src, est) => `From the sources: ${src} Estimate: ${est}`;
+// a rectangle fitted to four corner points read off the plan (NW, NE, SE, SW)
+const rect4 = (nw, ne, se, sw) => {
+  const len = (p, q) => Math.hypot(q[0] - p[0], q[1] - p[1]);
+  return { c: [(nw[0] + ne[0] + se[0] + sw[0]) / 4, (nw[1] + ne[1] + se[1] + sw[1]) / 4], w: (len(nw, ne) + len(sw, se)) / 2, d: (len(nw, sw) + len(ne, se)) / 2,
+    a: (Math.atan2(ne[1] - nw[1], ne[0] - nw[0]) + Math.atan2(se[1] - sw[1], se[0] - sw[0])) / 2 / DEG };
+};
+// plan point -> local (x, z) of a placed building group
+const localOf = (g, px, py) => { const v = P(px, py).sub(g.position), a = g.rotation.y; return [v.x * Math.cos(a) - v.z * Math.sin(a), v.x * Math.sin(a) + v.z * Math.cos(a)]; };
+// Buildings on the river's edge get a stone base down to the foreshore, so nothing hangs in the air over the mud (estimate)
+const baseM = M({ map: ashlar('#8d8f80', 20, false) });
+const lodgeRailM = M({ color: 0x5a4632, roughness: 1 });   // timber rails
+const plinthBox = (g, w, d, x = 0, z = 0) => { const top = .06, bot = FOOT - .5; const p = mesh(new THREE.BoxGeometry(w, top - bot, d), baseM); p.position.set(x, (top + bot) / 2, z); g.add(p); };
+function prism(poly, h, mat) {
+  const geo = new THREE.ExtrudeGeometry(new THREE.Shape(poly.map(([x, y]) => new THREE.Vector2(wx(x), -wz(y)))), { depth: h, bevelEnabled: false });
+  geo.rotateX(-Math.PI / 2);
+  return mesh(geo, mat);
+}
+function wallLoop(pts, h, mat, closed = true, parent = scene) {
+  const n = closed ? pts.length : pts.length - 1;
+  for (let i = 0; i < n; i++) {
+    const a = P(...pts[i]), b = P(...pts[(i + 1) % pts.length]), len = a.distanceTo(b);
+    const w = mesh(new THREE.BoxGeometry(len + .4, h, .45), mat); w.position.set((a.x + b.x) / 2, h / 2, (a.z + b.z) / 2);
+    w.rotation.y = -Math.atan2(b.z - a.z, b.x - a.x); if (parent === scene) w.userData.fixture = true; parent.add(w);
+  }
+}
+// a flat, clickable surface (garden, court) registered like a building so that it has a card and a place in the list
+function ground(poly, def, y = .05) {
+  const g = new THREE.Group();
+  const m = prism(poly, y, new THREE.MeshStandardMaterial({ transparent: true, opacity: 0, depthWrite: false })); m.castShadow = false; g.add(m);
+  const cx = poly.reduce((s, p) => s + p[0], 0) / poly.length, cy = poly.reduce((s, p) => s + p[1], 0) / poly.length;
+  g.userData = { def, top: def.h ?? 1, labelAt: P(cx, cy) };
+  return g;
+}
+
+// --- The four ranges round the court (from 1428; altered c. 1501) ---
+const TURRETS_UNTIL = 1647;   // the small capped turrets on the south-west tower are gone from this year (Hollar); the true date lies between c. 1550 and 1647
+const RANGE_H = 11, RIVER_H = 12, TOWER_H = 17;   // all estimates: the views show the river front about three storeys high with the towers rising above it, but give no measure
+add({ name: 'West range', label: true, ...rect4([872, 978], [932, 982], [905, 1285], [824, 1272]), h: RANGE_H, mat: 'rag', roofMat: 'tile', to: FIRE, dates: DATE_OLD,
+  basis: 'Footprint: Thurley fig. 53 · Phases: excavation gazetteer · Appearance: estimate',
+  text: card(`${FIG53} shades a range here between the garden and the court, running back from the river. It widens a little towards the river; the model fits a rectangle to it. The plan also draws a small open rectangle, about 4 m by 10 m, inside the north end of this range (a small yard or light-well); it is not cut out of the model. According to ${GAZ}, the house rebuilt after the fire of 1428 was trapezoidal, with four wings round a courtyard, built entirely on reclaimed land; this is its west wing. From about 1550 it stood between the old court and the new one.`,
+    `the name “west range”, the height (${RANGE_H} m to the eaves), the tiled roof, the windows and the chimneys, and that the range kept one form from 1428 to 1666: Stow says Henry VII “repayred or rather new builded” the house about 1501, and how far this wing was altered then is not known. ${EST_WALL} ${BEFORE_1501}`) });
+add({ name: 'North range', label: true, ...rect4([932, 982], [992, 986], [990, 1065], [932, 1063]), h: RANGE_H, mat: 'rag', roofMat: 'tile', to: FIRE, dates: DATE_OLD,
+  basis: 'Footprint: Thurley fig. 53 · Phases: excavation gazetteer · Appearance: estimate',
+  text: card(`${FIG53} shades a block here closing the north side of the court, joined to the west range. According to ${GAZ}, the north side of the house lay on Thames Street, and its north wall reused the Roman riverside city wall as a foundation; the excavations of 1972–5 found part of this north wing.`,
+    `the name “north range”, the height (${RANGE_H} m), the roof, windows and chimneys, and that it kept one form from 1428 to 1666. ${EST_WALL} ${BEFORE_1501}`) });
+add({ name: 'North gate and gate tower', short: 'North gate', label: true, ...rect4([992, 986], [1022, 988], [1022, 1070], [990, 1065]), h: 14, mat: 'rag', roof: 'hip', roofMat: 'tile', rh: 2.4, to: FIRE, dates: DATE_OLD,
+  basis: 'Existence: excavation gazetteer · Position: my reading of Thurley fig. 53 · Appearance: estimate',
+  text: card(`${GAZ} records that the excavation of 1974 (site BC74) found the north gate and gate tower in the north wing of the medieval house, with the cobbled entrance from Thames Street, and that a chamber was found on the east side of the entrance. ${FIG53} leaves a gap about 5 m wide here, between the north and east ranges, leading from the north into the court.`,
+    `that the gate tower stood in that gap: the gazetteer gives no plan, so the position is my reading of the two sources together. Its whole appearance is estimated: a tower 14 m high over an arched passage. ${EST_WALL} An earlier version of this model left the gap open and said no gate was known; the excavation record corrects that. ${BEFORE_1501}`) },
+  (g, u) => {
+    for (const sz of [1, -1]) { const arch = mesh(new THREE.PlaneGeometry(Math.min(3, u.w - 1.2), 3.6), dark, false); arch.position.set(0, 1.8, sz * (u.d / 2 + .03)); if (sz < 0) arch.rotation.y = Math.PI; g.add(arch); }
+  });
+add({ name: 'East range', label: true, ...rect4([1022, 988], [1088, 993], [1076, 1311], [1005, 1300]), h: RANGE_H, mat: 'rag', roofMat: 'tile', to: FIRE, dates: DATE_OLD,
+  basis: 'Footprint: Thurley fig. 53 · Phases: excavation gazetteer · Appearance: estimate',
+  text: card(`${FIG53} shades a long range here down the east side of the court, from the north edge of the house to the river range. It is the east wing of the four-winged house rebuilt after 1428 (${GAZ}); the chamber excavated on the east side of the north entrance was at its north end.`,
+    `the name “east range”, the height (${RANGE_H} m), the roof, windows and chimneys, and that it kept one form from 1428 to 1666. ${EST_WALL} This part of the plan lies near the curled edge of the photographed page, so its east–west width may be drawn up to about 10% (1 m) too narrow. ${BEFORE_1501}`) });
+// The river range before Henry VII refaced it: the same footprint without the five towers
+const RIVER_RECT = rect4([822, 1272], [1076, 1311], [1076, 1376], [822, 1342]);
+add({ name: 'River range (before 1501)', short: 'River range', label: true, ...RIVER_RECT, h: RANGE_H, mat: 'rag', roofMat: 'tile', to: 1501, dates: 'Rebuilt after the fire of 1428 · refaced c. 1501 · always shown faint',
+  basis: 'Footprint: Thurley fig. 53 (later plan) · Phase: excavation gazetteer · Appearance: estimate',
+  text: card(`According to ${GAZ}, Henry VII “refaced the river frontage with a series of five projecting towers between the two pre-existing multi-angular S corner towers”. So before about 1501 the south wing of the house of 1428 stood here between the two corner towers, without the five towers.`,
+    'everything else. The footprint is that of the later range on Thurley’s plan of about 1540, less its projections; the height, roof and windows are guesses. It is drawn faint throughout because nothing used here shows it.') },
+  (g, u) => plinthBox(g, u.w + .1, u.d + .1));
+// plan positions of the small projecting towers on the river face, west to east (the Watergate is the fourth of the five)
+const BAYS = [[850, 1355], [893, 1362], [935, 1367], [1023, 1378]];
+add({ name: 'River range', label: true, ...RIVER_RECT, h: RIVER_H, mat: 'rag', roofMat: 'tile', rh: 4, from: 1501, to: FIRE, dates: DATE_1501,
+  basis: 'Footprint: Thurley fig. 53 · Phase: excavation gazetteer · River front: Wyngaerde (fig. 51) · Rest: estimate',
+  text: card(`${GAZ} records that Henry VII refaced the river frontage with five projecting towers between the two older corner towers; the excavation of 1972 found the corner tower and four of the adjoining turrets (Marsden 1972). ${FIG53} draws five projections on the river face: four small rounded or canted ones and the square Watergate, the fourth from the west. ${FIG51} shows this front from across the river as four broad gabled bays between taller, flat-topped corner towers, with the river door and stair between the second and third gables; ${HOLLAR} and the reconstruction print of 1784 show five or six narrow gabled turrets. Stow says the house as rebuilt was “not imbattoled”, so no battlements are shown.`,
+    `the height (${RIVER_H} m to the eaves), the size of the towers and their gables, the window pattern and the tiled roof. The four small towers here and the Watergate make up the five; their places follow Thurley’s plan. Compared closely, Wyngaerde’s four gables match the model’s four gabled towers in number but are much broader (about 9 m each, against 3.4 m here), and he puts the river door near the middle of the front where the plan puts the Watergate about two-thirds of the way east. The plan is followed. ${EST_WALL} The stone base down to the foreshore is an estimate. The date: Stow’s text of 1603 says “about the yeare 1501. the 16. of his raigne”, which Thurley quotes and the gazetteer follows; his text of 1598 prints “the 3. of his raigne”, and Marsden (1972) gives 1487. The model follows 1501.`) },
+  (g, u) => {
+    plinthBox(g, u.w + .1, u.d + .1);
+    for (const [px, py] of BAYS) {
+      const [x] = localOf(g, px, py), wid = 3.4, dep = 2.3, z = u.d / 2;
+      bayWindow(g, x, z, 1, 0, u.h, wid, dep, plain.rag);
+      plinthBox(g, wid, dep, x, z + dep / 2);
+      const L = dep + 4.5, r = mesh(roofGeo(L, wid + .5, 2.8, false), [roofs.tile, plain.rag]); r.rotation.y = Math.PI / 2; r.position.set(x, u.h + .3, z + dep + .25 - L / 2); g.add(r);
+    }
+    chimneys(g, [[-u.w * .3, -1.5], [0, -1.5], [u.w * .3, -1.5]], u.h + 2.2, 4);
+  });
+
+// --- Corner towers (from 1428) and watergate (c. 1501) ---
+function tower(c, rPx, def, extra, turrets = false) {
+  const r = rPx * S, PAR = 1.1, g = new THREE.Group();
+  const body = mesh(new THREE.CylinderGeometry(r, r, TOWER_H, 8), plain.rag); body.position.y = TOWER_H / 2; g.add(body);
+  // flat top behind a plain parapet band (Wyngaerde, Hollar). No battlements: Stow says the house was "not imbattoled".
+  const par = mesh(new THREE.CylinderGeometry(r * 1.05, r * 1.05, PAR, 8), plain.rag); par.position.y = TOWER_H + PAR / 2; g.add(par);
+  const roof = mesh(new THREE.CylinderGeometry(r * .94, r * .94, .2, 8), roofs.lead); roof.position.y = TOWER_H + PAR + .02; g.add(roof);
+  let top = TOWER_H + PAR;
+  if (turrets) {   // two small turrets with pointed roofs at the back of the tower top (Wyngaerde); size and place estimated
+    const tr = 1.1, th = 3.2, ch = 2.4, parts = [];
+    for (const sx of [-1, 1]) {
+      const t = mesh(new THREE.CylinderGeometry(tr, tr, th, 8), plain.rag); t.position.set(sx * r * .55, TOWER_H + PAR + th / 2, -r * .45); g.add(t);
+      const c2 = mesh(new THREE.ConeGeometry(tr * 1.15, ch, 4), roofs.lead); c2.rotation.y = Math.PI / 4; c2.position.set(sx * r * .55, TOWER_H + PAR + th + ch / 2, -r * .45); g.add(c2);
+      parts.push(t, c2);
+    }
+    YEAR_HOOKS.push((y) => {
+      const on = y < TURRETS_UNTIL; for (const m of parts) m.visible = on;
+      const lab = g.children.find((c) => c.isCSS2DObject); if (lab) lab.position.y = TOWER_H + PAR + (on ? th + ch : 0) + 4;   // the label follows the top of the tower
+    });
+    top += th + ch;
+  }
+  const base = mesh(new THREE.CylinderGeometry(r + .05, r + .05, .06 - (FOOT - .5), 8), baseM); base.position.y = (.06 + FOOT - .5) / 2; g.add(base);
+  for (let k = 0; k < 3; k++) for (const a of [0, 1, 2, 3, 4, 5, 6, 7]) {   // a window on each face of each of three floors
+    const ang = (a + .5) * Math.PI / 4, w = mesh(new THREE.PlaneGeometry(.7, 1.5), casementM, false), rr = r * Math.cos(Math.PI / 8) + .03;
+    w.position.set(Math.sin(ang) * rr, 3 + k * 4.6, Math.cos(ang) * rr); w.rotation.y = ang; g.add(w);
+  }
+  if (extra) extra(g, r);
+  g.position.copy(P(...c)); g.userData = { def, w: r * 2, d: r * 2, h: TOWER_H, top };
+  return register(g, def);
+}
+const TOWER_EST = `the height (${TOWER_H} m), the height of the parapet, the lead roof and the windows. ${EST_WALL} ${BEFORE_1501}`;
+tower([797, 1343], 28, { name: 'South-west tower', short: 'SW tower', label: 'minor', to: FIRE, dates: DATE_OLD, basis: 'Footprint: Thurley fig. 53 · Phase: excavation gazetteer · Top: Wyngaerde, Hollar · Rest: estimate',
+  text: card(`${FIG53} draws a polygonal tower projecting into the river at the south-west corner of the river front. ${GAZ} calls the two south corner towers “multi-angular” and older than Henry VII’s work, so it is shown from the rebuilding after 1428. ${FIG51} draws this tower rising above the roofs, flat-topped behind a parapet band, with two small turrets with pointed roofs standing at its top. In ${HOLLAR} a tall polygonal tower stands between the old front and the extension to the west, which I take to be this one; it is flat-topped there too, and the small turrets are gone.`,
+    `the size and place of the two small turrets, and the year they go: they are shown until 1646 because Hollar’s view of 1647 is the first without them, and the true date lies somewhere between about 1550 and 1647. Also the eight sides (by analogy with the south-east tower, which the excavators describe as roughly octagonal; Marsden’s caption of 1972 calls the excavated corner tower hexagonal), and ${TOWER_EST}`) }, null, true);
+tower([1078, 1375], 25, { name: 'South-east tower', short: 'SE tower', label: 'minor', to: FIRE, dates: DATE_OLD, basis: 'Footprint: Thurley fig. 53 · Form and date: excavation of 1981 · Rest: estimate',
+  text: card(`${FIG53} draws a polygonal tower at the south-east corner of the river front, with a stub of wall running east from it. ${GAZ} describes the excavation of this tower in 1981 (site BYD81): part of the rebuilding dated to 1428, roughly octagonal, about 8 m across, surviving 2.5 m high, founded on timber base-plates on piles. Hollar draws it flat-topped in 1647. Wyngaerde shows three small capped turrets above this end of the front, but I cannot tell whether they stand on this tower or on a building behind it, so none are modelled here. On its east side were a garderobe, with chutes serving three floors, and a river wall running east for at least 10 m. The model’s tower is 7.9 m across on Thurley’s plan, which agrees. The entry adds that this part of the castle was pulled down in 1666, though the river frontage stayed in use.`,
+    `${TOWER_EST} The three floors of windows follow the three floors the garderobe served; their form is a guess. The river wall to the east is drawn 10 m long and 4 m high.`) },
+  (g) => { const a = P(1078, 1375), b = P(1141, 1398), len = a.distanceTo(b); const w = mesh(new THREE.BoxGeometry(len, 4 - FOOT, .9), baseM); w.position.set((b.x - a.x) / 2, (4 + FOOT) / 2, (b.z - a.z) / 2); w.rotation.y = -Math.atan2(b.z - a.z, b.x - a.x); g.add(w); });
+add({ name: 'Watergate', label: true, c: [987, 1379], w: 28, d: 24, a: 8, h: RIVER_H + 1, mat: 'rag', roof: 'hip', roofMat: 'tile', rh: 2.6, from: 1501, to: FIRE, dates: DATE_1501,
+  basis: 'Position: Thurley fig. 53 · Phase: excavation gazetteer · Stair: Hollar 1647 · Rest: estimate',
+  text: card(`${FIG53} labels the “Watergate” here: a square projection from the river front, with two parallel lines running out from it into the river. It is the fourth of the five towers Henry VII added to the river front (${GAZ}). ${HOLLAR} and the reconstruction print of 1784 show a stair with arches beneath it running down to the river from about the middle of the front, and the Museum of London’s 2009 assessment speaks of “a set of large water stairs” on the early views.`,
+    `the tower’s height, arched doorway and roof. The stair’s place and length (about 7 m, straight out from the tower) follow Thurley’s plan; its form follows Hollar and the print of 1784: a railed stair carried on two arches, the outer one low. Both views show the stair running obliquely towards the west, where the plan draws it straight; the model follows the plan. The size of the arches, the timber rails and the level of the door are estimates, and the same stair is shown for every year from 1501, though the views that show its form date from 1647 and later. ${EST_WALL} An earlier version drew plain steps.`) },
+  (g, u) => {
+    plinthBox(g, u.w + .1, u.d + .1);
+    const arch = mesh(new THREE.PlaneGeometry(2.2, 3), dark, false); arch.position.set(0, 1.5, u.d / 2 + .03); g.add(arch);
+    // The water stair. POSITION and LENGTH from fig. 53 (two parallel lines running about 7 m straight out from the
+    // Watergate). FORM from Hollar 1647 and the print of 1784: a railed stair carried on arches down to the river.
+    // Both views show it running obliquely to the west; the plan shows it straight, and the plan wins.
+    const run = 7, wid = 2.8, bot = FOOT - .5, yAt = (z) => FOOT * z / run;
+    const side = new THREE.Shape([[0, 0], [run, FOOT], [run, bot], [0, bot]].map(([z, y]) => new THREE.Vector2(z, y)));
+    for (const [zc, w] of [[1.35, 1.9], [3.55, 1.5]]) {   // two arched openings under the stair; the outer one is low, as the stair is only 2.7 m high
+      const crown = yAt(zc + w / 2) - .38, spring = crown - w / 2, h = new THREE.Path();
+      h.moveTo(zc - w / 2, bot); h.lineTo(zc - w / 2, spring); h.absarc(zc, spring, w / 2, Math.PI, 0, true); h.lineTo(zc + w / 2, bot); h.closePath();
+      side.holes.push(h);
+    }
+    const sg = new THREE.ExtrudeGeometry(side, { depth: wid, bevelEnabled: false, curveSegments: 10 });
+    sg.rotateY(-Math.PI / 2); sg.translate(wid / 2, 0, u.d / 2);
+    g.add(mesh(sg, baseM));
+    const n = 12;
+    for (let i = 0; i < n; i++) { const st = mesh(new THREE.BoxGeometry(wid, .24, run / n + .04), baseM); st.position.set(0, yAt(run * (i + .5) / n) + .1, u.d / 2 + run * (i + .5) / n); g.add(st); }
+    const slope = Math.atan2(-FOOT, run), len = Math.hypot(run, FOOT);
+    for (const sx of [-1, 1]) {   // rails
+      const rail = mesh(new THREE.BoxGeometry(.1, .1, len), lodgeRailM); rail.position.set(sx * (wid / 2 - .08), FOOT / 2 + 1.05, u.d / 2 + run / 2); rail.rotation.x = slope; g.add(rail);
+      for (let i = 0; i <= 5; i++) { const z = run * i / 5, post = mesh(new THREE.BoxGeometry(.1, 1.05, .1), lodgeRailM); post.position.set(sx * (wid / 2 - .08), yAt(z) + .52, u.d / 2 + z); g.add(post); }
+    }
+  });
+
+// --- Garden (to c. 1550), court and river stairs ---
+{
+  const wallM = M({ map: ashlar('#a9a392', 18, false) });
+  const GDATE = 'On the plan of c. 1540 · start not known (faint before 1540) · built over about 1550';
+  const def = { name: 'Garden', label: true, h: 3, solidFrom: 1540, to: 1551, dates: GDATE, basis: 'Outline: Thurley fig. 53 · Walls and surface: estimate',
+    text: card(`${FIG53} labels the “GARDEN”: a walled enclosure about 38 m wide west of the house, reaching the river. The plan draws its river wall and the south end of its west wall in a much heavier line than the rest; the caption does not say what the heavier line means, so the model does not interpret it. ${GAZ} records medieval house frontages between the medieval castle and the East Watergate dock to the west, and a 15th-century river wall west of the castle was exposed in 1972, so this ground was not always a garden. About 1550 the house was enlarged to the west over it.`,
+      `the height of the walls (3 m), the grass, and the absence of any layout: no source used shows paths, beds or buildings in the garden. When it was laid out is not known, so it is drawn faint before about 1540, the date of the plan.`) };
+  const g = ground(GARDEN_POLY, def);
+  wallLoop([[822, 1296], [600, 1298], [632, 957], [872, 978]], 3, wallM, false, g);
+  register(g, def);
+  const cdef = { name: 'Court', label: 'minor', h: 1, to: FIRE, dates: DATE_OLD, basis: 'Outline: Thurley fig. 53 · Phase: excavation gazetteer · Surface: estimate',
+    text: card(`${FIG53} labels the “COURT”: a long narrow court, about 15 m by 37 m, enclosed by the four ranges and entered from Thames Street through the north gate. It is the courtyard of the four-winged house rebuilt after 1428 (${GAZ}).`, 'the gravel surface. The gazetteer mentions a cobbled entrance from Thames Street, but not the surface of the court, and no view used shows it.') };
+  register(ground(COURT_POLY, cdef), cdef);
+  const sdef = { name: 'River stairs by the garden', short: 'River stairs', label: 'minor', h: 1, solidFrom: 1540, to: 1551, dates: GDATE, basis: 'Position: Thurley fig. 53 · Form: estimate',
+    text: card(`${FIG53} draws a short flight of steps on the river side of the garden’s river wall, a little west of the south-west tower.`, 'the size and form of the steps (about 3 m wide, running 4 m down to the foreshore) and the stone. Whether they outlasted the building of the west extension about 1550 is not known; the model ends them then.') };
+  const sg = new THREE.Group(), n = 7, run = 4;
+  for (let i = 0; i < n; i++) { const s = mesh(new THREE.BoxGeometry(3, .32, run / n + .05), baseM); s.position.set(0, FOOT * (i + .5) / n, run * (i + .5) / n); sg.add(s); }
+  sg.position.copy(P(731, 1312)); sg.rotation.y = -4 * DEG; sg.userData = { def: sdef, top: 1 };
+  register(sg, sdef);
+}
+
+// --- The west extension of about 1550 (William Herbert, Earl of Pembroke from 1551) ---
+// SOURCES: gazetteer GM152 ("In about 1550 the castle was enlarged to the W with three new wings of brick, faced with
+// stone along the waterfront") and BC74 (part of the north wing of the 16th-century addition excavated); MOLA 2009 (Herbert
+// was granted the house in 1546, became earl in 1551, and "enlarged the castle by adding a courtyard and three new wings").
+// The scheduling description, which I know only at second hand, gives the extension as about 35 m to the WNW.
+// NO PLAN was available. The footprint is an ESTIMATE: wings 8 m deep along the north, west and river sides of the garden
+// enclosure of fig. 53 (38 m wide, which fits "about 35 m"). The model shows it from 1551 so that 1550, Thurley's date
+// for Wyngaerde's view of the house before the extension, still shows the garden.
+{
+  const EXT_H = 9, EXT_RIVER_H = 11;   // estimates. Hollar 1647 shows the extension's river front three storeys high, its eaves about level with the old front's
+  const EXT_SRC = `${GAZ} records that about 1550 the house was enlarged to the west with three new wings of brick, faced with stone along the waterfront, and that part of the north wing of this addition was excavated in 1974. The Museum of London’s assessment of 2009 adds that Catherine Parr granted the house in 1546 to William Herbert, created Earl of Pembroke in 1551, who “enlarged the castle by adding a courtyard and three new wings”.`;
+  const EXT_EST = `the footprint. No plan of the extension was available: the three wings are laid, 8 m deep, along the sides of the garden enclosure on Thurley’s plan, which is about 38 m wide (the scheduling description, known to me only at second hand, gives the extension as about 35 m). The height (${EXT_H} m), roofs, windows and chimneys are estimates too. “About 1550” is the gazetteer’s date; the model shows the wings from 1551.`;
+  const basis = 'Existence and materials: excavation gazetteer · Footprint: estimate · Appearance: estimate';
+  add({ name: 'North wing of the west extension', short: 'Extension, north wing', label: true, ...rect4([632, 957], [872, 978], [866, 1028], [627, 1007]), h: EXT_H, mat: 'tudor', roofMat: 'tile', from: 1551, to: FIRE, dates: DATE_EXT, basis,
+    text: card(EXT_SRC, EXT_EST + ' This is the wing of which part was excavated; the gazetteer does not say which part or how wide it was.') });
+  add({ name: 'West wing of the west extension', short: 'Extension, west wing', label: true, ...rect4([627, 1007], [677, 1011], [655, 1252], [605, 1248]), h: EXT_H, mat: 'tudor', roofMat: 'tile', from: 1551, to: FIRE, dates: DATE_EXT, basis,
+    text: card(EXT_SRC, EXT_EST) });
+  add({ name: 'River wing of the west extension', short: 'Extension, river wing', label: true, ...rect4([605, 1248], [826, 1262], [795, 1312], [600, 1298]), h: EXT_RIVER_H, mat: 'rag', roof: 'hip', roofMat: 'tile', from: 1551, to: FIRE, dates: DATE_EXT,
+    basis: 'Existence and stone facing: excavation gazetteer · River front: Hollar 1647 · Footprint: estimate',
+    text: card(EXT_SRC + ` ${HOLLAR} shows the river front west of the old house as a three-storey front under a hipped roof, with two or three flat projections, standing between the old polygonal corner tower on the east and a round tower on the west; its eaves are about level with those of the old front. The reconstruction print of 1784 shows the same arrangement.`,
+      EXT_EST + ` The river wing is drawn ${EXT_RIVER_H} m high to match Hollar, with three flat projections; their number and size are read from a small detail. The wing is shown stone-coloured on all sides, though the sources say brick faced with stone only to the river. An earlier version drew this front lower, from a poorer copy of the view.`) },
+    (g, u) => { plinthBox(g, u.w + .1, u.d + .1); for (const f of [-.3, 0, .3]) { const b = mesh(new THREE.BoxGeometry(2.6, u.h, .7), plain.rag); b.position.set(u.w * f, u.h / 2, u.d / 2 + .35); g.add(b); plinthBox(g, 2.6, .7, u.w * f, u.d / 2 + .35); } chimneys(g, [[-u.w * .25, 0], [u.w * .25, 0]], u.h + 1.6, 3.6); });
+  const cdef = { name: 'Second court', label: 'minor', h: 1, from: 1551, to: FIRE, dates: DATE_EXT, basis: 'Existence: MOLA 2009 · Outline and surface: estimate',
+    text: card('The Museum of London’s assessment of 2009 says the Earl of Pembroke enlarged the house “by adding a courtyard and three new wings”.', 'its outline, which is simply the ground left between the three estimated wings and the old west range, and its gravel surface.') };
+  register(ground(SECOND_COURT_POLY, cdef), cdef);
+  // The round tower at the west end of the river front
+  const r = 3.2, H = 13, capH = 3.2, g = new THREE.Group();   // Hollar: the tower rises a little above the eaves of the extension, under a domed cap with a finial
+  const body = mesh(new THREE.CylinderGeometry(r, r, H, 20), plain.rag); body.position.y = H / 2; g.add(body);
+  const cap = ogeeCap(r, capH, roofs.lead); cap.position.y = H; g.add(cap);
+  const base = mesh(new THREE.CylinderGeometry(r + .05, r + .05, .06 - (FOOT - .5), 20), baseM); base.position.y = (.06 + FOOT - .5) / 2; g.add(base);
+  { const fin = mesh(new THREE.SphereGeometry(.28, 8, 6), gilt); fin.position.y = H + capH + .25; g.add(fin); }
+  const tdef = { name: 'Round tower at the west end', short: 'Round tower', label: true, from: 1551, names: [[FIRE, 9999, 'Round tower (after the Fire)', 'Tower left after the Fire']],
+    dates: 'About 1550 (shown from 1551) · shown standing after the Fire of 1666', basis: 'Form: Hollar 1647 and the print of 1784 · Position, size and survival: estimate',
+    text: card(`${HOLLAR} shows a round tower with a domed cap and finial at the west end of the river front, rising a little above the eaves of the extension; the reconstruction print of 1784 shows the same. Marsden (1972) says that after the Great Fire “one tower … survived in use until 1720”, and that it is shown on Ogilby and Morgan’s map of 1676; the Museum of London’s assessment of 2009 reads that map as showing “only a small tower referred to as Baynard’s Castle”.`,
+      `its position at the south-west corner of the estimated extension, its size (${r * 2} m across, ${H} m high) and its date, taken to be that of the extension. That THIS is the tower that survived the Fire is my inference, not a statement in any source used: the gazetteer says the south-east tower was pulled down in 1666, and a later account, which I have at second hand only, calls the survivor a round tower. The ruins of the rest of the house, which stood for some time after 1666, are not modelled.`) };
+  g.position.copy(P(598, 1300)); g.userData = { def: tdef, w: r * 2, d: r * 2, h: H, top: H + capH };
+  register(g, tdef);
+}
+
+// --- Neighbours drawn on the same plan (context only; not part of the house) ---
+// Footprints from fig. 53. The sources used give no start dates for them: drawn faint until c. 1540, the date of the plan.
+{
+  const kdef = { name: 'King’s Wardrobe', label: 'minor', h: 5, solidFrom: 1540, to: FIRE, dates: 'On the plan of c. 1540 · start not shown (faint before 1540) · gone by 1676',
+    basis: 'Outline: Thurley fig. 53 · End: Ogilby and Morgan 1676 · Appearance: estimate',
+    text: card(`${FIG53} labels the “KING’S WARDROBE” and shades an irregular block here, north-west of the house, joined on the plan to the gallery that ran west to Blackfriars and Bridewell. Stow says Sir John Beauchamp built the great Wardrobe house and that it was sold to Edward III. Ogilby and Morgan’s map of 1676, as reproduced by Marsden, letters this ground “the King’s Wardrobe was here”. It is context, not part of Baynard’s Castle.`,
+      'everything else. The shaded area is the extent of the Wardrobe, not one building, so it is drawn as a plain flat-topped mass 5 m high. It is drawn faint before about 1540, the date of the plan, although Stow’s account means it was far older. The model removes it with the Great Fire of 1666; the sources used say only that it was gone by 1676.') };
+  const kg = new THREE.Group(); kg.add(prism([[320, 142], [537, 140], [578, 465], [390, 518], [235, 455], [270, 300], [305, 200]], 5, M({ color: 0xb3ab99 })));
+  kg.userData = { def: kdef, top: 5, labelAt: P(410, 320) }; register(kg, kdef);
+  add({ name: 'St Andrew by the Wardrobe', short: 'St Andrew', label: 'minor', ...rect4([168, 543], [385, 506], [390, 592], [182, 626]), h: 8, mat: 'hall', roofMat: 'lead', solidFrom: 1540,
+    dates: 'On the plan of c. 1540 · start not shown (faint before 1540)', basis: 'Outline: Thurley fig. 53 · Appearance: estimate',
+    text: card(`${FIG53} labels “St. ANDREW WARDROBE” and shades a rectangular building in an enclosure here, south of the King’s Wardrobe: the parish church, which Stow calls “a proper church”. Ogilby and Morgan’s map of 1676 marks “S. Andrew Wardrobe Church & Yard” here. It is context, not part of Baynard’s Castle.`,
+      'the height (8 m), the plain stone walls and the lead roof; no tower is shown because the plan draws none. It is drawn faint before about 1540, the date of the plan. From general knowledge, not from the sources used, the church burned in 1666 and was rebuilt afterwards; the model does not show that and leaves it standing.') },
+    (g, u) => gothicSides(g, u, 4, 1.6, 4.4, 1.6, plain.hall, false));
+}
+
+
+// ---------- Interaction ----------
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+let down = null, selected = null;
+const swapped = new Map();
+function highlight(g, on) {
+  g.traverse((o) => {
+    if (!o.isMesh) return;
+    if (on) {
+      swapped.set(o, o.material);
+      const hl = (m) => { const c = m.clone(); c.emissive = new THREE.Color(0xc79a2e); c.emissiveIntensity = 0.28; return c; };
+      o.material = Array.isArray(o.material) ? o.material.map(hl) : hl(o.material);
+    } else if (swapped.has(o)) { o.material = swapped.get(o); swapped.delete(o); }
+  });
+}
+const info = document.getElementById('info');
+function select(g) {
+  if (selected) highlight(selected, false);
+  selected = g;
+  if (typeof markList === 'function' && typeof listEl !== 'undefined') markList();
+  if (!g) { info.hidden = true; return; }
+  highlight(g, true);
+  const def = g.userData.def;
+  document.getElementById('info-title').textContent = nameAt(def, year).name;
+  const meta = document.getElementById('info-meta'); meta.replaceChildren();
+  const tl = g.userData.tl || {};
+  const chips = [def.dates || (tl.from == null ? 'Date not established' : null), tl.byArea ? 'Dated by area rule' : null, def.basis];
+  for (const t of chips.filter(Boolean)) { const s = document.createElement('span'); s.textContent = t; meta.append(s); }
+  document.getElementById('info-text').textContent = def.text || '';
+  info.hidden = false;
+}
+info.querySelector('.close').addEventListener('click', () => select(null));
+renderer.domElement.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('pointerup', (e) => {
+  if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5) return;
+  ptr.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  ray.setFromCamera(ptr, camera);
+  const hit = ray.intersectObjects(buildings.filter((b) => b.visible), true)[0];
+  let g = hit?.object; while (g && !buildings.includes(g)) g = g.parent;
+  select(g || null);
+});
+
+// Opacity and labels
+const bindRange = (id, fn) => { const el = document.getElementById(id), out = document.getElementById(id + '-out'); const f = () => { out.textContent = el.value + '%'; fn(el.value / 100); }; el.addEventListener('input', f); f(); };
+bindRange('plan-op', (v) => { planMat.opacity = v; planMat.visible = v > 0; });
+bindRange('cover-op', (v) => { for (const m of coverMats) { m.opacity = v; m.visible = v > 0; } });
+bindRange('bld-op', (v) => {
+  const set = (m) => { m.transparent = v < 1; m.opacity = v; m.depthWrite = v >= 1; m.needsUpdate = true; };
+  allMats.forEach(set); swapped.forEach((_, o) => [].concat(o.material).forEach(set));
+  refreshShadows();
+});
+document.getElementById('show-labels').addEventListener('change', (e) => labelRenderer.domElement.classList.toggle('off', !e.target.checked));
+{   // the Thames is tidal: raise and lower the river against the wall and over the foreshore
+  const el = document.getElementById('tide'), out = document.getElementById('tide-out');
+  const f = () => {
+    const t = el.value / 100; RIVER.tide = t;
+    RIVER.water.position.y = TIDE_LOW + (TIDE_HIGH - TIDE_LOW) * t;
+    const od = RIVER.water.position.y - OD0;
+    out.textContent = (t < .15 ? 'Low water' : t < .3 ? 'Near low water' : t < .55 ? 'Half tide' : t < .85 ? 'Near high water' : 'High water') + ` · ${od < 0 ? '\u2212' : '+'}${Math.abs(od).toFixed(1)} m OD`;
+    RIVER.hooks.forEach((h) => h(t));
+  };
+  el.addEventListener('input', f); f();
+}
+// ---------- Timeline ----------
+// A building's dates come, in this order, from: the DATES table (by name); the building's own from / to; an AREA_RULES
+// entry covering its centre. A building with no start date is drawn faint until its solidFrom year (the default is 1501:
+// the house of 1428 stood, but nothing shows its form before Henry VII's work; the garden and the neighbours use c. 1540,
+// the date of the plan). The house burned in September 1666: buildings carry to: 1667, so 1666 still shows them.
+const DATES = {};        // 'Name': { from, to }
+const AREA_RULES = [];    // { test: (px, py) => bool, from, to }   (none needed yet)
+const HOME_YEAR = 1540, YEAR_MIN = 1428, YEAR_MAX = 1670, SOLID_DEFAULT = 1501;
+const EVENTS = [
+  [1428, 'Stow records that “a great fire was at Baynards Castell” in the seventh year of Henry VI (1428), after which Humphrey, Duke of Gloucester, “builded it of new”. The excavations of 1972–81 found this house: trapezoidal, four wings round a courtyard, on reclaimed land, with a multi-angular tower at each river corner and its north side on Thames Street. It is drawn faint until 1501, because nothing used here shows it above ground. The year of the fire itself is shown as if the rebuilding were complete.'],
+  [1446, 'On the death of Humphrey, Duke of Gloucester, the house comes to Henry VI and then to Richard, Duke of York (Stow, who dates the death 1446).'],
+  [1461, 'Edward IV is proclaimed king at Baynard’s Castle (Marsden 1972; Museum of London 2009).'],
+  [1483, 'Richard, Duke of Gloucester, is offered the crown at Baynard’s Castle (Museum of London 2009).'],
+  [1501, 'Stow reports that Henry VII “about the yeare 1501 … repayred or rather new builded this house, not imbattoled, or so strongly fortified Castle like, but farre more beautifull and commodious”. The excavators found that he refaced the river front with five projecting towers between the two older corner towers; the house is drawn solid from here. The sources differ on the date: Stow’s text of 1603 has the 16th year of the reign (1500–01), his text of 1598 the 3rd, Marsden (1972) gives 1487 and the Museum of London’s 2009 assessment 1501–2. The model follows 1501.'],
+  [1540, 'About now: the date of Thurley’s conjectural plan of the waterfront (fig. 53), which gives the footprints of the main house, the garden and the neighbours. The garden, the King’s Wardrobe and St Andrew by the Wardrobe are shown solid from here.'],
+  [1546, 'Catherine Parr grants Baynard’s Castle to William Herbert (Museum of London 2009).'],
+  [1550, 'About now (Thurley’s dating; others put it in the earlier 1540s) Anthonis van den Wyngaerde draws the house from across the river: four gabled bays between taller, flat-topped corner towers, with two small capped turrets on the western tower and only low buildings to the west. The model’s Tudor river front follows this drawing.'],
+  [1551, 'William Herbert is created Earl of Pembroke. About 1550 he enlarges the house to the west with three new wings of brick, faced with stone along the waterfront, round a second court. The wings are shown from this year. Their footprint is an estimate: no plan of them was available.'],
+  [1553, 'Queen Mary is proclaimed by the Privy Council at Baynard’s Castle (Marsden 1972).'],
+  [1560, 'About now the “Agas” map shows the house on the river with its turrets and water stairs (dated 1560–70 by Marsden and 1553–9 by the Museum of London’s 2009 assessment).'],
+  [1647, 'Wenceslaus Hollar’s Long View of London shows the house from Bankside: the gabled Tudor front and its water stair, a tall polygonal tower, then the front of the west extension ending in a round tower with a domed cap. The model’s extension follows it. Hollar draws the two polygonal corner towers flat-topped, as Wyngaerde did, but without the two small capped turrets Wyngaerde drew on the south-west tower about 1550; the model removes those turrets from this year, though when they really went is not known.'],
+  [1666, 'The Great Fire of London, 2–6 September, destroys the house, which is not rebuilt. It is shown standing for this year and gone from 1667.'],
+  [1667, 'After the Fire. The house is not rebuilt, but the river frontage stays in use (excavation of 1981), and one tower survives “in use until 1720” (Marsden 1972); Ogilby and Morgan’s map of 1676 shows only a small tower called Baynard’s Castle. The model leaves the round tower at the west end standing: which tower survived is my inference, and the ruins of the rest are not modelled.'],
+];
+EVENTS.sort((a, b) => a[0] - b[0]);   // the note shown is the latest entry up to the year
+const ghostM = new THREE.MeshStandardMaterial({ color: 0x9aa3a6, transparent: true, opacity: .42, depthWrite: false, roughness: 1 });
+const fixtures = [];
+{
+  const box = new THREE.Box3(), ctr = new THREE.Vector3();
+  const rule = (o) => { box.setFromObject(o); box.getCenter(ctr); const px = ctr.x / S + CX, py = ctr.z / S + CY; return AREA_RULES.find((r) => r.test(px, py)); };
+  for (const g of buildings) {
+    const d = g.userData.def, k = DATES[d.name] || { from: d.from, to: d.to }, r = k.from == null && k.to == null ? rule(g) : null;
+    g.userData.tl = { from: k.from ?? r?.from ?? null, to: k.to ?? r?.to ?? null, byArea: !!r, solidFrom: d.solidFrom ?? SOLID_DEFAULT };
+  }
+  // Walls, yards and stairs that are not separate buildings
+  for (const o of scene.children.filter((c) => c.userData.fixture)) {
+    const r = 'fixtureFrom' in o.userData || 'fixtureTo' in o.userData ? null : rule(o);
+    o.userData.tl = { from: o.userData.fixtureFrom ?? r?.from ?? null, to: o.userData.fixtureTo ?? r?.to ?? null, byArea: !!r, solidFrom: SOLID_DEFAULT };
+    fixtures.push(o);
+  }
+}
+
+const yearEl = document.getElementById('year'), yearOut = document.getElementById('year-out'), yearBadge = document.getElementById('year-badge'), eventEl = document.getElementById('year-event'), playBtn = document.getElementById('play');
+const ghostSaved = new Map();
+function setGhost(g, on) {
+  g.traverse((o) => {
+    if (!o.isMesh) return;
+    if (on && !ghostSaved.has(o)) { ghostSaved.set(o, [o.material, o.castShadow]); o.material = ghostM; o.castShadow = false; o.renderOrder = 2; }   // draw after the translucent plan
+    else if (!on && ghostSaved.has(o)) { const [m, c] = ghostSaved.get(o); o.material = m; o.castShadow = c; o.renderOrder = 0; ghostSaved.delete(o); }
+  });
+}
+let year = HOME_YEAR;
+const thurleyBox = document.getElementById('show-thurley'), thurleyLbl = document.getElementById('thurley-phase');
+function updateThurley() {
+  let shown = null;
+  for (const m of thurleyLayers) { const t = m.userData.phase; m.visible = thurleyBox.checked && year >= t.from && year < t.to; if (m.visible) shown = t; }
+  const any = thurleyLayers.find((m) => year >= m.userData.phase.from && year < m.userData.phase.to);
+  thurleyLbl.textContent = any ? `(${any.userData.phase.label})` : '(no plan for this year)';
+  document.getElementById('thurley-note').textContent = any ? any.userData.phase.note || '' : '';
+}
+thurleyBox.addEventListener('change', updateThurley);
+function setYear(y) {
+  year = y; yearEl.value = y; yearOut.textContent = y; yearBadge.textContent = y;
+  yearBadge.hidden = y === HOME_YEAR && !playTimer;
+  for (const g of buildings.concat(fixtures)) {
+    const tl = g.userData.tl;
+    const exists = (tl.from == null || y >= tl.from) && (tl.to == null || y < tl.to);
+    const state = !exists ? 'hidden' : (tl.from == null && y < (tl.solidFrom ?? SOLID_DEFAULT) ? 'ghost' : 'solid');
+    if (state === g.userData.state) continue;
+    if (g === selected) select(null);
+    g.visible = state !== 'hidden';
+    setGhost(g, state === 'ghost');
+    g.userData.state = state;
+  }
+  for (const g of buildings) { const d = g.userData.def; if (d.names && g.userData.labelEl) g.userData.labelEl.textContent = nameAt(d, y).short; }
+  const ev = EVENTS.filter(([ey]) => ey <= y).at(-1);
+  eventEl.setAttribute('aria-live', playTimer ? 'off' : 'polite');   // not read out year by year while playing
+  eventEl.innerHTML = `<b>${ev[0] === y ? '' : ev[0] + ': '}</b>${ev[1]}`;
+  YEAR_HOOKS.forEach((h) => h(y));
+  refreshList();
+  updateThurley();
+  refreshShadows();
+}
+let playTimer = null;
+const stopPlay = () => { clearInterval(playTimer); playTimer = null; playBtn.textContent = `Play ${YEAR_MIN}–${YEAR_MAX}`; yearBadge.hidden = year === HOME_YEAR; setYear(year); };
+playBtn.addEventListener('click', () => {
+  if (playTimer) return stopPlay();
+  if (year >= YEAR_MAX) setYear(YEAR_MIN);
+  playBtn.textContent = 'Pause';
+  playTimer = setInterval(() => { if (year >= YEAR_MAX) return stopPlay(); setYear(year + 1); }, 110);
+});
+yearEl.addEventListener('input', () => { if (playTimer) stopPlay(); setYear(+yearEl.value); });
+// A list of the buildings standing in the current year, for keyboard and screen-reader users: it reaches every card
+// that a click on the model reaches, and gives the 3D scene a text equivalent.
+const listWrap = document.getElementById('bld-list-wrap'), listEl = document.getElementById('bld-list');
+const listName = (g) => { const d = g.userData.def; return nameAt(d, year).name; };
+function flyTo(g) {
+  const box = new THREE.Box3().setFromObject(g), at = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
+  at.y = Math.min(at.y, 20);
+  const off = camera.position.clone().sub(controls.target);
+  const d = THREE.MathUtils.clamp(Math.max(size.x, size.z) * 2.2 + 40, 60, controls.maxDistance);
+  moveTo(at.clone().add(off.setLength(d)), at, 700);
+}
+function markList() { for (const b of listEl.querySelectorAll('button')) b.setAttribute('aria-current', String(b._g === selected)); }
+function refreshList() {
+  document.getElementById('bld-list-year').textContent = year;
+  const standing = buildings.filter((b) => b.visible);
+  renderer.domElement.setAttribute('aria-label', `3D model of Baynard’s Castle, London, as it stood in ${year}, with ${standing.length} buildings and features${year < SOLID_DEFAULT ? ' (drawn faint: the form of the house before 1501 is not known)' : ''}. They are listed under “Buildings standing in ${year}” in the controls; choose one there to read about it.`);
+  if (!listWrap.open || playTimer) return;
+  const rows = standing.map((g) => [listName(g), g]).sort((a, b) => a[0].localeCompare(b[0], 'en', { numeric: true }));
+  listEl.replaceChildren(...rows.map(([n, g]) => {
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button'; b.textContent = n; b._g = g;
+    b.addEventListener('click', () => { select(g); flyTo(g); });
+    li.append(b); return li;
+  }));
+  markList();
+}
+listWrap.addEventListener('toggle', refreshList);
+setYear(HOME_YEAR);
+
+// Views
+const views = {
+  overview:  { pos: P(1200, 1980, 130), at: P(700, 1170, 0) },
+  plan:      { pos: P(CX, CY + 1, 300), at: P(CX, CY, 0) },
+  river:     { pos: P(950, 1900, 6), at: P(950, 1340, 9), fov: 36 },
+  wyngaerde: { pos: P(640, 2250, 45), at: P(840, 1300, 6), fov: 34 },   // high, from across the river, a little to the west: the viewpoint is my reading of fig. 51
+  hollar:    { pos: P(330, 2300, 40), at: P(640, 1300, 6), fov: 36 },    // from Bankside, to the south-west: my reading of the Long View
+  garden:    { pos: P(430, 1500, 45), at: P(740, 1130, 2), fov: 44 },
+  court:     { pos: P(1000, 900, 60), at: P(965, 1180, 2), fov: 44 },
+  north:     { pos: P(980, 520, 70), at: P(930, 1120, 4), fov: 40 },
+};
+// On a phone the panel folds to the bottom of a tall, narrow screen, so the views that are set off to the right of the
+// desktop panel are re-centred on the house and pulled back.
+if (matchMedia('(max-width: 720px)').matches) {
+  views.overview = { pos: P(1330, 2250, 190), at: P(840, 1190, 0) };
+  views.hollar = { pos: P(480, 2600, 60), at: P(830, 1300, 6), fov: 44 };
+  views.wyngaerde = { pos: P(760, 2550, 60), at: P(940, 1300, 6), fov: 40 };
+  views.river.fov = 62;
+}
+
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let tween = null;
+function goTo(name, instant = false) {
+  const v = views[name];
+  document.querySelectorAll('.view-btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === name)));
+  const fov = v.fov || 42;
+  if (instant || reduce) { camera.position.copy(v.pos); controls.target.copy(v.at); camera.fov = fov; camera.updateProjectionMatrix(); controls.update(); return; }
+  tween = { t0: performance.now(), from: [camera.position.clone(), controls.target.clone(), camera.fov], to: [v.pos, v.at, fov] };
+}
+document.querySelectorAll('.view-btn').forEach((b) => b.addEventListener('click', () => {
+  if (b.dataset.view === 'wyngaerde' && (year < 1501 || year > 1550)) setYear(1550);
+  if (b.dataset.view === 'hollar' && (year < 1551 || year > 1666)) setYear(1647);
+  goTo(b.dataset.view);
+}));
+controls.addEventListener('start', () => { tween = null; });
+goTo('overview', true);
+
+// ---------- Navigation helpers ----------
+// Keep the point the camera looks at on or near the site, so the model can't be lost off-screen
+const SITE = { x0: -190, x1: 150, z0: -200, z1: 130 };   // metres from the model's origin
+const clampV = new THREE.Vector3();
+function keepOnSite() {
+  const t = controls.target;
+  clampV.set(THREE.MathUtils.clamp(t.x, SITE.x0, SITE.x1), Math.max(-2, Math.min(t.y, 30)), THREE.MathUtils.clamp(t.z, SITE.z0, SITE.z1)).sub(t);
+  if (clampV.lengthSq() > 0) { t.add(clampV); camera.position.add(clampV); }
+  if (camera.position.y < 1.2) camera.position.y = 1.2;
+}
+// Short animated moves for the buttons and double-click
+function moveTo(pos, at, dur = 450) {
+  if (reduce) { camera.position.copy(pos); controls.target.copy(at); controls.update(); return; }
+  tween = { t0: performance.now(), dur, from: [camera.position.clone(), controls.target.clone(), camera.fov], to: [pos, at, camera.fov] };
+}
+function zoomBy(f) {
+  const off = camera.position.clone().sub(controls.target);
+  const d = THREE.MathUtils.clamp(off.length() * f, controls.minDistance, controls.maxDistance);
+  moveTo(controls.target.clone().add(off.setLength(d)), controls.target.clone());
+}
+function turnBy(rad) {
+  const off = camera.position.clone().sub(controls.target).applyAxisAngle(new THREE.Vector3(0, 1, 0), rad);
+  moveTo(controls.target.clone().add(off), controls.target.clone());
+}
+function northUp() {
+  const off = camera.position.clone().sub(controls.target);
+  const h = Math.hypot(off.x, off.z), back = north.clone().multiplyScalar(-h);
+  moveTo(controls.target.clone().add(new THREE.Vector3(back.x, off.y, back.z)), controls.target.clone(), 700);
+}
+document.getElementById('nav-in').addEventListener('click', () => zoomBy(0.6));
+document.getElementById('nav-out').addEventListener('click', () => zoomBy(1 / 0.6));
+document.getElementById('nav-left').addEventListener('click', () => turnBy(Math.PI / 6));
+document.getElementById('nav-right').addEventListener('click', () => turnBy(-Math.PI / 6));
+document.getElementById('nav-north').addEventListener('click', northUp);
+document.getElementById('nav-home').addEventListener('click', () => goTo('overview'));
+// Keys: + and - zoom, [ and ] turn, N faces north (arrow keys move, handled by the controls)
+addEventListener('keydown', (e) => {
+  if (e.target.closest && e.target.closest('input, textarea')) return;
+  if (!document.getElementById('keys-on').checked || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === '+' || e.key === '=') zoomBy(0.7);
+  else if (e.key === '-' || e.key === '_') zoomBy(1 / 0.7);
+  else if (e.key === '[') turnBy(Math.PI / 12);
+  else if (e.key === ']') turnBy(-Math.PI / 12);
+  else if (e.key === 'n' || e.key === 'N') northUp();
+});
+// Double-click (or double-tap) anywhere to fly in towards that spot
+const flyRay = new THREE.Raycaster();
+renderer.domElement.addEventListener('dblclick', (e) => {
+  const r = renderer.domElement.getBoundingClientRect();
+  flyRay.setFromCamera(new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), camera);
+  const hit = flyRay.intersectObjects(scene.children, true).find((h) => h.object.visible && h.object.isMesh);
+  if (!hit) return;
+  const at = hit.point.clone(); at.y = Math.min(at.y, 20);
+  const off = camera.position.clone().sub(controls.target);
+  const d = THREE.MathUtils.clamp(off.length() * 0.45, 25, controls.maxDistance);
+  moveTo(at.clone().add(off.setLength(d)), at, 700);
+});
+
+// Panel collapse (phone) and painting lightbox
+const panel = document.getElementById('panel'), tog = document.getElementById('toggle-panel');
+const setCollapsed = (c) => { panel.classList.toggle('collapsed', c); tog.textContent = c ? 'Show' : 'Hide'; tog.setAttribute('aria-expanded', String(!c)); };
+tog.addEventListener('click', () => setCollapsed(!panel.classList.contains('collapsed')));
+if (matchMedia('(max-width: 720px)').matches) setCollapsed(true);   // phones open on the model, with the panel folded away
+const lb = document.getElementById('lightbox');
+let lbFrom = null;
+function closeLb() { if (lb.hidden) return; lb.hidden = true; (refBtns[lbAt] || lbFrom)?.focus(); lbFrom = null; }   // focus returns to the thumbnail of the image last shown
+const REFS = [
+  { src: 'assets/thurley-fig53-waterfront-c1540.jpg', alt: "Thurley, conjectural plan of the Thames waterfront from Bridewell to Baynard's Castle, c. 1540", cap: "Simon Thurley, “The Thames waterfront from Bridewell to Baynard’s Castle in c.1540. Conjectural plan from archaeological and documentary evidence” (The Royal Palaces of Tudor England, fig. 53). From west to east: the Bishop of Salisbury’s house, Bridewell Palace, the Fleet, the gallery to Blackfriars, the King’s Wardrobe, St Andrew by the Wardrobe, and Baynard’s Castle at the lower right with its garden, court and watergate. Every footprint in the model comes from this plan. North is at the top." },
+  { src: 'assets/thurley-fig53-baynards-plan.jpg', alt: "Detail of Thurley's plan, c. 1540: Baynard's Castle, St Andrew by the Wardrobe and the King's Wardrobe", cap: "The part of Thurley’s fig. 53 that lies on the ground under the model, with the contrast raised. The metre bar at the bottom gives the model’s scale. The page curls at its right-hand edge in the photograph, so the east side of the house is slightly compressed. Use the “Plan from above” view to compare." },
+  { src: 'assets/wyngaerde-baynards-c1550.jpg', alt: "Wyngaerde, Baynard's Castle from the river, c. 1550", cap: "Anthonis van den Wyngaerde, Baynard’s Castle, detail from a view of London; Thurley dates it c. 1550 (fig. 51). The house is at the lower right, above the word “Baynards Castle” written on the river: a front of four broad gabled bays with many windows, with a river door and stair near the middle, between taller flat-topped corner towers; two small turrets with pointed roofs stand at the top of the western tower and three more above the eastern end; lower buildings and a stair lie to the west. Ely House is lettered on the skyline. The model’s river front follows this drawing for its gables, its flat-topped towers and the two small turrets on the south-west tower; it is a quick sketch, so their number and size in the model follow the plan and my estimates. The large building with a curved roof rising behind the front is not modelled: I could not place it on the plan. Use the “Wyngaerde’s side” view to compare. Other writers date Wyngaerde’s panorama to the earlier 1540s; the model keeps Thurley’s date." },
+  { src: 'assets/agas-c1560.jpg', alt: "Detail of the Agas map of London showing Baynard's Castle, c. 1560", cap: "The “Agas” woodcut map of London, detail, as reproduced by Marsden (1972), who dates it 1560–70; the Museum of London’s 2009 assessment dates it 1553–9. “Baynardes Castel” is lettered on the river below the house, which is drawn as a tall front of gabled turrets with a water stair, between Black Friars and Paul’s Wharf. The map is pictorial: it confirms the towered river front and the stair, not their exact form. It was not used to change any footprint." },
+  { src: 'assets/ogilby-morgan-1676.jpg', alt: "Detail of Ogilby and Morgan's map of London, 1676, showing the site after the Great Fire", cap: "John Ogilby and William Morgan’s map of London, 1676, detail, as reproduced by Marsden (1972). Ten years after the Fire the site of the house is wharves and open ground south of Thames Street, with a small tower lettered “Baynards Castle” on the river’s edge. North of the street the map marks “S. Andrew Wardrobe Church & Yard” and “the King’s Wardrobe was here”. The model’s single tower after 1666 and the end of the King’s Wardrobe rest on it." },
+  { src: 'assets/reconstruction-print-1784.jpg', alt: "Reconstruction view of Baynard's Castle from the river, published 1784", cap: "“A reconstruction (published in 1784) of the Castle based on early maps” (Marsden 1972, fig. 1; print in the Guildhall Library). Made more than a century after the house burned, it is not evidence in itself, but it agrees with Hollar’s view of 1647: a front of gabled turrets between polygonal towers, a water stair on arches, a lower range to the west and a round tower with a domed cap at the far west end. Marsden’s caption adds that the 1972 excavation revealed the hexagonal corner tower and four of the adjoining turrets." },
+  { src: 'assets/hollar-long-view-1647.jpg', alt: "Hollar, Baynard's Castle from Bankside, detail of the Long View of London, 1647", cap: "Wenceslaus Hollar, Long View of London from Bankside, 1647 (detail; the scan is cut off just east of the house). The only close view of the house after the west extension of about 1550. From left: timber houses and a fenced wharf; a round tower with a domed cap and finial; the three-storey river front of the extension under a hipped roof; a tall flat-topped polygonal tower, the old south-west corner tower; then the Tudor front of narrow gabled turrets, with a stair on arches down to the river, ending at the south-east tower. The model’s extension front and round tower follow it. Like Wyngaerde (about 1550) it shows the polygonal towers flat-topped; unlike him it shows no small turrets on the south-west tower, so the model removes them from 1647. Use the “Hollar’s side, 1647” view to compare." },
+];
+// The viewer steps through the images in the order they are listed (by date), with buttons or the left and right arrow keys
+const refBtns = [...document.querySelectorAll('.ref')];
+let lbAt = 0;
+function showRef(i) {
+  lbAt = (i + refBtns.length) % refBtns.length;
+  const r = REFS[+refBtns[lbAt].dataset.ref];
+  const img = document.getElementById('lb-img'); img.src = r.src; img.alt = r.alt;
+  document.getElementById('lb-cap').textContent = r.cap;
+  document.getElementById('lb-count').textContent = `Image ${lbAt + 1} of ${refBtns.length}`;
+}
+refBtns.forEach((b, i) => b.addEventListener('click', () => {
+  showRef(i);
+  lbFrom = b; lb.hidden = false; document.getElementById('close-painting').focus();
+}));
+document.getElementById('lb-prev').addEventListener('click', () => showRef(lbAt - 1));
+document.getElementById('lb-next').addEventListener('click', () => showRef(lbAt + 1));
+addEventListener('keydown', (e) => {   // before the camera controls see the arrow keys
+  if (lb.hidden || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+  e.stopPropagation(); e.preventDefault(); showRef(lbAt + (e.key === 'ArrowLeft' ? -1 : 1));
+}, true);
+document.getElementById('close-painting').addEventListener('click', closeLb);
+lb.addEventListener('click', (e) => { if (e.target === lb) closeLb(); });
+lb.addEventListener('keydown', (e) => {   // Tab moves between the viewer's own buttons and does not leave it
+  if (e.key !== 'Tab') return;
+  const bs = [...lb.querySelectorAll('button')], at = bs.indexOf(document.activeElement);
+  e.preventDefault(); bs[(at + (e.shiftKey ? -1 : 1) + bs.length) % bs.length].focus();
+});
+addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!lb.hidden) closeLb(); else select(null); } });
+
+
+// Compass: the plan's north point is at the top of the plan, so north is straight up the plan
+const north = new THREE.Vector3(0, 0, -1);
+const needle = document.querySelector('#compass .needle');
+const right = new THREE.Vector3(), fwd = new THREE.Vector3();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight); labelRenderer.setSize(innerWidth, innerHeight);
+});
+
+// Hide labels whose building is hidden or behind another building
+const occl = new THREE.Raycaster(), labPos = new THREE.Vector3(), labDir = new THREE.Vector3();
+let frame = 0;
+function updateLabelOcclusion() {
+  const vis = buildings.filter((b) => b.visible);
+  for (const { lab, g } of labels) {
+    let hide = !g.visible;
+    if (!hide) {
+      lab.getWorldPosition(labPos);
+      labDir.subVectors(labPos, camera.position);
+      const dist = labDir.length();
+      if (lab.element.classList.contains('minor') && dist > 160) { lab.element.style.visibility = 'hidden'; continue; }   // keep distant minor labels out of close views
+      occl.set(camera.position, labDir.normalize()); occl.far = dist - 1;
+      const hit = occl.intersectObjects(vis, true)[0];
+      if (hit) { let o = hit.object; while (o && o !== g) o = o.parent; hide = o !== g; }
+    }
+    lab.element.style.visibility = hide ? 'hidden' : '';
+  }
+}
+const ease = (t) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+renderer.setAnimationLoop((now) => {
+  if (tween) {
+    const t = Math.min(1, (now - tween.t0) / (tween.dur || 1400)), k = ease(t);
+    camera.position.lerpVectors(tween.from[0], tween.to[0], k);
+    controls.target.lerpVectors(tween.from[1], tween.to[1], k);
+    camera.fov = tween.from[2] + (tween.to[2] - tween.from[2]) * k; camera.updateProjectionMatrix();
+    if (t === 1) tween = null;
+  }
+  controls.update();
+  keepOnSite();
+  if (frame++ % 6 === 0) updateLabelOcclusion();
+  right.setFromMatrixColumn(camera.matrixWorld, 0).setY(0).normalize();
+  fwd.set(right.z, 0, -right.x);  // ground-plane "up the screen" direction
+  needle.style.transform = `rotate(${Math.atan2(north.dot(right), north.dot(fwd))}rad)`;
+  renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
+});
+// A handle for checking the model from the browser console (overlaps, dates); not used by the page itself
+window.__model = { buildings, fixtures, setYear, select, get year() { return year; }, lookFrom: (px, py, h, ax, ay, ah) => { tween = null; camera.position.copy(P(px, py, h)); controls.target.copy(P(ax, ay, ah)); controls.update(); } };
+</script>

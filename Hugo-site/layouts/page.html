@@ -1,0 +1,9 @@
+{{/* A plain text page written in Markdown, such as About (content/about.md). */}}
+{{ define "main" }}
+<main id="content" class="wrap section section-last">
+  <h1 class="page-title">{{ .Params.heading | default .Title }}</h1>
+  <div class="prose">
+    {{ .Content }}
+  </div>
+</main>
+{{ end }}

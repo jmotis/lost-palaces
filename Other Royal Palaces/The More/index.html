@@ -1,0 +1,1620 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The More, 1450–1700: a 3D model</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Layout: full-bleed 3D scene; a slim control panel floats top-left, a building card bottom-right. Phone: panel becomes a bottom sheet. */
+:root {
+  --ink: #1d2830;
+  --ink-soft: #52606a;
+  --panel: rgba(236, 240, 238, 0.94);
+  --panel-line: #c5cdca;
+  --accent: #2f6b66;      /* moat green */
+  --gilt: #a8822a;        /* selection */
+  --sky-top: #b9c6cb;
+  --sky-bottom: #e6e4da;
+  --chip: #dfe5e2;
+  --ctl-line: #6f7d85;   /* outlines of buttons: at least 3:1 against the panel */
+  --font-display: "IM Fell English SC", "Iowan Old Style", Georgia, serif;
+  --font-italic: "IM Fell English", "Iowan Old Style", Georgia, serif;
+  --font-ui: "Source Sans 3", -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e2e6e3; --ink-soft: #9aa7ae; --panel: rgba(20, 27, 32, 0.93); --panel-line: #33414a;
+    --accent: #84c0b8; --gilt: #d8b45a; --sky-top: #3a4852; --sky-bottom: #77807f; --chip: #26323a; --ctl-line: #73838c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e2e6e3; --ink-soft: #9aa7ae; --panel: rgba(20, 27, 32, 0.93); --panel-line: #33414a;
+  --accent: #84c0b8; --gilt: #d8b45a; --sky-top: #3a4852; --sky-bottom: #77807f; --chip: #26323a; --ctl-line: #73838c;
+  color-scheme: dark;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--sky-bottom); color: var(--ink); font-family: var(--font-ui); overflow: hidden; }
+#scene { position: fixed; inset: 0; background: linear-gradient(var(--sky-top), var(--sky-bottom) 70%); }
+#scene canvas { display: block; touch-action: none; }
+
+#panel {
+  position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px));
+  width: 300px; max-height: calc(100% - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overflow-y: auto; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 6px;
+  padding: 16px 18px; display: grid; gap: 14px; backdrop-filter: blur(6px); z-index: 5;
+}
+.eyebrow { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
+h1 { font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1; margin: 2px 0 0; text-wrap: balance; }
+.lede { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--ink-soft); }
+.group { display: grid; gap: 8px; }
+.group-title { margin: 0; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: var(--ink-soft); }
+.views { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.view-btn { background: var(--chip); border: 1px solid var(--ctl-line); border-radius: 4px; padding: 7px 8px; font-size: 13px; text-align: left; }
+.view-btn:hover { border-color: var(--accent); }
+.view-btn[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); font-weight: 600; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; font-size: 13px; }
+.row input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); }
+.row output { font-variant-numeric: tabular-nums; color: var(--ink-soft); font-size: 12px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.check input { accent-color: var(--accent); }
+figure { margin: 0; display: grid; gap: 6px; }
+figure button { padding: 0; border: 1px solid var(--panel-line); border-radius: 3px; overflow: hidden; background: none; display: block; }
+figure img { display: block; width: 100%; }
+figcaption { font-family: var(--font-italic); font-style: italic; font-size: 13px; color: var(--ink-soft); line-height: 1.35; }
+.refs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.ref { padding: 0; border: 1px solid var(--panel-line); border-radius: 3px; background: var(--chip); display: grid; text-align: left; overflow: hidden; }
+.ref:hover { border-color: var(--accent); }
+.ref img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.ref span { font-size: 11px; line-height: 1.25; padding: 4px 5px; color: var(--ink-soft); }
+.year-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+#year-out { font-family: var(--font-display); font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--ink); }
+.play { background: var(--chip); border: 1px solid var(--ctl-line); border-radius: 4px; padding: 5px 9px; font-size: 12px; }
+.play:hover { border-color: var(--accent); }
+#year { width: 100%; accent-color: var(--accent); }
+.event { margin: 0; font-size: 13px; line-height: 1.45; min-height: 2.9em; }
+.event b { font-weight: 600; }
+#year-badge { position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--panel-line); border-radius: 6px; padding: 4px 12px; font-family: var(--font-display); font-size: 22px; z-index: 4; pointer-events: none; font-variant-numeric: tabular-nums; }
+.hint { margin: 0; font-size: 12px; line-height: 1.45; color: var(--ink-soft); }
+.howto summary { cursor: pointer; list-style: revert; }
+.howto summary .group-title { display: inline; }
+#bld-list { list-style: none; margin: 8px 0 0; padding: 2px; display: grid; gap: 4px; max-height: 260px; overflow-y: auto; }
+#bld-list button { width: 100%; text-align: left; background: var(--chip); border: 1px solid var(--ctl-line); border-radius: 4px; padding: 6px 8px; font-size: 13px; }
+#bld-list button:hover { border-color: var(--accent); }
+#bld-list button[aria-current="true"] { border-color: var(--gilt); box-shadow: inset 0 0 0 1px var(--gilt); font-weight: 600; }
+.howto ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; }
+#thurley-note:empty { display: none; }
+#nav { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); display: grid; gap: 6px; z-index: 5; }
+#nav button { width: 40px; height: 40px; display: grid; place-items: center; background: var(--panel); border: 1px solid var(--ctl-line); border-radius: 6px; color: var(--ink); padding: 0; backdrop-filter: blur(6px); }
+#nav button:hover { border-color: var(--accent); color: var(--accent); }
+#nav svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#nav .sep { height: 4px; }
+.bib { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
+.bib li { padding-left: 1.4em; text-indent: -1.4em; }
+.bib a { color: var(--accent); }
+.bib ul { list-style: none; margin: 4px 0 0; padding: 0 0 0 1.4em; display: grid; gap: 3px; }
+.bib ul li { padding-left: 1.4em; text-indent: -1.4em; }
+.bib a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.note { font-size: 12px; line-height: 1.45; color: var(--ink-soft); border-top: 1px solid var(--panel-line); padding-top: 10px; margin: 0; }
+.swatches { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 12px; color: var(--ink-soft); }
+.swatches span { display: inline-flex; align-items: center; gap: 5px; }
+.swatches i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; border: 1px solid rgba(0,0,0,.2); }
+#toggle-panel { display: none; }
+
+#info {
+  position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  width: 340px; max-width: calc(100% - 32px); background: var(--panel); border: 1px solid var(--panel-line);
+  border-top: 3px solid var(--gilt); border-radius: 6px; padding: 14px 16px 16px; z-index: 6; backdrop-filter: blur(6px);
+  display: grid; gap: 8px;
+  max-height: calc(100% - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); overflow-y: auto; box-sizing: border-box;
+}
+#info h2 { font-family: var(--font-display); font-weight: 400; font-size: 23px; margin: 0; line-height: 1.1; padding-right: 28px; }
+#info .meta { display: flex; flex-wrap: wrap; gap: 6px; }
+#info .meta span { font-size: 12px; background: var(--chip); padding: 2px 7px; border-radius: 3px; font-variant-numeric: tabular-nums; }
+#info-text { display: grid; gap: 8px; }
+#info-text b { font-weight: 600; }
+#info p { margin: 0; font-size: 13.5px; line-height: 1.5; }
+#info .close { position: absolute; top: 8px; right: 8px; border: 0; background: none; font-size: 20px; line-height: 1; padding: 4px 8px; color: var(--ink-soft); }
+
+.label {
+  font-family: var(--font-italic); font-style: italic; font-size: 13px; color: #1d2830; background: rgba(244, 241, 232, 0.85);
+  padding: 1px 6px; border-radius: 2px; white-space: nowrap; pointer-events: none; border: 1px solid rgba(29,40,48,.25);
+}
+.label.minor { font-size: 11.5px; opacity: .85; }
+#labels.off .label { display: none; }
+
+#compass {
+  position: fixed; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: calc(max(16px, env(safe-area-inset-left, 0px)) + 316px);
+  width: 54px; height: 54px; border-radius: 50%; background: var(--panel); border: 1px solid var(--panel-line);
+  display: grid; place-items: center; z-index: 4; pointer-events: none;
+}
+#compass .needle { width: 0; height: 0; display: grid; place-items: center; position: relative; }
+#compass .needle::before { content: ""; position: absolute; bottom: 0; left: -5px; border: 5px solid transparent; border-bottom: 17px solid var(--accent); border-top: 0; }
+#compass .needle::after { content: "N"; position: absolute; bottom: 17px; left: -4px; font-size: 10px; font-weight: 600; color: var(--accent); }
+
+#lightbox { position: fixed; inset: 0; background: rgba(10, 14, 18, 0.88); z-index: 20; display: grid; place-items: center; padding: 24px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); }
+#lightbox figure { max-width: 1000px; width: 100%; }
+#lightbox figcaption { color: #d7dcd8; }
+#lightbox .lb-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
+#lb-count { margin-right: auto; color: #d7dcd8; font-size: 13px; font-variant-numeric: tabular-nums; }
+#lightbox button:focus-visible { outline-color: #e6e9e6; }
+#lightbox button { background: none; border: 1px solid #6c7a80; color: #e6e9e6; border-radius: 4px; padding: 4px 12px; }
+
+#loading[hidden] { display: none; }
+#loading { position: fixed; inset: 0; display: grid; place-items: center; font-family: var(--font-italic); font-style: italic; color: var(--ink-soft); z-index: 1; pointer-events: none; }
+
+@media (max-width: 720px) {
+  #panel { top: auto; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); left: max(10px, env(safe-area-inset-left, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); width: auto; max-height: 46%; padding: 12px 14px; }
+  #panel.collapsed > :not(.head) { display: none; }
+  .head { display: flex; align-items: end; justify-content: space-between; gap: 8px; }
+  #toggle-panel { display: inline-block; background: var(--chip); border: 1px solid var(--ctl-line); border-radius: 4px; padding: 5px 10px; font-size: 12px; }
+  h1 { font-size: 24px; }
+  #info { bottom: auto; top: calc(10px + env(safe-area-inset-top, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); left: max(10px, env(safe-area-inset-left, 0px)); width: auto; max-width: none; max-height: 46%; }
+  #nav { top: calc(66px + env(safe-area-inset-top, 0px)); transform: none; right: max(12px, env(safe-area-inset-right, 0px)); }
+  #nav button { width: 44px; height: 44px; }
+  #compass { left: auto; right: max(12px, env(safe-area-inset-right, 0px)); bottom: auto; top: calc(12px + env(safe-area-inset-top, 0px)); width: 44px; height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div id="scene"></div>
+<div id="loading">Laying out the manor…</div>
+
+<aside id="panel" aria-label="Model controls">
+  <div class="head">
+    <div>
+      <div class="eyebrow">A 3D Model, 1450–1700</div>
+      <h1>The More</h1>
+    </div>
+    <button id="toggle-panel" type="button" aria-expanded="true">Hide</button>
+  </div>
+  <p class="lede">The lost manor of the More at Rickmansworth, Hertfordshire, from 1450 to 1700: the 15th-century brick house, Archbishop Neville’s alterations, Cardinal Wolsey’s enlargement of 1522–29, the royal house of 1530–47, its sale for materials and ruin under Elizabeth I, and the clearing of the site by 1661. Footprints follow Simon Thurley’s plans; dates and materials follow the excavations of 1952–55 and 2012 and a survey of 1568. No picture of the house is known in these sources, so every height and elevation is an estimate. Click a building to see what is evidence and what is estimate.</p>
+
+  <div class="group" id="timeline">
+    <h2 class="group-title">Year</h2>
+    <div class="year-row"><output id="year-out" for="year">1547</output><button id="play" class="play" type="button">Play 1450–1700</button></div>
+    <input id="year" type="range" min="1450" max="1700" step="1" value="1547" list="year-marks" aria-label="Year">
+    <datalist id="year-marks"><option value="1450"></option><option value="1456"></option><option value="1460"></option><option value="1470"></option><option value="1472"></option><option value="1475"></option><option value="1483"></option><option value="1485"></option><option value="1527"></option><option value="1568"></option><option value="1574"></option><option value="1617"></option><option value="1631"></option><option value="1641"></option><option value="1655"></option><option value="1661"></option><option value="1663"></option><option value="1672"></option><option value="1700"></option><option value="1486"></option><option value="1509"></option><option value="1513"></option><option value="1515"></option><option value="1518"></option><option value="1520"></option><option value="1522"></option><option value="1524"></option><option value="1525"></option><option value="1529"></option><option value="1530"></option><option value="1531"></option><option value="1533"></option><option value="1534"></option><option value="1535"></option><option value="1538"></option><option value="1539"></option><option value="1540"></option><option value="1542"></option><option value="1544"></option><option value="1547"></option><option value="1548"></option><option value="1551"></option><option value="1555"></option><option value="1556"></option><option value="1576"></option><option value="1598"></option><option value="1603"></option></datalist>
+    <p id="year-event" class="event" aria-live="polite"></p>
+    <p class="hint">The model opens at 1547, the best-recorded year. 1450–1521: the brick house built under the licence of 1426; Archbishop Neville altered it in the 1460s, mostly below ground. 1522–29: Wolsey’s outer ranges, towers, long gallery and garden; the years are not recorded, so they are drawn faint from 1522 and solid from 1525, a chosen year. 1530–47: Henry VIII’s house, altered only in small ways; the labels take the room names of Thurley’s plan from 1530. 1548–1660: decline. The house was sold for its materials in 1574 and was “ruins” by 1598; Wolsey’s outer buildings are drawn roofless from 1576, while the gatehouse and the old ranges round the inner court keep their roofs. 1661–1700: every building is gone and only the moats remain.</p>
+  </div>
+
+  <div class="group">
+    <h2 class="group-title">Views</h2>
+    <p class="hint">Drag to move · right-drag, Shift-drag or two fingers to turn · scroll or pinch to zoom · double-click to fly in</p>
+    <div class="views">
+      <button class="view-btn" data-view="overview" aria-pressed="true" type="button">Overview</button>
+      <button class="view-btn" data-view="plan" aria-pressed="false" type="button">Plan from above</button>
+      <button class="view-btn" data-view="gate" aria-pressed="false" type="button">Gatehouse and bridge</button>
+      <button class="view-btn" data-view="court" aria-pressed="false" type="button">Inner court</button>
+      <button class="view-btn" data-view="north" aria-pressed="false" type="button">From the north</button>
+      <button class="view-btn" data-view="garden" aria-pressed="false" type="button">Privy garden</button>
+      <button class="view-btn" data-view="base" aria-pressed="false" type="button">Base court</button>
+      <button class="view-btn" data-view="site" aria-pressed="false" type="button">Whole site</button>
+    </div>
+    <label class="check" for="keys-on"><input id="keys-on" type="checkbox" checked> Keyboard shortcuts: + − zoom, [ ] turn, N north</label>
+  </div>
+
+  <details class="group howto" id="bld-list-wrap">
+    <summary><h2 class="group-title">Buildings standing in <span id="bld-list-year">1547</span></h2></summary>
+    <p class="hint">Choose a building to read about it; the view moves to it. The list follows the year.</p>
+    <ul id="bld-list"></ul>
+  </details>
+
+  <div class="group">
+    <h2 class="group-title">Layers</h2>
+    <label class="row" for="plan-op">Thurley's Plan 10 on the ground <output id="plan-op-out">0%</output>
+      <input id="plan-op" type="range" min="0" max="100" value="0"></label>
+    <label class="row" for="cover-op">Ground cover <output id="cover-op-out">100%</output>
+      <input id="cover-op" type="range" min="0" max="100" value="100"></label>
+    <label class="check" for="show-phase"><input id="show-phase" type="checkbox"> Phase plan for this year <span id="phase-label" class="hint"></span></label>
+    <p id="thurley-note" class="hint"></p>
+    <label class="row" for="bld-op">Building opacity <output id="bld-op-out">100%</output>
+      <input id="bld-op" type="range" min="15" max="100" value="100"></label>
+    <label class="check" for="show-labels"><input id="show-labels" type="checkbox" checked> Labels</label>
+    <div class="swatches" aria-label="Colour key">
+      <span><i style="background:#a65a4a"></i>Rose brick</span>
+      <span><i style="background:#d9cdb0"></i>Timber framing</span>
+      <span><i style="background:#dcd6c4"></i>Chalk plinth</span>
+      <span><i style="background:#86493a"></i>Roof tile</span>
+      <span><i style="background:#8a9196"></i>Lead</span>
+      <span><i style="background:#9aa3a6"></i>Undated (faint)</span>
+      <span>No roof = in ruins</span>
+    </div>
+  </div>
+
+  <details class="group howto">
+    <summary><h2 class="group-title">How to read this model</h2></summary>
+    <ul class="hint">
+      <li><b>Where.</b> Simon Thurley's Plan 10 (a conjectural first-floor plan of the house) is treated as ground truth for where each building stood and how big it was. On it, shaded rooms are the buildings that pre-dated Wolsey; the ranges in solid black are later. The photograph of the plan was corrected for camera tilt and laid flat as the ground plan.</li>
+      <li><b>Later evidence.</b> The Wessex Archaeology report on the Time Team excavation of 2012 adds a survey of 1568 and a sale of the house for materials in 1574, neither of which the 1959 excavation report mentions. I know both only from that report. Where it differs from the 1959 report, the cards quote both.</li>
+      <li><b>When.</b> Thurley's plan gives no dates beyond “pre-dated Wolsey”. Dates come from the report on the excavations of 1952–55 (Biddle, Barfield and Millard), which ties the brick house to the licence of 1426 and one set of alterations to Archbishop Neville, 1460–70, and gives the outer ranges to Wolsey because Henry VIII’s works are known from accounts and do not include them.</li>
+      <li><b>What it looked like.</b> No view of the house is among the sources. Materials come from the excavation (rose-red brick in English bond over a chalk plinth, roof tiles). Heights, roof shapes, windows, chimneys and battlements are estimates; each card says so.</li>
+      <li><b>Windows and roofs.</b> The excavated finds show leaded windows, some with painted glass of Henry VIII’s time and perhaps Wolsey’s motto, plain tiled roofs, and at least one Renaissance stone moulding and a carved chimneypiece. All came from the demolition layer, so they cannot be placed on any one range; they are quoted on the cards but do not change how any building is drawn.</li>
+      <li><b>Each card</b> has up to four parts: a description, what comes from a named source, what is estimated, and what is known of the building after 1547.</li>
+      <li><b>Ruin.</b> The sources say the house was decayed in 1556 and 1568, sold for its materials in 1574, and in ruins by 1598; the excavation dates demolition on the north side to about 1575 and the final clearance to 1655–61. The two accounts are not reconciled in anything I have read. The model shows Wolsey’s outer buildings without roofs from 1576, keeps the gatehouse and the old inner ranges roofed, and removes everything in 1661. A building “in ruins” is drawn without its roof and chimneys, with its walls at full height. That is a convention, not evidence: no source describes what the ruins looked like.</li>
+      <li><b>Faint buildings</b> have no established date. Wolsey’s works are faint from 1522 to 1524 and solid from 1525 (a chosen year: the Treaty of the More was held in the house then, but no source says when the work was finished), and Henry VIII’s covered walk from 1530 to 1543, because only a span of years is known. The base court and the garden turn solid in 1534, when the accounts first attest them. The leats, the moated enclosures, the garden moat and the orchard turn solid only in 1547, the date of Thurley’s Plan 9.</li>
+      <li><b>Room names.</b> Thurley’s plan names the King’s and Queen’s watching and presence chambers. Those are names from Henry VIII’s accounts of 1534–44; they are used on the labels from 1530, when Henry took possession of the house.</li>
+      <li><b>The phase plan</b> can be laid over the ground under Layers. To 1529 it is the excavators' own plan (their Fig. 6), which shows which walls were actually found. For 1530–47 it is Thurley's Plan 9 of the whole site in 1547. After 1547 it is the excavators' plan again.</li>
+      <li><b>The wider site</b> (river, leats, moated enclosures, orchard) is placed from Plan 9, which is coarser than Plan 10 and may be several metres out. These are laid flat on the ground, without banks.</li>
+      <li><b>North.</b> Thurley's plans put north square to the walls, and the model follows them. The excavators' plan draws its north arrow about 12° east of the line of the walls. The two disagree and the sources here do not settle it.</li>
+    </ul>
+  </details>
+
+  <div class="group">
+    <h2 class="group-title">Historical Images</h2>
+    <p class="hint">No view of the house is among the sources; these are the plans the model is built from, in order of publication.</p>
+    <div class="refs">
+      <button class="ref" type="button" data-ref="0"><img loading="lazy" decoding="async" src="assets/biddle-fig1-site.jpg" alt="Plan of the site of the manor, from the excavation report, 1959"><span>Site plan, 1959</span></button>
+      <button class="ref" type="button" data-ref="1"><img loading="lazy" decoding="async" src="assets/biddle-fig6-periods-iv-viii.jpg" alt="Excavation plan of the house, Periods IV to VIII, from the excavation report, 1959"><span>Excavation plan, 1959</span></button>
+      <button class="ref" type="button" data-ref="2"><img loading="lazy" decoding="async" src="assets/thurley-plan9-block-1547.jpg" alt="Thurley, Plan 9: block plan of the manor and gardens in 1547"><span>Thurley, Plan 9</span></button>
+      <button class="ref" type="button" data-ref="3"><img loading="lazy" decoding="async" src="assets/thurley-plan10-first-floor.jpg" alt="Thurley, Plan 10: conjectural first-floor plan of the More"><span>Thurley, Plan 10</span></button>
+    </div>
+  </div>
+
+  <p class="note">The ground plan under this model is Thurley's Plan 10, photographed from the book and corrected for camera tilt. Scale is 0.1&nbsp;m per plan pixel. The plan's two printed scale bars disagree by about 3% (the feet bar gives 0.0645&nbsp;m and the metre bar 0.0665&nbsp;m per pixel of the corrected photograph); the model uses the mean, so distances are good to about 1.5%. The excavators' measured plan gives the old house a width of about 119&nbsp;ft (36.4&nbsp;m), which falls between the two. The plan is a conjectural first-floor plan, so ground-floor arrangements are not shown on it.</p>
+
+  <div class="group" id="bibliography">
+    <h2 class="group-title">Bibliography</h2>
+    <ul class="bib">
+      <li>Biddle, Martin, Lawrence Barfield, and Alan Millard. “The Excavation of the Manor of the More, Rickmansworth, Hertfordshire.” <cite>Archaeological Journal</cite> 116 (1959): 136–199.</li>
+      <li>Page, William, ed. “Parishes: Rickmansworth.” In <cite>A History of the County of Hertford</cite>, vol. 2, 371–86. London: Victoria County History, 1908. <a href="https://www.british-history.ac.uk/vch/herts/vol2/pp371-386" target="_blank" rel="noopener">British History Online<span class="sr"> (opens in a new tab)</span></a>.</li>
+      <li>Thurley, Simon. <cite>The Royal Palaces of Tudor England: Architecture and Court Life, 1460–1547</cite>. New Haven and London: Yale University Press, 1993. Plans 9 and 10.</li>
+      <li>Wessex Archaeology. <cite>The Manor of the More, Northwood, Hertfordshire: Archaeological Evaluation and Assessment of Results</cite>. Report 85202.01. Salisbury, 2013. <a href="https://www.wessexarch.co.uk/our-work/time-team-series-20-wolseys-lost-palace-manor-more-northwood" target="_blank" rel="noopener">Wessex Archaeology project page<span class="sr"> (opens in a new tab)</span></a>. Used for the Time Team excavation of 2012 and for its quotations from the survey of 1568 (British Library, Lansdowne MS 13, ff. 103–6), which I have not seen.</li>
+    </ul>
+  </div>
+</aside>
+
+<section id="info" hidden aria-live="polite" aria-label="Selected building">
+  <button class="close" type="button" aria-label="Close">×</button>
+  <h2 id="info-title"></h2>
+  <div class="meta" id="info-meta"></div>
+  <div id="info-text"></div>
+</section>
+
+<div id="year-badge" aria-hidden="true">1547</div>
+<div id="compass" aria-hidden="true"><div class="needle"></div></div>
+<nav id="nav" aria-label="Move the view">
+  <button id="nav-in" type="button" title="Zoom in (+)" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button id="nav-out" type="button" title="Zoom out (−)" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+  <span class="sep"></span>
+  <button id="nav-left" type="button" title="Turn left ([)" aria-label="Turn left"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/></svg></button>
+  <button id="nav-right" type="button" title="Turn right (])" aria-label="Turn right"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4h-4"/></svg></button>
+  <button id="nav-north" type="button" title="Face north (N)" aria-label="Face north"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 16V8l6 8V8"/></svg></button>
+  <button id="nav-home" type="button" title="Back to the overview" aria-label="Back to the overview"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6 10v10h12V10"/></svg></button>
+</nav>
+
+<div id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Picture">
+  <figure>
+    <div class="lb-bar">
+      <span id="lb-count" aria-live="polite"></span>
+      <button type="button" id="lb-prev" title="Previous image (←)">← Previous</button>
+      <button type="button" id="lb-next" title="Next image (→)">Next →</button>
+      <button type="button" id="close-painting">Close</button>
+    </div>
+    <img id="lb-img" src="assets/thurley-plan10-first-floor.jpg" alt="">
+    <figcaption id="lb-cap"></figcaption>
+  </figure>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { MapControls } from 'three/addons/controls/MapControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+// ---------- Plan coordinate system ----------
+// All footprints are written in pixel coordinates of the base plan: Thurley's Plan 10 of the More (The Royal Palaces of
+// Tudor England, 1993), photographed from the book, corrected for camera tilt and cropped to 1369 x 2343 px
+// (assets/thurley-plan10-first-floor.jpg). Plan top = north.
+// How the photograph was straightened: the two long walls of the house and the two sides of the long gallery converged
+// down the page (vanishing point about 38,000 px below the frame), which is the tilt of the camera; a projective
+// correction made them parallel, and a shear of about 1 degree squared them to the top wall and the scale bars. After
+// correction the outer walls are vertical to 1 px and the north front is level to 3 px. The south (gate) front is NOT
+// level on the plan: it runs about 3.7 degrees off square, as it also does on the excavators' measured plan (Fig. 6),
+// so that skew is real and is kept.
+// Scale: the plan's two printed bars disagree by 3%. On the corrected photograph 100 ft = 473 px (0.0645 m/px) and
+// 30 m = 451.5 px (0.0665 m/px). The mean, 0.0655 m/px, is used, and the image was resized by 0.655 so that
+// 1 plan px = 0.1 m. Good to about 1.5%. Check: the excavators' Fig. 6 gives the 1426 house a width of about 119 ft
+// (36.4 m); here it is 360 px = 36.0 m.
+const IMG_W = 1369, IMG_H = 2343;
+const S = 0.1, K = 1;
+const CX = IMG_W / 2, CY = IMG_H / 2;
+const DEG = Math.PI / 180;
+const wx = (x) => (x - CX) * S, wz = (y) => (y - CY) * S;
+const P = (x, y, h = 0) => new THREE.Vector3(wx(x), h, wz(y));
+const BAY = 3.6, STOREY = 3.8;      // facade texture tile in metres
+const YEAR_MIN = 1450, YEAR_MAX = 1700, YEAR_START = 1547;
+
+// ---------- Renderer / scene ----------
+const host = document.getElementById('scene');
+// Logarithmic depth: the ground is built in layers a few millimetres apart (plan, ground cover, paving, pebbles), and with
+// an ordinary depth buffer they could not be told apart from far away, so they flickered through each other when zoomed out.
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, logarithmicDepthBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = false;   // the scene is static: shadows are redrawn only when something changes
+const refreshShadows = () => { renderer.shadowMap.needsUpdate = true; };
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+host.appendChild(renderer.domElement);
+
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(innerWidth, innerHeight);
+Object.assign(labelRenderer.domElement.style, { position: 'absolute', top: '0', left: '0', pointerEvents: 'none' });
+labelRenderer.domElement.id = 'labels';
+host.appendChild(labelRenderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 1, 4000);
+// Map-style navigation: drag to move across the ground, right-drag (or Shift/Ctrl-drag, or two fingers) to turn
+// and tilt, scroll or pinch to zoom towards the point under the cursor, arrow keys to move.
+const controls = new MapControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.12;
+controls.zoomToCursor = true;
+controls.zoomSpeed = 1.4;
+controls.rotateSpeed = 0.6;
+controls.panSpeed = 1.1;
+controls.maxPolarAngle = 0.47 * Math.PI;
+controls.minDistance = 6;
+controls.maxDistance = 1300 * K;
+controls.keyPanSpeed = 25;
+// Arrow keys pressed in a slider or other form control belong to that control, not to the camera
+addEventListener('keydown', (e) => { if (e.key.startsWith('Arrow') && e.target.closest?.('input, select, textarea, summary, #bld-list')) e.stopPropagation(); }, true);
+controls.listenToKeyEvents(window);
+renderer.domElement.setAttribute('role', 'img');
+
+scene.add(new THREE.HemisphereLight(0xdfe7ea, 0x6b6250, 1.1));
+controls.maxDistance = 700;
+const sun = new THREE.DirectionalLight(0xfff1dc, 2.2);
+sun.position.set(-150, 230, 130);           // afternoon sun from the south-west (plan bottom-left; north is up the plan)
+sun.castShadow = true;
+const smallScreen = matchMedia('(max-width: 720px), (pointer: coarse)').matches;
+sun.shadow.mapSize.setScalar(smallScreen ? 2048 : 4096);   // a lighter shadow map on phones and tablets
+Object.assign(sun.shadow.camera, { left: -180, right: 180, top: 180, bottom: -180, near: 10, far: 800 });
+sun.shadow.bias = -0.0004;
+sun.shadow.normalBias = 0.4;
+scene.add(sun);
+
+// ---------- Ground: the plan itself ----------
+const texLoader = new THREE.TextureLoader();
+const hideLoading = () => { document.getElementById('loading').hidden = true; };
+const planTex = texLoader.load('assets/thurley-plan10-first-floor.jpg', hideLoading, undefined, hideLoading);   // also cleared if the plan image fails to load
+setTimeout(hideLoading, 8000);
+planTex.colorSpace = THREE.SRGBColorSpace;
+planTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+// The house moat and the island it encloses, traced from Thurley's Plan 10 (plan px).
+// MOAT is the outer bank. ISLAND is the ground inside the water: on the plan this is the outer wall of the later
+// (black) ranges plus the gate front and its two towers. For 1485-1521 the same outline is used as the edge of the
+// island, which is an ESTIMATE: the excavators say the 1426 house had "a flat space of 34 ft. or more" between its
+// walls and the lip of the moat on the north, west and east, and that Wolsey's new wall on the north was built by
+// cutting back "the original sloping bank of the moat". Thurley's line gives a berm of 12 m (north), 18 m (west) and
+// 8 m (east) around the old house, which agrees with that only roughly.
+const MOAT = [[235, 745], [690, 738], [727, 745], [950, 760], [1200, 800], [1240, 830], [1262, 900], [1275, 1100], [1285, 1400], [1275, 1560], [1240, 1600], [1100, 1620],
+  [900, 1620], [716, 1618], [670, 1618], [400, 1615], [300, 1600], [240, 1560], [222, 1450], [218, 1100], [225, 800]];
+const ISLAND = [[334, 910], [959, 910], [959, 1455], [877, 1455], [877, 1484], [775, 1478], [775, 1508], [620, 1500], [620, 1466], [518, 1460], [518, 1434], [334, 1424]];
+// Levels. Height 0 is the ground of the house. The excavators call the moat "wide and shallow"; they give no depth
+// that I have read, so the water level (0.9 m down) and the bed (2.2 m down) are estimates.
+const WATER_Y = -0.9, BED_Y = -2.2;
+const v2 = ([x, y]) => new THREE.Vector2(wx(x), -wz(y));
+function flatShape(pts, y, mat, planUV = false, holes = []) {
+  const sh = new THREE.Shape(pts.map(v2));
+  for (const h of holes) sh.holes.push(new THREE.Path(h.map(v2)));
+  const geo = new THREE.ShapeGeometry(sh);
+  if (planUV) {   // map the plan image by plan pixel, so the cut-out keeps the image registered
+    const pos = geo.attributes.position, uv = geo.attributes.uv;
+    for (let i = 0; i < pos.count; i++) uv.setXY(i, (pos.getX(i) / S + CX) / IMG_W, 1 - (-pos.getY(i) / S + CY) / IMG_H);
+  }
+  const m = new THREE.Mesh(geo, mat);
+  m.rotation.x = -Math.PI / 2; m.position.y = y; m.receiveShadow = true;
+  scene.add(m); return m;
+}
+// A slab of ground with real sides, so the banks of the moat are solid
+function slab(pts, holes, top, depth, mat) {
+  const sh = new THREE.Shape(pts.map(v2));
+  for (const h of holes) sh.holes.push(new THREE.Path(h.map(v2)));
+  const m = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: false }), mat);
+  m.rotation.x = -Math.PI / 2; m.position.y = top - depth; m.receiveShadow = true;
+  scene.add(m); return m;
+}
+const FAR = [[-4000, -4000], [5400, -4000], [5400, 6400], [-4000, 6400]];
+const PLAN_RECT = [[0, 0], [IMG_W, 0], [IMG_W, IMG_H], [0, IMG_H]];
+const bankM = new THREE.MeshStandardMaterial({ color: 0x7f8560, roughness: 1 });
+slab(FAR, [MOAT], -0.02, 3, bankM);
+slab(ISLAND, [], -0.02, 3, new THREE.MeshStandardMaterial({ color: 0xa79a80, roughness: 1 }));
+flatShape([[100, 650], [1400, 650], [1400, 1720], [100, 1720]], BED_Y, new THREE.MeshStandardMaterial({ color: 0x5b5a48, roughness: 1 }));
+const planMat = new THREE.MeshStandardMaterial({ map: planTex, roughness: 1, transparent: true, opacity: 1 });
+flatShape(PLAN_RECT, 0.02, planMat, true, [MOAT]);
+flatShape(ISLAND, 0.02, planMat, true);
+
+// ---------- Ground cover ----------
+// A layer over the plan, with its own opacity control. What each surface rests on:
+//  - inner court: "a courtyard of knapped flints, closely laid on a bed of fine greenish-yellow sand" (excavation report,
+//    Period IV). Shown as dark flint cobbling.
+//  - the island outside the walls: the report says only that it was a flat open space; shown as grass (estimate).
+//  - base court yard and the way to the bridge: gravel (estimate; the Henrician accounts record gravel laid on the
+//    highway, nothing on the yard itself).
+//  - everything else: grass (estimate).
+const coverMats = [];
+{
+  const speck = (base, dots, n, r0, r1) => canvasTex(256, 256, (x, w, h) => {
+    x.fillStyle = base; x.fillRect(0, 0, w, h); let sd = 7;
+    const rnd = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
+    for (let k = 0; k < n; k++) { x.fillStyle = dots[Math.floor(rnd() * dots.length)]; const r = r0 + rnd() * (r1 - r0); x.beginPath(); x.ellipse(rnd() * w, rnd() * h, r, r * (.7 + rnd() * .5), rnd() * 3, 0, 7); x.fill(); }
+  });
+  const mat = (tex, metres) => { tex.repeat.set(1 / metres, 1 / metres); const m = new THREE.MeshStandardMaterial({ map: tex, roughness: 1, transparent: true, opacity: .9, depthWrite: false }); coverMats.push(m); return m; };
+  const flintM = mat(canvasTex(256, 256, (x, w, h) => {
+    x.fillStyle = '#6f6c62'; x.fillRect(0, 0, w, h); let sd = 11; const rnd = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
+    for (let j = 0; j < 20; j++) for (let i = 0; i < 20; i++) { const g = 60 + Math.floor(rnd() * 70); x.fillStyle = `rgb(${g + 6},${g + 8},${g + 14})`; x.beginPath(); x.ellipse(i * 12.8 + (j % 2 ? 6.4 : 0) + 6, j * 12.8 + 6, 5.4, 4.6, rnd() * 3, 0, 7); x.fill(); }
+  }), 2.4);
+  const gravelM = mat(speck('#cfc4a2', ['#c2b692', '#dbd1b2', '#b7aa88'], 3200, .6, 1.4), 5);
+  const grassM = mat(speck('#7d9258', ['#718650', '#889d62', '#6a7d4a', '#93a66c'], 3000, .8, 2.4), 7);
+  const lay = (pts, y, m, holes = []) => { const o = flatShape(pts, y, m, false, holes); o.renderOrder = .5 + y; return o; };
+  lay(FAR, .028, grassM, [MOAT]);
+  lay(ISLAND, .028, grassM);
+  lay([[592, 1135], [812, 1135], [812, 1390], [592, 1378]], .033, flintM);                 // the inner court
+  lay([[495, 1622], [890, 1622], [890, 2045], [495, 2045]], .031, gravelM);               // the base court yard
+  lay([[668, 2040], [703, 2040], [703, 2700], [668, 2700]], .032, gravelM);               // the way in from the south
+}
+
+// ---------- Phase plans, registered to the base plan ----------
+// Plate pixel (u, v) -> base plan pixel (a*u - b*v + tx, b*u + a*v + ty). `frame` is the part of the plate that is drawn.
+// Fig. 6 of the excavation report (Periods IV-VIII) is a flat scan with a feet scale: 100 ft = 448 px on the page as
+// rendered, so 1 px = 0.068 m = 0.6804 base px. It is placed, without rotation, so that the west and east outer walls of
+// the 1426 house and its north wall fall on the same walls of Thurley's plan; the south front then lands within 0.5 m.
+const PHASE_PLANS = [
+  { from: 1450, to: 1530, label: 'Excavation plan, Periods IV–VIII (shown for 1450–1529)',
+    note: "The excavators' plan of the brick house (their Fig. 6). Solid black is the house of 1426; cross-hatching is Archbishop Neville's work of 1460–70. Diagonal hatching is Wolsey's work (1522–29); vertical hatching is Henry VIII's, after the years shown here. Dashed lines are walls inferred, not found. Its north arrow is drawn about 12° east of the walls; Thurley's plans, which the model follows, put north square to the walls.",
+    src: 'assets/biddle-fig6-periods-iv-viii.jpg', w: 1098, h: 987, a: 0.6804, b: 0, tx: 304.1, ty: 837.4, frame: [4, 4, 1094, 983] },
+  // Thurley's Plan 9: the asset is the photograph cropped at native (280, 180) and reduced by 0.49724; see P9 below for the placement.
+  { from: 1530, to: 1548, label: 'Thurley, Plan 9: the manor and gardens, 1547',
+    note: "Thurley's block plan of the whole site in 1547: the River Colne, the leats, the two moated enclosures to the west, the garden, the orchard and the base court. It is laid over the ground by its own metre scale, anchored on the long gallery and the north front. It is a coarser drawing than Plan 10, and the photograph was not corrected for camera tilt, so it does not sit exactly on the model: its house is drawn about 3.5 m wider.",
+    src: 'assets/thurley-plan9-block-1547.jpg', w: 1800, h: 1213, a: 3.9418, b: 0, tx: -5089.7, ty: -1079.4, frame: [20, 20, 1780, 1193] },
+  { from: 1548, to: 1701, label: 'Excavation plan, Periods IV–VIII (shown for 1548–1700)',
+    note: "The excavators' plan again (their Fig. 6). Thurley's plans stop at 1547; what is known of the house after that comes from the excavation, whose Period VIII is the squatters' occupation of about 1555 to the 1650s. The plan does not mark that occupation separately.",
+    src: 'assets/biddle-fig6-periods-iv-viii.jpg', w: 1098, h: 987, a: 0.6804, b: 0, tx: 304.1, ty: 837.4, frame: [4, 4, 1094, 983] },
+];
+const planLayers = PHASE_PLANS.map((t) => {
+  const [u0, v0, u1, v1] = t.frame, map = (u, v) => P(t.a * u - t.b * v + t.tx, t.b * u + t.a * v + t.ty, 0.06);
+  const corners = [map(u0, v0), map(u1, v0), map(u1, v1), map(u0, v1)];
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(corners.flatMap((c) => [c.x, c.y, c.z]), 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute([u0 / t.w, 1 - v0 / t.h, u1 / t.w, 1 - v0 / t.h, u1 / t.w, 1 - v1 / t.h, u0 / t.w, 1 - v1 / t.h], 2));
+  geo.setIndex([0, 2, 1, 0, 3, 2]);
+  // clean the image: page tone to white, lines to dark red, so it reads over the ground
+  const tex = new THREE.CanvasTexture(document.createElement('canvas'));
+  const img = new Image(); img.src = t.src;
+  img.onload = () => {
+    const c = tex.image; c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+    const d = x.getImageData(0, 0, c.width, c.height), p = d.data;
+    for (let i = 0; i < p.length; i += 4) {
+      const l = (p[i] + p[i + 1] + p[i + 2]) / 3, k = Math.max(0, Math.min(1, (l - 105) / 55));   // 0 = line, 1 = paper
+      p[i] = 255 * k + 200 * (1 - k); p[i + 1] = 255 * k; p[i + 2] = 255 * k;
+    }
+    x.putImageData(d, 0, 0); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8; tex.needsUpdate = true; refreshShadows();
+  };
+  const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tex, blending: THREE.MultiplyBlending, premultipliedAlpha: true, transparent: true, depthWrite: false }));
+  m.renderOrder = 1; m.visible = false; m.userData.phase = t; scene.add(m);
+  return m;
+});
+
+// ---------- Materials ----------
+function facadeTexture({ wall, glass = '#2b3338', frame = '#e3dccb', ww = 40, wh = 64, wy = 34, mullions = true, courses = true, checker = false, pediment = false, rustic = false }) {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d');
+  g.fillStyle = wall; g.fillRect(0, 0, 128, 128);
+  if (checker) {
+    for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) if ((i + j) % 2) { g.fillStyle = '#3d4144'; g.fillRect(i * 16, j * 16, 16, 16); }
+  }
+  for (let i = 0; i < 700; i++) {
+    g.fillStyle = `rgba(${Math.random() < .5 ? '0,0,0' : '255,255,255'},${Math.random() * 0.07})`;
+    g.fillRect(Math.random() * 128, Math.random() * 128, 4, 2);
+  }
+  if (courses) { g.fillStyle = 'rgba(0,0,0,0.05)'; for (let y = 0; y < 128; y += 5) g.fillRect(0, y, 128, 1); }
+  if (rustic) { g.fillStyle = 'rgba(0,0,0,0.08)'; for (let y = 0; y < 128; y += 16) g.fillRect(0, y, 128, 2); }
+  const x = (128 - ww) / 2;
+  g.fillStyle = frame; g.fillRect(x - 4, wy - 4, ww + 8, wh + 8);
+  if (pediment) { g.beginPath(); g.moveTo(x - 8, wy - 6); g.lineTo(64, wy - 18); g.lineTo(x + ww + 8, wy - 6); g.closePath(); g.fill(); }
+  g.fillStyle = glass; g.fillRect(x, wy, ww, wh);
+  if (mullions) { g.fillStyle = frame; g.fillRect(63, wy, 3, wh); g.fillRect(x, wy + wh * 0.32, ww, 3); }
+  g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(0, 124, 128, 4);   // storey band
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  return t;
+}
+const allMats = [];
+const M = (opts) => { const m = new THREE.MeshStandardMaterial({ roughness: 0.9, ...opts }); allMats.push(m); return m; };
+const wallColors = { brick: '#9a4f3a', tudor: '#7d4a3c', stone: '#d6ccb4', render: '#c9b893', checker: '#d8d0bc', grey: '#c6c4bb', hall: '#cbc4b2', lime: '#e4dcc8', darkstone: '#8c8679' };
+const mats = {
+  brick:  M({ map: facadeTexture({ wall: wallColors.brick }) }),
+  tudor:  M({ map: facadeTexture({ wall: wallColors.tudor, ww: 34, wh: 48, wy: 44, frame: '#cfc4ad' }) }),
+  stone:  M({ map: facadeTexture({ wall: wallColors.stone, ww: 34, wh: 66, wy: 36, frame: '#efe8d8', glass: '#30373b', pediment: true, rustic: true, courses: false, mullions: false }) }),
+  render: M({ map: facadeTexture({ wall: wallColors.render, ww: 36, wh: 56, wy: 40, frame: '#f0ead9' }) }),
+  hall: M({ map: ashlar('#cbc4b2', 16, false) }),
+  darkstone: M({ map: ashlar('#8c8679', 16, false) }),
+  lime: M({ map: facadeTexture({ wall: '#e4dcc8', ww: 36, wh: 54, wy: 40, frame: '#f2ede0' }) }),
+  grey: M({ map: facadeTexture({ wall: wallColors.grey, ww: 34, wh: 52, wy: 42, frame: '#ece8dc' }) }),
+  checker: M({ map: facadeTexture({ wall: wallColors.checker, ww: 22, wh: 40, wy: 48, checker: true, courses: false }) }),
+};
+const plain = Object.fromEntries(Object.entries(wallColors).map(([k, v]) => [k, M({ color: v })]));
+const roofs = {
+  slate: M({ color: 0x59636b, roughness: 0.8 }),
+  lead:  M({ color: 0x8a9196, roughness: 0.55, metalness: 0.15 }),
+  tile:  M({ color: 0x86493a, roughness: 0.95 }),
+};
+const dark = M({ color: 0x23282b });
+const white = M({ color: 0xe9e5da });
+const gilt = M({ color: 0xc19a3c, metalness: 0.6, roughness: 0.4 });
+const leaf = M({ color: 0x4f6b3a, roughness: 1, flatShading: true });
+const bark = M({ color: 0x5a4632 });
+
+// ---------- Geometry helpers ----------
+function facadeBox(w, h, d) {
+  const geo = new THREE.BoxGeometry(w, h, d);
+  const uv = geo.attributes.uv;
+  const ext = [d, d, 0, 0, w, w];   // +x, -x, +y, -y, +z, -z
+  for (let f = 0; f < 6; f++) for (let k = 0; k < 4; k++) {
+    const i = f * 4 + k;
+    if (!ext[f]) { uv.setXY(i, 0.02, 0.02); continue; }
+    uv.setXY(i, uv.getX(i) * Math.max(1, Math.round(ext[f] / BAY)), uv.getY(i) * Math.max(1, Math.round(h / STOREY)));
+  }
+  return geo;
+}
+// Hip or gable roof, ridge along local x. Group 0 = roof slopes, group 1 = gable ends (wall).
+function roofGeo(w, d, rh, hip) {
+  const r = hip ? Math.max(0, w / 2 - d / 2) : w / 2;
+  const A = [-w / 2, 0, -d / 2], B = [w / 2, 0, -d / 2], C = [w / 2, 0, d / 2], D = [-w / 2, 0, d / 2];
+  const R1 = [-r, rh, 0], R2 = [r, rh, 0];
+  const slopes = [A, R1, R2, A, R2, B, C, R2, R1, C, R1, D];
+  const ends = [B, R2, C, D, R1, A];
+  const pos = [...slopes, ...ends].flat();
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.computeVertexNormals();
+  geo.addGroup(0, slopes.length, 0);
+  geo.addGroup(slopes.length, ends.length, hip ? 0 : 1);
+  return geo;
+}
+function mesh(geo, mat, shadow = true) {
+  const m = new THREE.Mesh(geo, mat);
+  m.castShadow = shadow; m.receiveShadow = true;
+  return m;
+}
+function ogeeCap(r, h, mat) {
+  const pts = [[r * 1.08, 0], [r * 1.12, h * .06], [r * 1.0, h * .25], [r * .7, h * .5], [r * .3, h * .72], [r * .12, h * .86], [r * .08, h], [0, h]]
+    .map(([x, y]) => new THREE.Vector2(x, y));
+  return mesh(new THREE.LatheGeometry(pts, 8), mat);
+}
+function turret(r, h, wallMat, capMat = roofs.lead, capH = r * 2.6) {
+  const g = new THREE.Group();
+  const body = mesh(new THREE.CylinderGeometry(r, r, h, 8), wallMat); body.position.y = h / 2; g.add(body);
+  const cap = ogeeCap(r, capH, capMat); cap.position.y = h; g.add(cap);
+  const fin = mesh(new THREE.SphereGeometry(r * .16, 8, 6), gilt); fin.position.y = h + capH + r * .12; g.add(fin);
+  return g;
+}
+function lantern(r, h, wallMat = white, capMat = roofs.lead) {
+  return turret(r, h, wallMat, capMat, r * 2.2);
+}
+function crenellate(g, w, d, y, mat, size = 0.7) {
+  const merlon = new THREE.BoxGeometry(size, size * 1.2, size);
+  const edge = (len, fn) => { const n = Math.floor(len / (size * 2)); for (let i = 0; i <= n; i++) fn(-len / 2 + i * (len / n)); };
+  const add = (x, z) => { const m = mesh(merlon, mat); m.position.set(x, y + size * .6, z); g.add(m); };
+  edge(w, (x) => { add(x, -d / 2 + size / 2); add(x, d / 2 - size / 2); });
+  edge(d, (z) => { add(-w / 2 + size / 2, z); add(w / 2 - size / 2, z); });
+}
+
+// ---------- Building factory ----------
+// def: c=[px,py] centre on plan, w=length along angle a (plan px), d=depth (plan px), a=degrees (plan, y-down),
+//      h=eaves height (m), roof: gable|hip|flat, rh=roof rise (m), mat, roofMat
+const buildings = [], labels = [];
+function block(def) {
+  const w = def.w * S, d = def.d * S, h = def.h;
+  const g = new THREE.Group();
+  const wallMat = mats[def.mat || 'brick'];
+  const body = mesh(facadeBox(w, h, d), wallMat); body.position.y = h / 2; g.add(body);
+  // shown only when the building is drawn in ruins: a dark inset on the wall-head, so that it reads as an open shell
+  const hollow = mesh(new THREE.BoxGeometry(Math.max(.2, w - .9), .04, Math.max(.2, d - .9)), dark, false); hollow.position.y = h + .03; hollow.visible = false; hollow.userData.ruinPart = true; g.add(hollow);
+  const roofMat = roofs[def.roofMat || 'slate'];
+  const roof = def.roof || 'gable';
+  let top = h;
+  if (roof === 'flat') {
+    const cap = mesh(new THREE.BoxGeometry(w + .3, .5, d + .3), roofMat); cap.position.y = h + .25; cap.userData.roofPart = true; g.add(cap); top = h + .5;
+  } else {
+    const rh = def.rh ?? Math.min(Math.min(w, d) * 0.36, 4.4);   // a single-pile roof: the views show no roofs as tall as a wide block under one steep pitch would need
+    const long = w >= d;
+    const rg = roofGeo(long ? w + .6 : d + .6, long ? d + .6 : w + .6, rh, roof === 'hip');
+    const r = mesh(rg, [roofMat, plain[def.mat || 'brick']]);
+    r.position.y = h; if (!long) r.rotation.y = Math.PI / 2;
+    r.userData.roofPart = true; g.add(r); top = h + rh;   // roofPart: hidden when the building is drawn in ruins
+  }
+  g.position.copy(P(def.c[0], def.c[1]));
+  g.rotation.y = -(def.a || 0) * DEG;
+  g.userData = { def, w, d, h, top };
+  return g;
+}
+// Names that changed over time: def.names = [[from, to, name, short], ...]
+const nameAt = (def, y) => { const n = (def.names || []).find(([a, b]) => y >= a && y < b); return n ? { name: n[2], short: n[3] || n[2] } : { name: def.name, short: def.short || def.name }; };
+function register(g, def) {
+  g.userData.def = def;
+  g.userData.top = g.userData.top ?? def.h;
+  scene.add(g);
+  buildings.push(g);
+  if (def.label) {
+    const el = document.createElement('div');
+    el.className = 'label' + (def.label === 'minor' ? ' minor' : '');
+    el.textContent = def.short || def.name; g.userData.labelEl = el;
+    const lab = new CSS2DObject(el);
+    lab.position.set(0, (g.userData.top || def.h) + 4, 0);
+    g.add(lab);
+    labels.push({ lab, g });
+  }
+  return g;
+}
+const NO_STACKS = /shed|stable|gallery|hall|chapel|tennis|stair|tower|bridge|conduit|cloister|gate|kitchen/i;
+const add = (def, extra) => {
+  const g = block(def), u = g.userData;
+  if (extra) extra(g, u);
+  else if (def.h >= 6 && def.roof !== 'flat' && Math.min(u.w, u.d) > 4 && !NO_STACKS.test(def.name || '')) {
+    // plain blocks get one or two brick chimney stacks on the ridge (an estimate)
+    const long = u.w >= u.d, len = Math.max(u.w, u.d), at = len > 10 ? [-len / 4, len / 4] : [0];
+    chimneys(g, at.map((t) => (long ? [t, 0] : [0, t])), u.h + (u.top - u.h) * .55, 3.2);
+  }
+  return register(g, def);
+};
+// A first-floor gallery over lower storeys. Thurley marks these galleries "(above)": the gallery is on the first floor,
+// over rooms (lower: 'rooms') or, for the Stone Gallery, over a second gallery (lower: 'gallery'). Shown by a string course at
+// first-floor level, a continuous run of tall gallery windows above, and smaller windows and doors to the rooms below.
+const galFrameM = M({ color: 0xd8cfbc, roughness: .9 }), galGlassM = M({ color: 0x2b3338, roughness: .3 }), galDoorM = M({ color: 0x4a3a2a, roughness: 1 });
+function galleryOverRooms(g, u, { lower = 'rooms', doors = 3, faces = [1, -1] } = {}) {
+  const fl = Math.max(3.2, u.h * .45), up = u.h - fl, bay = 3.4, n = Math.max(2, Math.floor(u.w / bay));
+  const frameG = new THREE.BoxGeometry(2.0, up * .66, .14), glassG = new THREE.BoxGeometry(1.6, up * .58, .16);
+  const lowG = lower === 'gallery' ? new THREE.BoxGeometry(1.5, fl * .5, .16) : new THREE.BoxGeometry(.9, 1.1, .16), doorG = new THREE.BoxGeometry(1.2, 2.3, .18);
+  const parts = [[frameG, galFrameM], [glassG, galGlassM], [lowG, galGlassM], [doorG, galDoorM]].map(([geo, mat]) => ({ geo, mat, m: [] }));
+  const m4 = new THREE.Matrix4();
+  for (const sz of faces) {
+    const z = sz * (u.d / 2 + .08);
+    const band = mesh(new THREE.BoxGeometry(u.w + .25, .32, .2), galFrameM); band.position.set(0, fl, z); g.add(band);
+    for (let i = 0; i < n; i++) {
+      const x = -u.w / 2 + u.w * (i + .5) / n;
+      parts[0].m.push(m4.clone().makeTranslation(x, fl + up * .5, z)); parts[1].m.push(m4.clone().makeTranslation(x, fl + up * .5, z + sz * .02));
+    }
+    const lowN = lower === 'gallery' ? n : Math.max(2, Math.floor(u.w / 5.5));
+    for (let i = 0; i < lowN; i++) parts[2].m.push(m4.clone().makeTranslation(-u.w / 2 + u.w * (i + .5) / lowN, lower === 'gallery' ? fl * .5 : fl * .55, z));
+    if (lower === 'rooms') for (let i = 0; i < doors; i++) parts[3].m.push(m4.clone().makeTranslation(-u.w / 2 + u.w * (i + .5) / doors + 1.6, 1.15, z));
+  }
+  for (const p of parts) if (p.m.length) { const im = new THREE.InstancedMesh(p.geo, p.mat, p.m.length); p.m.forEach((mm, i) => im.setMatrixAt(i, mm)); im.castShadow = true; im.receiveShadow = true; g.add(im); }
+}
+
+// ---------- Detail helpers ----------
+const chimneyM = M({ color: 0x8f4b38 }), capM = M({ color: 0x6b382b }), paneM = M({ color: 0x2b3236, roughness: .4 });
+const whiteM = M({ color: 0xebe6d9 });
+const leadedM = M({ roughness: .4, map: canvasTex(64, 128, (x, w, h) => {
+  x.fillStyle = '#2b3236'; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(205,210,200,.3)';
+  for (let i = -h; i < w + h; i += 8) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + h, h); x.moveTo(i + h, 0); x.lineTo(i, h); x.stroke(); }
+  x.fillStyle = '#a8442e'; x.fillRect(w / 2 - 3, 0, 6, h); x.fillRect(0, h * .55, w, 5);
+}) });
+const glazeM = M({ roughness: .3, map: canvasTex(128, 128, (x, w, h) => {
+  x.fillStyle = '#3b474c'; x.fillRect(0, 0, w, h); x.fillStyle = '#e4dfd2';
+  for (let i = 0; i <= w; i += 16) x.fillRect(i - 1, 0, 3, h);
+  for (let j = 0; j <= h; j += 32) x.fillRect(0, j - 1, w, 3);
+}) });
+glazeM.map.repeat.set(6, 1);
+function chimneys(g, pts, base, hgt = 4) {
+  for (const [x, z] of pts) {
+    const c = mesh(new THREE.BoxGeometry(.9, hgt, .75), chimneyM); c.position.set(x, base + hgt / 2, z); c.userData.roofPart = true; g.add(c);
+    const cap = mesh(new THREE.BoxGeometry(1.15, .35, 1.0), capM); cap.position.set(x, base + hgt + .17, z); cap.userData.roofPart = true; g.add(cap);
+  }
+}
+// Dormers on the slope of a roof whose ridge runs along local x.
+function dormers(g, u, n, side = -1, mat = plain.render, rh = 4) {
+  const span = u.w * .8, z = side * u.d * .28, y = u.h + rh * .44;
+  for (let i = 0; i < n; i++) {
+    const x = -span / 2 + span * (i + .5) / n;
+    const b = mesh(new THREE.BoxGeometry(1.3, 1.5, 1.8), mat); b.position.set(x, y + .45, z); g.add(b);
+    const w = mesh(new THREE.PlaneGeometry(.75, .9), paneM, false); w.position.set(x, y + .45, z + side * .91); w.rotation.y = side < 0 ? Math.PI : 0; g.add(w);
+    const r = mesh(roofGeo(1.9, 1.6, .8, false), [roofs.tile, mat]); r.rotation.y = Math.PI / 2; r.position.set(x, y + 1.2, z); g.add(r);
+  }
+}
+// Cross gables on a roof whose ridge runs along local x
+function crossGables(g, xs, h, d, mat, width = 3, rise = 2.6, side = -1, roofMat = roofs.tile) {
+  for (const x of xs) {
+    const r = mesh(roofGeo(3.9, width, rise, false), [roofMat, mat]); r.rotation.y = Math.PI / 2; r.position.set(x, h, side * (d / 2 - 1.65)); g.add(r);
+  }
+}
+// Perpendicular (late Gothic) traceried window: straight jambs and a pointed head
+const traceryM = M({ roughness: .35, map: canvasTex(64, 128, (x, w, h) => {
+  x.fillStyle = '#2a3135'; x.fillRect(0, 0, w, h);
+  x.fillStyle = '#d9d2c0';
+  for (const f of [.25, .5, .75]) x.fillRect(w * f - 2, 0, 4, h);
+  for (const f of [.45, .7]) x.fillRect(0, h * f, w, 3);
+  x.strokeStyle = '#d9d2c0'; x.lineWidth = 3;
+  for (const f of [.25, .5, .75]) { x.beginPath(); x.arc(w * f, h * .18, w * .11, 0, Math.PI * 2); x.stroke(); }
+}) });
+function pointedWindowGeo(w, hgt) {
+  const hs = hgt - w * .62, s = new THREE.Shape();
+  s.moveTo(-w / 2, 0); s.lineTo(w / 2, 0); s.lineTo(w / 2, hs);
+  s.quadraticCurveTo(w / 2, hs + w * .45, 0, hgt); s.quadraticCurveTo(-w / 2, hs + w * .45, -w / 2, hs); s.lineTo(-w / 2, 0);
+  const geo = new THREE.ShapeGeometry(s, 8), pos = geo.attributes.position, uv = geo.attributes.uv;
+  for (let i = 0; i < pos.count; i++) uv.setXY(i, pos.getX(i) / w + .5, pos.getY(i) / hgt);
+  return geo;
+}
+function gothicSides(g, u, n, wW, wH, y0, mat, pin = true) {
+  for (const sz of [-1, 1]) {
+    for (let i = 0; i < n; i++) {
+      const x = -u.w / 2 + u.w * (i + .5) / n;
+      const w = mesh(pointedWindowGeo(wW, wH), traceryM, false); w.position.set(x, y0, sz * (u.d / 2 + .03)); w.rotation.y = sz < 0 ? Math.PI : 0; g.add(w);
+    }
+    for (let i = 0; i <= n; i++) {
+      const x = -u.w / 2 + u.w * i / n;
+      const b = mesh(new THREE.BoxGeometry(.9, u.h + .6, 1.1), mat); b.position.set(x, (u.h + .6) / 2, sz * (u.d / 2 + .5)); g.add(b);
+      if (pin) { const p = mesh(new THREE.ConeGeometry(.38, 2.4, 4), mat); p.position.set(x, u.h + 1.8, sz * (u.d / 2 + .5)); p.rotation.y = Math.PI / 4; g.add(p); }
+    }
+  }
+}
+// Projecting bay window of stone with leaded casements, on the face at z (projecting towards side)
+const casementM = M({ roughness: .4, map: canvasTex(64, 64, (x, w, h) => {
+  x.fillStyle = '#2b3236'; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(205,210,200,.3)';
+  for (let i = -h; i < w + h; i += 7) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + h, h); x.moveTo(i + h, 0); x.lineTo(i, h); x.stroke(); }
+  x.fillStyle = '#ddd5c2'; for (const f of [.33, .66]) x.fillRect(w * f - 2, 0, 4, h); x.fillRect(0, h * .35, w, 4);
+  x.lineWidth = 5; x.strokeStyle = '#ddd5c2'; x.strokeRect(0, 0, w, h);
+}) });
+function bayWindow(g, x, z, side, y0, hgt, wid = 2.6, dep = .8, mat = plain.stone) {
+  const b = mesh(new THREE.BoxGeometry(wid, hgt, dep), mat); b.position.set(x, y0 + hgt / 2, z + side * dep / 2); g.add(b);
+  const floors = Math.max(1, Math.round(hgt / 3.4));
+  for (let k = 0; k < floors; k++) {
+    const w = mesh(new THREE.PlaneGeometry(wid - .45, 2.0), casementM, false);
+    w.position.set(x, y0 + 1.5 + k * hgt / floors, z + side * (dep + .02)); w.rotation.y = side < 0 ? Math.PI : 0; g.add(w);
+  }
+  const cap = mesh(new THREE.BoxGeometry(wid + .2, .3, dep + .2), mat); cap.position.set(x, y0 + hgt + .15, z + side * dep / 2); g.add(cap);
+}
+function canvasTex(w, h, draw) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+function ashlar(color, course, rustic) {
+  return canvasTex(128, 128, (g, w, h) => {
+    g.fillStyle = color; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 600; i++) { g.fillStyle = `rgba(${Math.random() < .5 ? '0,0,0' : '255,255,255'},${Math.random() * .06})`; g.fillRect(Math.random() * w, Math.random() * h, 5, 3); }
+    g.fillStyle = rustic ? 'rgba(40,30,20,.35)' : 'rgba(40,30,20,.16)';
+    for (let y = 0, r = 0; y < h; y += course, r++) {
+      g.fillRect(0, y, w, rustic ? 3 : 1);
+      for (let x = (r % 2) * 32; x < w; x += 64) g.fillRect(x, y, rustic ? 2 : 1, course);
+    }
+  });
+}
+function tiledBox(w, h, d, tw, th) {
+  const geo = new THREE.BoxGeometry(w, h, d), uv = geo.attributes.uv, ext = [d, d, w, w, w, w], ver = [h, h, d, d, h, h];
+  for (let f = 0; f < 6; f++) for (let k = 0; k < 4; k++) { const i = f * 4 + k; uv.setXY(i, uv.getX(i) * ext[f] / tw, uv.getY(i) * ver[f] / th); }
+  return geo;
+}
+
+// ---------- The More, 1485-1521: the brick house of 1426 as altered by Archbishop Neville ----------
+// SOURCES AND HOW THEY ARE USED
+//  TH10  Thurley, Plan 10: "Conjectural first-floor plan. The shaded areas denote the buildings that pre-dated Cardinal
+//        Wolsey's acquisition of the house." Ground truth for POSITION and FOOTPRINT. Everything shaded on it is built
+//        in this section; everything drawn in solid black on it (the outer ranges, long gallery, privy bridge) is later
+//        and is built in the Wolsey section below.
+//  TH9   Thurley, Plan 9: block plan of the manor and gardens, 1547. Not used for positions (it shows the later state).
+//  REP   Biddle, Barfield and Millard, excavation report (excavated 1952-55). Source for DATES (Period IV = licence of
+//        1426; Period V = Neville, 1460-70), for materials, and for features that had gone by the time of Thurley's
+//        plan (the north-east corner tower).
+// Every card has three parts: text (description), src (what a named source says), est (what is estimated here).
+// No view of the house is among the sources, so every height, roof, window, chimney and battlement is an estimate.
+//
+// FOOTPRINTS read off the base plan (plan px, 0.1 m each), outline of the old house on TH10:
+//   north range  x 515-875, y 1034-1135   (10.1 m deep; REP: 36 ft = 11.0 m)
+//   west range   x 515-570, y 1135-1375   (5.5 m; REP: 19 ft = 5.8 m)
+//   east range   x 812-875, y 1135-1394   (6.3 m; REP: 23 ft = 7.0 m)
+//   gate range   centre (697, 1428), 357 x 85 px, turned 3.7 degrees (8.5 m deep; REP: 25 ft = 7.6 m, uncertain)
+//   inner court  x 592-812, y 1135-1378   (22.0 x 24.3 m; REP Fig. 6: about 74 x 77 ft = 22.5 x 23.5 m)
+// (the west and east ranges are stopped where they meet the skewed gate range, so that no two blocks overlap)
+// The strip x 570-592 on the west side of the court on TH10 is the covered walk of Period VII (Henry VIII): see the Henry VIII section.
+mats.frame = M({ map: canvasTex(128, 128, (x, w, h) => {   // close-studded timber framing with plaster panels
+  x.fillStyle = '#d9cdb0'; x.fillRect(0, 0, w, h); x.fillStyle = '#4a3a2a';
+  for (let i = 0; i < w; i += 16) x.fillRect(i, 0, 4, h);
+  for (const y of [0, 60, 122]) x.fillRect(0, y, w, 6);
+}) });
+plain.frame = M({ color: '#cbbf9f' });
+mats.rose = M({ map: facadeTexture({ wall: '#a65a4a', ww: 30, wh: 44, wy: 48, frame: '#d8cdb4' }) });
+plain.rose = M({ color: '#a65a4a' });
+const chalkM = M({ color: 0xdcd6c4 }), timberM = M({ color: 0x7a6248, roughness: 1 }), archM = M({ color: 0x1c1f21 });
+const BRICK_SRC = 'The excavators found the walls of the 1426 house built of chalk rubble faced with brick in English bond, the bricks “ranging in colour from deep to bright rose”; on the outer face of the west wall six courses of dressed chalk came below the brick. Roof tiles were found throughout, and a survey of 1556 speaks of decay “in tiling”.';
+const FINDS_SRC = ' Windows, roofs and fittings, from the excavated finds (nearly all from the demolition layer, so none can be tied to a particular range): about 160 pieces of window lead and many binding strips show leaded glazing, none of it earlier than 1426; fragments of painted glass carry Roman lettering like the work of Galyon Hone, the King’s glazier, who is named in the accounts, a piece reading “…TOR” that may be from Wolsey’s motto “Deus mihi adiutor”, heraldic and floral pieces, and one piece of blue glass “from a different and earlier glazing”; plain roof tiles and one ridge tile were found. A stone moulding with a cornice and half-round pilaster is called “Early Renaissance”, and a carved stone capital is “probably from a lavishly ornamented chimneypiece”. The decorated ridge tiles, finials and louver that the report illustrates belong to the earlier house pulled down about 1426 and are not used here.';
+const LOOK_EST = 'No picture of the house is among the sources. The height, the pitch and shape of the roof, the windows, the chimney stacks and the height of the chalk plinth (shown about 0.9 m) are estimates.';
+function plinth(g, u, hgt = .9) { const p = mesh(new THREE.BoxGeometry(u.w + .16, hgt, u.d + .16), chalkM); p.position.y = hgt / 2; g.add(p); }
+// Buttresses on one long face: xs are positions along the face (m), side is +1 (plan south) or -1 (plan north)
+function buttresses(g, u, xs, side) {
+  for (const x of xs) {
+    const b = mesh(new THREE.BoxGeometry(.75, u.h * .8, .8), plain.rose); b.position.set(x, u.h * .4, side * (u.d / 2 + .4)); g.add(b);
+    const c = mesh(new THREE.BoxGeometry(.75, .5, .5), chalkM); c.position.set(x, u.h * .8 + .1, side * (u.d / 2 + .25)); c.rotation.x = side * .6; g.add(c);
+  }
+}
+const DECAY = 'The last recorded work on the house is of 1547–52. It was deserted about 1555; a survey of 1556 found the manor place “very much decayed, as well in tiling as in glass, lead and waterwork”; a survey of 1568 records further decay; a contract of 4 February 1574 sold the house and buildings to local buyers for the value of their materials, £1,460, without saying when they were to come down (Wessex Archaeology report, which gives no reference for the contract); and in 1598 John Norden saw “the auncient ruynes of Morhouse”. The excavation report, which does not mention the contract, puts the final demolition at 1655–61. ';
+const ROOFLESS = (y) => `From ${y} this building is drawn without its roof, on the evidence of the sale of 1574 and of the demolition the excavators found on the north side from about 1575. That is an estimate: the sources do not say what state this part of the house was in, in any year, and the walls are left at full height only for want of evidence.`;
+const ROOFED = 'This range is drawn with its roof until it is removed in 1661. The house was sold for its materials in 1574 and called ruins in 1598, but the excavation shows squatters still living in the great hall until about 1600, under a roof that was sagging and propped; how much of the roofs round the inner court survived, and for how long, is not recorded, so keeping them is an estimate.';
+const DATE_1426 = 'Built from 1426 · decayed by 1556 · demolished 1655–61';
+
+add({ name: 'North range', short: 'North range (hall?)', label: true, c: [695, 1084.5], w: 360, d: 101, h: 9, rh: 4.2, mat: 'rose', roofMat: 'tile', from: 1426,
+  after: DECAY + 'In the area of the great hall the excavators found squatters’ occupation of the second half of the 16th century: a relaid floor of re-used tiles and bricks with a brick hearth, then a post set at an angle that “must have supported the already sagging roof” and a gully to carry off the rainwater. The hall was still lived in when the lead water pipes were robbed, “possibly just before 1600”; by the end of the century the squatters had moved to the gatehouse because the hall was “too dilapidated to afford any protection”. ' + ROOFED,
+  dates: DATE_1426,
+  text: 'The north side of the courtyard house, and its widest range. It held the principal rooms. The great hall was probably here, on the first floor over storage rooms and a cellar; the room east of it may have been the kitchen.',
+  src: 'Position and outline: Thurley, Plan 10, where it is shaded as pre-dating Wolsey and drawn as two rooms. Date: the excavation report ties this house to the licence of 1426 to “enclose, crenellate, enturret and embattle with stones, lime and brik”. The report gives the range as 36 ft wide (10.1 m on Thurley’s plan). It found the north-west room to be 48 by 25 ft with a tile floor from the beginning and says it “may have been the Great Hall”; the room to the east was full of black soil and bones and “may have been the kitchen”. The accounts of 1534–44 do not say where the hall was; they record it “whitened, plastered and yellow ochred”, with two great escutcheons of the Queen’s arms gilded and painted there. The report says the wall facing the courtyard was buttressed on the north and south sides. A lead window ventilator was found in a pit in the floor of the great hall area. The Time Team trenches of 2012 (Wessex Archaeology report) found this range’s wall to the court, built in one phase with a buttress, and read the building as “the Great Hall”: storage rooms at ground level, the western one a cellar entered from the court down steps, “with the Great Hall itself located above, on the first floor”; the cellar doorway was later blocked, perhaps by Neville. ' + BRICK_SRC + FINDS_SRC,
+  est: LOOK_EST + ' It is shown taller than the other ranges because a hall is likely; that is a guess. The number and spacing of the buttresses are estimates.' },
+  (g, u) => { plinth(g, u); buttresses(g, u, [-9, -3, 3, 9], 1); chimneys(g, [[9, 0]], u.h + 2.3, 3.4); });
+
+add({ name: 'West range', label: 'minor', c: [542.5, 1255], w: 55, d: 240, h: 7, mat: 'rose', roofMat: 'tile', from: 1426, after: DECAY + ROOFED,
+  dates: DATE_1426,
+  text: 'The narrow west side of the courtyard house.',
+  src: 'Position and outline: Thurley, Plan 10 (shaded, pre-Wolsey). Date: excavation report, Period IV (1426). The report gives it as only 19 ft wide (5.5 m on Thurley’s plan) and says its outer wall stood on relieving arches where it crossed an earlier filled-in moat. ' + BRICK_SRC,
+  est: LOOK_EST + ' What the rooms were used for is not known from these sources.' },
+  (g, u) => { plinth(g, u); chimneys(g, [[0, -5], [0, 6]], u.h + 1.1, 3.2); });
+
+add({ name: 'East range', label: 'minor', c: [843.5, 1264.5], w: 63, d: 259, h: 7, mat: 'rose', roofMat: 'tile', from: 1426, after: DECAY + ROOFED,
+  dates: 'Built from 1426 · altered 1460–70 · decayed by 1556 · demolished 1655–61',
+  text: 'The east side of the courtyard house. Archbishop George Neville altered it in the 1460s, putting a brick-vaulted cellar under its north end.',
+  src: 'Position and outline: Thurley, Plan 10 (shaded, pre-Wolsey). Date: excavation report, Period IV (1426), which gives it as about 23 ft wide (6.3 m on Thurley’s plan). The report’s Period V (Neville, between 1460 and 1470) found a cellar inserted at the north end, 3 ft 4 in below the courtyard, with a quadripartite brick vault, a window in its east wall, and a floor above it about 4 ft higher than the courtyard. The report dates the cellar by its vault and mortar, and says so. It also found a wall running east from this range that “might be the foundation of one of a pair of interval towers”; that is not modelled. ' + BRICK_SRC,
+  est: LOOK_EST + ' The cellar is below ground and is not modelled.' },
+  (g, u) => { plinth(g, u); chimneys(g, [[0, -6], [0, 5]], u.h + 1.2, 3.2); });
+
+// The gate range. Its towers and gate passage are placed from TH10 in the range's own (turned) frame.
+add({ name: 'Gatehouse range', short: 'Gatehouse', label: true, c: [697, 1428], w: 357, d: 85, a: 3.7, h: 7, mat: 'rose', roofMat: 'tile', from: 1426,
+  after: DECAY + 'The gatehouse outlasted the rest: when the squatters left the great hall, “the gate-house still stood, for it was perhaps the strongest part of the house, then in ruins”, and they lived in and around it into the 17th century, their rubbish gathering at the foot of the tower. It is therefore drawn whole until 1661. That the flanking parts of this range also kept their roofs is an estimate.',
+  dates: 'Built from 1426 · still standing after 1600 · demolished 1655–61',
+  text: 'The south front of the house, facing the moat, with the gatehouse in the middle. The gate was flanked on the outside by two towers and reached by a bridge with a drawbridge at its inner end. This front runs about 3.7° off square to the rest of the house.',
+  src: 'Position, outline, the two towers and the skewed line of the front: Thurley, Plan 10 (shaded, pre-Wolsey); the excavators’ Fig. 6 shows the same skew. Date: excavation report, Period IV (1426). The report says the entrance “was flanked on the outside by two towers, probably in the form of semi-octagons”, that only this side of the house fronted directly on the moat, and that the width of the range, about 25 ft, was hard to establish. The 1530s accounts mention a “tower on the inner gate”, and a description quoted at second hand in the report, said to come from a survey of the 1560s, calls it “a gate-house with towers” (the report could not find the passage in the survey). Battlements: the licence of 1426 allowed the owners to crenellate and “enturret”; the 1530s accounts mention battlements of brick and of wood elsewhere in the house. ' + BRICK_SRC,
+  est: LOOK_EST + ' The gatehouse is shown one storey higher than the range and the towers higher again, with battlements on both; that they stood higher, and by how much, is an estimate. The towers are drawn as part-octagons 4.8 m across, after the plan; the 2012 trench found the base of the eastern tower and confirmed the semi-octagonal shape (Wessex Archaeology report). That report also describes carved Renaissance stone pillars found on the site in 2010, like work at Hampton Court, which probably flanked a doorway, perhaps at this gatehouse; they are not modelled. The size and shape of the gate arch are estimates.' },
+  (g, u) => {
+    plinth(g, u);
+    const cx = .4, GW = 10.4, GH = 10.5, TH = 12.6;
+    const mid = mesh(facadeBox(GW, GH, u.d + .1), mats.rose); mid.position.set(cx, GH / 2, 0); g.add(mid);
+    const cap = mesh(new THREE.BoxGeometry(GW + .2, .3, u.d + .3), roofs.lead); cap.position.set(cx, GH + .15, 0); g.add(cap);
+    const cg = new THREE.Group(); cg.position.x = cx; g.add(cg); crenellate(cg, GW + .2, u.d + .3, GH + .3, plain.rose);
+    for (const [tx, tz] of [[-4.57, 5.3], [5.37, 5.57]]) {
+      const t = mesh(new THREE.CylinderGeometry(2.4, 2.4, TH, 8), plain.rose); t.rotation.y = Math.PI / 8; t.position.set(tx, TH / 2, tz); g.add(t);
+      const pl = mesh(new THREE.CylinderGeometry(2.48, 2.48, .9, 8), chalkM); pl.rotation.y = Math.PI / 8; pl.position.set(tx, .45, tz); g.add(pl);
+      const tc = mesh(new THREE.CylinderGeometry(2.5, 2.5, .3, 8), roofs.lead); tc.rotation.y = Math.PI / 8; tc.position.set(tx, TH + .15, tz); g.add(tc);
+      for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; const m = mesh(new THREE.BoxGeometry(.8, .85, .5), plain.rose); m.position.set(tx + Math.sin(a) * 2.1, TH + .7, tz + Math.cos(a) * 2.1); m.rotation.y = a; g.add(m); }
+      for (const y of [4.2, 8.2]) { const w = mesh(new THREE.PlaneGeometry(.5, 1.3), archM, false); w.position.set(tx, y, tz + 2.23); g.add(w); }
+    }
+    for (const sz of [1, -1]) {   // the gate arch, on the moat side and the court side
+      const fr = mesh(new THREE.BoxGeometry(3.6, 4.3, .2), chalkM); fr.position.set(cx, 2.15, sz * (u.d / 2 + .1)); g.add(fr);
+      const ar = mesh(new THREE.BoxGeometry(2.9, 3.9, .24), archM); ar.position.set(cx, 1.95, sz * (u.d / 2 + .1)); g.add(ar);
+    }
+    buttresses(g, u, [-11, 11], -1);
+    chimneys(g, [[-12, 0], [12.5, 0]], u.h + 1.6, 3.2);
+    u.top = TH + 1.2;
+  });
+
+// The bridge over the south arm of the moat (TH10: two lines from the gate to the outer bank, x 672-715, y 1500-1618)
+{
+  const g = new THREE.Group(), W = 4.3, y0 = 1496, y1 = 1620, L = (y1 - y0) * S;
+  g.position.copy(P(693.5, (y0 + y1) / 2));
+  const deck = mesh(new THREE.BoxGeometry(W, .28, L), timberM); deck.position.y = .02; g.add(deck);
+  const leaf = mesh(new THREE.BoxGeometry(W - .5, .3, 3.4), M({ color: 0x5f4a35, roughness: 1 })); leaf.position.set(0, .04, -L / 2 + 1.7); g.add(leaf);   // the drawbridge, at the inner end
+  for (const z of [-L / 2 + 3.6, -.6, L / 2 - 3.2]) { const p = mesh(new THREE.BoxGeometry(W + .5, -BED_Y, 1.0), plain.rose); p.position.set(0, BED_Y / 2 - .1, z); g.add(p); }
+  for (const x of [-W / 2 + .1, W / 2 - .1]) {
+    const r = mesh(new THREE.BoxGeometry(.12, .12, L - 3.6), timberM); r.position.set(x, 1.1, 1.8); g.add(r);
+    for (let z = -L / 2 + 3.7; z <= L / 2; z += 1.7) { const p = mesh(new THREE.BoxGeometry(.14, 1.1, .14), timberM); p.position.set(x, .6, z); g.add(p); }
+  }
+  g.userData.top = 1.2;
+  register(g, { name: 'Great bridge', label: 'minor', h: 1.2, from: 1426,
+    after: 'What became of the bridge before the demolition is not recorded, and it is drawn unchanged until 1661. When the house was pulled down in 1655–61 a causeway of rubble was left here, which was the only way on to the moated site until the 1930s.',
+    dates: 'Built from 1426 · later history not recorded',
+    text: 'The bridge from the base court over the moat to the gatehouse, with a drawbridge at its inner end.',
+    src: 'Position and width: Thurley, Plan 10, which draws the crossing as two lines from the gate to the outer bank, 4.3 m apart. The excavation report says the moat “was crossed by a wooden bridge supported on brick piers”, and that robbing had destroyed all trace of the drawbridge mechanism; the 1530s accounts call it “the great bridge”, record “mending and planking” it, and place the drawbridge before the gatehouse. The report gives the moat here as 48 ft wide; the bridge is 12.4 m long on the plan.',
+    est: 'The number and spacing of the piers, the handrails and the length of the drawbridge leaf are estimates. So is the level of the deck.' });
+}
+
+// After the demolition: the causeway of rubble left where the bridge had been
+{
+  const g = new THREE.Group(); g.position.copy(P(693.5, 1558));
+  const c = mesh(new THREE.BoxGeometry(5.5, -BED_Y + .1, 12.6), M({ color: 0x8e7f6c, roughness: 1 })); c.position.y = BED_Y / 2 - .1; g.add(c);
+  g.userData.top = .2;
+  register(g, { name: 'Rubble causeway', label: 'minor', h: .2, flat: true, from: 1661,
+    dates: 'Left by the demolition of 1655–61',
+    text: 'A bank of rubble across the south arm of the moat, on the line of the old bridge.',
+    src: 'The excavation report: “In the area of the entrance bridge on the south side a causeway of rubble was left, by which alone the moated area was entered until the filling of the moats in 1937–39.” The 2012 excavation found deposits of this causeway at the gatehouse (Wessex Archaeology report).',
+    est: 'Its width and height are estimates.' });
+}
+
+// The north-east corner tower: known only from the excavation; it was cut down by Wolsey, so it is not on Thurley's plan.
+add({ name: 'North-east corner tower', short: 'Corner tower', label: 'minor', c: [886, 1023], w: 46, d: 46, h: 11, roof: 'flat', mat: 'rose', roofMat: 'lead', from: 1426, to: 1522,
+  dates: 'Built from 1426 · rebuilt 1460–70 · cut down by Wolsey, year not recorded (shown until 1521)',
+  text: 'A tower at the north-east corner of the 1426 house. Archbishop Neville rebuilt and enlarged it in the 1460s, apparently to take a garderobe. Wolsey cut it down to its foundations for his new east wing.',
+  src: 'Known from the excavation report only. At the north-east angle it found “remains of what seemed to be a corner tower, badly mutilated by a later pit, and cut down to foundation level by the building of the new wing of Period VI”, and in Period V the tower was “reconstructed and enlarged to include a garderobe”; the report itself calls that dating uncertain. Thurley’s Plan 10 does not show it, which is expected: his plan shows the house after Wolsey’s work. The report says corner towers “may have stood” at the other corners too; nothing was found of them, and they are drawn faint as conjectures.',
+  est: 'Its exact position, its size (shown 4.6 m square), its height and its battlements are estimates. It is placed on the north-east corner of the old house as Thurley draws that corner. The year it came down is not recorded. It is shown standing to the end of 1521 and removed from 1522, when Wolsey’s new ranges begin to be drawn faint; it may in fact have stood some years longer.' },
+  (g, u) => { plinth(g, u); crenellate(g, u.w + .3, u.d + .3, u.h + .5, plain.rose); u.top = u.h + 1.4; });
+
+// Conjectural corner towers of the 1426 house: nothing was found of them. Drawn faint (no start date).
+for (const [name, c, to, more] of [
+  ['North-west corner tower (conjectural)', [504, 1023], 1522, 'It is taken out of the model in 1522 with the north-east tower, on the assumption that Wolsey’s new ranges replaced it too; that is not recorded.'],
+  ['South-west corner tower (conjectural)', [507, 1470], 1522, 'It is taken out of the model in 1522 with the north-east tower, on the assumption that Wolsey’s new west wing replaced it; that is not recorded.'],
+  ['South-east corner tower (conjectural)', [886, 1493], undefined, 'It is kept to 1603 because the report says that as late as 1935 brickwork could be seen on the site, “remains of the south-east corner tower being quite prominent”. The report does not say whether that tower belonged to the 1426 house or to Wolsey’s east wing, and Thurley’s plan shows no tower there.']]) {
+  add({ name, short: 'Corner tower?', label: 'minor', c, w: 46, d: 46, h: 11, roof: 'flat', mat: 'rose', roofMat: 'lead', to, conjecture: true,
+    text: 'A possible tower at a corner of the 1426 house. No trace of it was found.',
+    src: 'The excavation report says of the 1426 house that the space between its walls and the moat “was left open, except at the corners of the building, where corner towers may have stood”; only the north-east one was found. The licence of 1426 allowed the owners to “enturret” the house. Thurley’s Plan 10 shows no corner towers on the old house.',
+    est: 'Everything about it is conjecture: that it existed, its position on the corner of the old house as Thurley draws that corner, its size and height (copied from the north-east tower) and its battlements. It is drawn faint for that reason. ' + more },
+    (g, u) => { plinth(g, u); crenellate(g, u.w + .3, u.d + .3, u.h + .5, plain.rose); u.top = u.h + 1.4; });
+}
+
+// The conduit head in the court
+{
+  const g = new THREE.Group(); g.position.copy(P(644, 1245));
+  const b = mesh(new THREE.CylinderGeometry(1.3, 1.3, 1.9, 8), plain.rose); b.position.y = .95; g.add(b);
+  const c = mesh(new THREE.ConeGeometry(1.55, 1.2, 8), roofs.lead); c.position.y = 2.5; g.add(c);
+  g.userData.top = 3.1;
+  register(g, { name: 'Conduit head', label: 'minor', h: 3.1, from: 1470, to: 1599,
+    after: 'The survey of 1556 found the “waterwork” decayed. The excavators found that the conduit was robbed and the lead pipes dug out, “possibly just before 1600”. The conduit head is removed from the model in 1599; that year is an estimate.',
+    dates: 'Probably 1460–70 · robbed “possibly just before 1600”',
+    text: 'The point in the courtyard where piped water arrived and was distributed to the house.',
+    src: 'The excavation report found a brick and tile conduit running from the gatehouse to “the suspected area of the conduit head in the courtyard”, and the robbed trenches of lead pipes converging on “the west centre of the courtyard”, where “the age, or trough, must have been located”. It attributes the conduit and probably the plumbing to Neville (1460–70), from the size of the tiles. Thurley’s Plan 10 does not mark it. The position here is read from the label “Conduit head” on the excavators’ Fig. 6.',
+    est: 'Nothing of the structure itself was found. Its form (a small eight-sided brick house with a lead cap), its size and its exact position are estimates.' });
+}
+
+// The moat, as a thing that can be selected
+{
+  const g = new THREE.Group();
+  const water = flatShape(MOAT, WATER_Y, M({ color: 0x4f6f6a, roughness: 0.25, metalness: 0.1, transparent: true, opacity: 0.85 }), false, [ISLAND]);
+  water.receiveShadow = false; g.add(water);
+  g.userData.top = 0;
+  register(g, { name: 'Moat', label: 'minor', h: 0, flat: true, from: 1426,
+    after: 'The excavators found only late silt in the north arm: the moat “was periodically cleaned out before the desertion of the house c. 1555”, and silted up afterwards. About 1575 or a little later rubble from the north side of the house began to fall on to its edge. It is drawn unchanged.',
+    dates: 'Dug 1426 · open until 1937–57',
+    text: 'The moat round the house. The gate front rose straight from the water; on the other three sides there was open ground between the walls and the moat.',
+    src: 'Outline: Thurley, Plan 10. The excavation report says a new moat surrounded the house from 1426, “about 56 ft. wide on the north, west and east, but only 48 ft. wide on the south”, “wide and shallow and dug into the hard gravel subsoil”, and that only on the south did the house front on to it: on the other sides there was “a flat space of 34 ft. or more between the walls and the lip of the moat”. The moat stayed open until it was filled in between 1937 and 1957. The accounts of 1534–44 mention gutters bringing water from the river to the moat.',
+    est: 'The inner edge of the water in these years is an estimate. Thurley’s plan shows the moat as it was after Wolsey built his outer ranges out to it; the same line is used here, which leaves open ground of about 12 m (north), 18 m (west) and 8 m (east) round the old house. Thurley’s plan also draws the moat much wider on the east (about 31 m) than the report’s 56 ft; the plan is followed. The depth and the water level are estimates. The inner edge shown is where Wolsey’s outer walls stood from 1522–29.' });
+  labels.find((l) => l.g === g).lab.position.copy(P(1130, 1250, 2));
+}
+
+// ---------- The base court (undated: drawn faint) ----------
+// TH10 draws it in dashed outline only; the excavators did not dig it. West range x 425-495, east range x 890-953,
+// both y 1620-2125; south range y 2045-2105 with a gate at x 668-703 between two small projections.
+const BASE_SRC = 'A survey of 1568 names a “principall gatehouse and the lodginges on eyther side” as well as the “ynner gate hows”, so the base court certainly stood by then; the Wessex Archaeology report of 2013 attributes it to Wolsey, gives it as about 130 ft square inside, citing Thurley, and found only “tentative evidence” of it by geophysics and none in its trench. Outline: Thurley, Plan 10, where the base court is drawn in dashed line only (his Plan 9 of 1547 draws it solid). It was never excavated: the report says “extensive buildings of Period IV or later must lie here”, and that walls and rooms were seen, but not recorded, when the ground was bulldozed in 1959–60. The accounts of 1534–44 show that by then a base court held lodgings, the King’s and Queen’s stables and a storehouse.';
+const BASE_AFTER = 'Nothing is recorded of the base court between 1547 and 1603, and it is drawn unchanged; whether it too was in ruins by 1598 is not known. In 1661 a farm “called the old manor house” lay partly in it.';
+const BASE_EST = 'It is drawn faint before 1534, the year the surviving accounts begin; they are the first record of a base court, and whether it stood earlier is not known. Which side held the stables, lodgings or storehouse is not known either. Its footprint is Thurley’s conjecture; its height, roof and materials are estimates.';
+for (const [name, c, w, d] of [['Base court, west range', [460, 1872.5], 70, 505], ['Base court, east range', [921.5, 1874.5], 63, 505],
+  ['Base court, south range (west part)', [571.5, 2075], 153, 60], ['Base court, south range (east part)', [808, 2075], 164, 60]]) {
+  add({ name, c, w, d, h: 5.5, mat: 'rose', roofMat: 'tile', solidFrom: 1534, after: BASE_AFTER, dates: 'Recorded 1534–44 · earlier date not established', text: 'One side of the outer court in front of the moat, through which the house was approached.', src: BASE_SRC, est: BASE_EST });
+}
+add({ name: 'Base court gate', label: 'minor', c: [687, 2076], w: 78, d: 77, h: 7.5, mat: 'rose', roofMat: 'tile', solidFrom: 1534, after: BASE_AFTER, dates: 'Base court recorded 1534–44 · earlier date not established',
+  text: 'The outer gate, in the middle of the south side of the base court, in line with the bridge and the gatehouse.',
+  src: BASE_SRC + ' Thurley draws a gap about 3.5 m wide between two small projecting blocks.', est: BASE_EST + ' The form of the gate is an estimate.' },
+  (g, u) => { for (const sz of [1, -1]) { const ar = mesh(new THREE.BoxGeometry(3.0, 3.6, .24), archM); ar.position.set(-.15, 1.8, sz * (u.d / 2 + .02)); g.add(ar); } });
+
+
+// ---------- Phase 2, 1522-1529: Cardinal Wolsey ----------
+// WHAT IS BUILT HERE: everything Thurley's Plan 10 draws in solid black or outline that is not the old (shaded) house,
+// and that the excavation report gives to Wolsey: the outer north, west and east ranges with the two corner towers,
+// the garderobe against the old west range, the long gallery, the privy bridge, and the privy garden with its moat.
+// DATES: Thurley's plan does not separate Wolsey's work from Henry VIII's. The report does: "Since the extent of Henry
+// VIII's work is fully known, it is clear that the remaining large scale alterations must be attributed to the
+// Cardinal." Wolsey held the More from May 1522 to his fall in October 1529; NO record gives the year of any of this
+// work. So each of these has no start date: it is drawn faint from 1522 (ghostFrom) and solid from 1525 (solidFrom).
+// 1525 was chosen by the user on 2026-11-16 after being told that no source gives a completion year: it is the year of
+// the Treaty of the More, held in the house, and the report's date ("c. 1525") for the maiolica floor tiles. Campeggio's
+// "very fine palace" of October 1529 is the latest date by which the work was certainly done.
+// FOOTPRINTS (plan px): outer wall of the black ranges x 334-959, y 910-1455; inner black wall x 418-428 (west),
+// y 995-1005 (north), x 892-902 (east); "Tower" marked in the north-west and north-east corner compartments.
+// Blocks: NW tower x 334-428, y 910-1005; north range x 428-892; NE tower x 892-959; west range x 334-428,
+// y 1005-1426; east range x 892-959, y 1005-1455. They meet edge to edge without overlapping.
+const W_SPAN = { ghostFrom: 1522, solidFrom: 1525 };
+const W_DATES = 'Built between 1522 and 1529 · year not recorded (shown complete from 1525) · sold for materials 1574';
+const W_SRC = 'Position and outline: Thurley, Plan 10, where it is drawn in solid black, as later than the shaded old house. Thurley’s plan does not separate Wolsey’s work from Henry VIII’s. The attribution to Wolsey is the excavation report’s: “Since the extent of Henry VIII’s work is fully known, it is clear that the remaining large scale alterations must be attributed to the Cardinal”, namely “new wings on the east and west sides of the house” and “another range of buildings north of the earlier north range”; pottery puts them in the early 16th century. Wolsey held the More from 1522 to 1529. ';
+const W_EST = 'No record gives the year it was built, so it is drawn faint from 1522 and solid from 1525. 1525 is a chosen year, not a recorded one: it is the year the Treaty of the More was concluded in the house, and the date the report gives the Netherlands maiolica floor tiles of Wolsey’s time (“c. 1525”). No source says when the building was finished; by October 1529 Campeggio could call it “a very fine palace”. No picture of the house is among the sources: the height, roof, windows, chimneys and battlements are estimates. The brick is assumed to match the rest of the house (the report describes Wolsey’s garderobe bricks as “a mellow rose red”).';
+const ROOMS_NOTE = FINDS_SRC + ' From 1530, when Henry VIII took possession, the label changes to the room names on Thurley’s Plan 10, a conjectural first-floor plan; they are the names used in Henry VIII’s building accounts of 1534–44, which the report says are “too short to enable a reconstruction of the house”, so which room lay where is Thurley’s conjecture. What the rooms were called under Wolsey is not recorded.';
+const H = 9999;
+
+add({ name: 'Outer north range', short: 'Outer north range', names: [[1530, H, 'Outer north range: the King’s and Queen’s watching chambers', 'Watching chambers']], label: true, c: [660, 957.5], w: 464, d: 95, h: 9, rh: 3.6, mat: 'rose', roofMat: 'tile', ...W_SPAN, ruinFrom: 1576,
+  after: DECAY + 'This is the one part whose fall the excavation dates. In the north moat, in front of this range, silt of “about 1575 or a little later” was covered by rubble: “After this time there was some demolition and the first layers of rubble and mortar fell on to the berm of the moat”, and “the collapse had made that part of the house uninhabitable”. ' + ROOFLESS(1576) + ' The year 1576 stands for “c. 1575 or a little later”.',
+  dates: W_DATES,
+  text: 'A new range built by Wolsey outside the old north range, between two corner towers, with its outer wall rising from the moat. The long gallery runs north from it.',
+  src: W_SRC + 'The report found the robbed foundation trench of its inner wall and, parallel to it, a wall of chalk rubble faced with brick set into the cut-back bank of the moat. Between them it found bones and pottery that “probably indicates a kitchen”. Thurley’s plan puts the Queen’s watching chamber in its west half and the King’s in its east half, with a link to the old north range between them. In June 1538 James Nedeham drew money for “two new chambers and a watching chamber at the More”; where they were is not recorded.' + ROOMS_NOTE,
+  est: W_EST },
+  (g, u) => { plinth(g, u); chimneys(g, [[-14, 0], [0, 0], [14, 0]], u.h + 1.9, 3.4); });
+
+for (const [name, c, w] of [['North-west tower', [381, 957.5], 94], ['North-east tower', [925.5, 957.5], 67]]) {
+  add({ name, short: name, label: 'minor', c, w, d: 95, h: 13, roof: 'flat', mat: 'rose', roofMat: 'lead', ...W_SPAN, ruinFrom: 1576, after: DECAY + ROOFLESS(1576) + ' The excavators note that the remains of “the south-east corner tower” were still prominent in 1935; no such tower is on Thurley’s plan, and none is modelled.',
+    dates: W_DATES,
+    text: 'A tower at the corner of Wolsey’s outer ranges.',
+    src: 'Position: Thurley, Plan 10, which labels the corner compartment “Tower” and draws it within the line of the outer walls, not projecting. ' + W_SRC + (name === 'North-east tower' ? 'It replaced the corner tower of the 1426 house, which the report says was “cut down to foundation level by the building of the new wing”. The 1530s accounts mention a “tower next the park” and a “tower where the Lord Privy Seal lieth”; which towers those were is not known.' : 'In the north-east corner of the site the report found a wall of this period 8 ft below rubble near the edge of the moat; it found nothing it identified as a tower at the north-west.'),
+    est: W_EST + ' That it stood higher than the ranges, and by how much, is an estimate.' },
+    (g, u) => { plinth(g, u); crenellate(g, u.w + .3, u.d + .3, u.h + .5, plain.rose); u.top = u.h + 1.4; });
+}
+
+add({ name: 'Outer west range', short: 'Outer west range', names: [[1530, H, 'Outer west range: the Queen’s side', 'Queen’s side']], label: 'minor', c: [381, 1215.5], w: 94, d: 421, h: 8, rh: 3.4, mat: 'rose', roofMat: 'tile', ...W_SPAN, ruinFrom: 1576,
+  after: DECAY + 'In the early 17th century squatters laid rough cobbles in the south half of the narrow court beside this wing. ' + ROOFLESS(1576),
+  dates: W_DATES,
+  text: 'Wolsey’s new west wing, built outside the old west range with a long narrow court left between the two. At its south end it turns east to close the court.',
+  src: W_SRC + 'The report found that the foundations of this wing had been “completely grubbed out”, traced its trench at the south-west corner, and read the space between it and the old range as “a long, narrow courtyard between the new wing and the older one, closed in at each end by the new buildings”, comparing it with Hampton Court. Thurley labels that space “Court”, and puts the Queen’s presence chamber in the north part of this wing. Under Henry VIII the narrow court was divided by two partitions (report, Period VII); those are not modelled.' + ROOMS_NOTE,
+  est: W_EST + ' The short return at the south end follows the black lines on the plan; its height is an estimate.' },
+  (g, u) => {
+    plinth(g, u); chimneys(g, [[0, -12], [0, 0], [0, 12]], u.h + 1.7, 3.4);
+    const r = mesh(facadeBox(9.0, 6.5, 5.4), mats.rose); r.position.set(9.2, 3.25, 18.95); g.add(r);          // the return closing the court (plan x 428-518, y 1378-1432)
+    const rr = mesh(roofGeo(9.6, 6.0, 2.0, false), [roofs.tile, plain.rose]); rr.position.set(9.2, 6.5, 18.95); rr.userData.roofPart = true; g.add(rr);
+  });
+
+add({ name: 'Outer east range', short: 'Outer east range', names: [[1530, H, 'Outer east range: the King’s side', 'King’s side']], label: 'minor', c: [925.5, 1230], w: 67, d: 450, h: 8, rh: 2.6, mat: 'rose', roofMat: 'tile', ...W_SPAN, ruinFrom: 1576, after: DECAY + ROOFLESS(1576),
+  dates: W_DATES,
+  text: 'Wolsey’s new east wing, built against the outside of the old east range and rising from the moat.',
+  src: W_SRC + 'On this side the report found a wide brick retaining wall set into the slope of the moat, and says the old east wall of the courtyard was strengthened at this time by a wall 3 ft thick along its outer face. Thurley’s plan puts the King’s presence chamber in the north part of this wing and a closet beside the privy bridge. Under Henry VIII a small brick garderobe pit and drain to the moat were let into this wing (report, Period VII); they are below ground and not modelled. The accounts mention “a bay window of thirty lights in the King’s new chamber”; where that chamber was is not recorded, so no bay window is shown.' + ROOMS_NOTE,
+  est: W_EST },
+  (g, u) => { plinth(g, u); chimneys(g, [[0, -13], [0, 0], [0, 13]], u.h + 1.3, 3.4); });
+
+add({ name: 'Garderobe', label: 'minor', c: [497.5, 1218.5], w: 35, d: 37, h: 7, roof: 'flat', mat: 'rose', roofMat: 'lead', ...W_SPAN, ruinFrom: 1576, after: DECAY + ROOFLESS(1576),
+  dates: W_DATES,
+  text: 'A garderobe block built against the outer face of the old west range, in the new narrow court.',
+  src: 'Position: Thurley, Plan 10, a small black block on the west side of the old west range. The excavation report found it: “Half way down the west wall of the Period IV building a pit, 13 ft. square”, holding a brick garderobe with drainage outlets on three sides, its walls straight-jointed against the earlier wall; mortar traces rose 4 ft up the old wall, and it “probably rose high up the wall with chutes leading into it”. The report says the pit “may confidently be ascribed to Wolsey’s alterations”. The silt held raspberry, currant, plum, cherry and grape seeds and the bones of deer, rabbit and fish.',
+  est: 'The year is not recorded: drawn faint from 1522, solid from 1525, with the rest of Wolsey’s works; 1525 is a chosen year, not a recorded one. Its height and flat top are estimates. It is drawn 3.5 m wide so as to stand outside the old wall; Thurley’s block is about 4.3 m and overlaps the wall line.' },
+  (g, u) => { plinth(g, u); });
+
+// The long gallery (TH10: x 690-727, y 88-910, with two eight-sided turrets at its north end)
+add({ name: 'Long gallery', label: true, c: [708.5, 499], w: 37, d: 822, h: 7.5, rh: 1.7, mat: 'frame', roofMat: 'tile', ...W_SPAN, ruinFrom: 1576,
+  after: DECAY + 'Nothing is recorded of the gallery after Henry VIII’s reign. ' + ROOFLESS(1576),
+  dates: 'Probably built between 1522 and 1529 · year and builder not recorded · later history unknown',
+  text: 'A timber-framed gallery running north from the house, across the moat, along the east side of the privy garden, to a pair of turrets on the far side of the garden moat. The accounts of Henry VIII’s time speak of an upper and a lower long gallery.',
+  src: 'Position, length, width and the two turrets: Thurley, Plan 10; his Plan 9 shows it standing in 1547. A survey of 1568 (British Library, Lansdowne MS 13, quoted in the Wessex Archaeology report) records “the longe gallery one the northe side of the howse into the garden with two tyrrettes on the northende of the same”, 253 ft (77 m) long; the same report calls it a timber gallery and says it served for walking and archery in bad weather. On Thurley’s plan it measures about 82 m; the plan is followed, so the model’s gallery is about 5 m longer than the survey’s figure. Builder: the excavation report says only that the King’s apartments “included an upper and a lower long gallery, which may have been part of Wolsey’s additions, for he built long galleries at Hampton Court and York Place”; the accounts of 1534–44 also list a “long gallery in the garden” and a “great long gallery” that was partly repaved with tiles. The sources disagree about what crossed the north moat here: the report found a brick pier on oak baulks “midway along the inner lip of the north moat” and took it for “the bridge over the backside where the kitchen stuff is brought in”, of Wolsey’s time; Thurley draws the long gallery crossing the moat at about that point. The plan is followed. The Wessex Archaeology report takes the same view: the excavators may have found where the gallery crossed the moat “but misinterpreted it as a bridge pier”. The 2011 geophysical survey and the 2012 trenches found no trace of the gallery.',
+  est: 'That Wolsey built it is the report’s suggestion, not a record, and the year is unknown. Nothing in the sources read gives it to Henry VIII: his accounts record only repaving in “the King’s great long gallery”, which implies it already stood. So it is kept with Wolsey’s works: it is drawn faint from 1522 and solid from 1525, a chosen year, not a recorded one. Two storeys follow the “upper” and “lower” galleries of the accounts; that these are this building is likely but not certain. That it was timber-framed comes from the Wessex Archaeology report; I have not seen the survey itself, and the pattern of the framing (close studding with plaster panels) is an estimate. The height, the continuous windows, the roof, the brick turrets and the way it is carried over the moat (shown as a solid brick base) are estimates.' },
+  (g, u) => {
+    plinth(g, u);
+    const base = mesh(new THREE.BoxGeometry(u.w - .1, -BED_Y, 17.4), plain.rose); base.position.set(0, BED_Y / 2 - .05, 32.4); g.add(base);   // across the house moat (plan y 738-910)
+    for (const sx of [1, -1]) {   // bands of gallery windows on both long sides, upper and lower
+      for (const [y, hh] of [[2.0, 1.5], [5.4, 1.7]]) { const wdw = mesh(new THREE.BoxGeometry(.1, hh, u.d - 3), glazeM); wdw.position.set(sx * (u.w / 2 + .03), y, 0); g.add(wdw); }
+    }
+    for (const sx of [-3.95, 3.85]) {
+      const t = mesh(new THREE.CylinderGeometry(1.9, 1.9, 10, 8), plain.rose); t.rotation.y = Math.PI / 8; t.position.set(sx, 5, -41.4); g.add(t);
+      const cp = ogeeCap(1.9, 2.6, roofs.lead); cp.position.set(sx, 10, -41.4); cp.userData.roofPart = true; g.add(cp);
+    }
+    u.top = 12.6;
+  });
+
+// The privy bridge (TH10: from the black block at x 917-947, y 1194-1211 east across the moat, y 1202-1222)
+{
+  const g = new THREE.Group(), x0 = 960, x1 = 1292, L = (x1 - x0) * S, H = 4.0, W = 2.0;
+  g.position.copy(P((x0 + x1) / 2, 1212));
+  const deck = mesh(new THREE.BoxGeometry(L, .25, W), timberM); deck.position.y = H; g.add(deck);
+  for (let x = -L / 2 + 3; x < L / 2 - 2; x += 6.2) { const p = mesh(new THREE.BoxGeometry(.9, H - BED_Y, W + .3), plain.rose); p.position.set(x, (H + BED_Y) / 2 - .1, 0); g.add(p); }
+  for (const sz of [1, -1]) {
+    const r = mesh(new THREE.BoxGeometry(L, .12, .1), timberM); r.position.set(0, H + 1.15, sz * (W / 2 - .05)); g.add(r);
+    for (let x = -L / 2; x <= L / 2; x += 2.05) { const p = mesh(new THREE.BoxGeometry(.12, 1.1, .12), timberM); p.position.set(x, H + .6, sz * (W / 2 - .05)); g.add(p); }
+  }
+  const st = mesh(new THREE.BoxGeometry(2.4, H, W + .6), plain.rose); st.position.set(L / 2 + 1.0, H / 2, 0); g.add(st);   // a landing with a stair at the east bank
+  g.userData.top = H + 1.4;
+  register(g, { name: 'Privy bridge', label: 'minor', h: H + 1.4, from: 1534,
+    after: 'Nothing is recorded of the bridge after Henry VIII’s reign. It is drawn unchanged to 1603, which is an assumption.',
+    dates: 'First named in the accounts of 1534–44 · shown from 1534',
+    text: 'A private bridge from the east side of the house across the moat towards the orchard.',
+    src: 'Position: Thurley, Plan 10, which labels it “Privy Bridge” and starts it from a small block beside the room it calls the Closet; his Plan 9 shows it in 1547. The sources disagree in two ways. First, what it was: at this point the excavation report found a wall running east into the moat, “laid in part on a foundation of oak baulks”, and read it as “probably part of a projecting tower half way between the north-east and south-east corners of the new wing”; Thurley draws a bridge here and no tower. The plan is followed. Second, whose it was: the accounts of 1534–44 list “a privy bridge from the privy closet” among the Queen’s apartments, while Thurley’s plan puts the Privy Bridge beside the King’s presence chamber. Date: the report dates that wall “to Wolsey’s period on account of its likeness in construction” to the pier in the north moat. I have not seen Thurley’s text, so I do not know what date he gives the bridge.',
+    est: 'It is shown from 1534, the first year of the accounts that name it. The report lists the rooms in those accounts without giving the year of each entry, so the bridge may first be named anywhere between 1534 and 1544, and it may have been built earlier: the report dates the wall here to Wolsey’s time. Because Thurley shows it on a first-floor plan it is drawn at first-floor level, on brick piers, with a stair at the far bank; the level, the piers, the handrails and the stair are all estimates.' });
+}
+
+// The privy garden and the moat round it. These are laid on the ground as flat surfaces (the ground slab is not cut
+// for this moat as it is for the house moat), so the garden moat has no banks.
+const GARDEN_MOAT = [[113, 50], [640, 72], [652, 58], [765, 60], [778, 92], [900, 100], [958, 128], [972, 180], [950, 225], [900, 238], [850, 232], [800, 212], [727, 206], [690, 203], [500, 198], [248, 195],
+  [248, 742], [235, 745], [225, 800], [150, 720], [113, 640]];
+{
+  const SRC = 'The background section of the Wessex Archaeology report of 2013, which appears to follow the official scheduling description, attributes this moat and its “formal garden” to Wolsey; it gives no evidence for the date. Outline: Thurley, Plan 10, which labels the enclosure “Privy Garden” and draws a moat along its north and west sides; his Plan 9 (1547) labels it “Garden”. The excavation report’s site plan shows the same moat, of which it says only: “Another moat lies to the north of the house-moat. This is obviously in a different category to the others. It was not examined and its purpose must remain obscure.” That Wolsey kept gardens here is recorded: he “maintained the gardens at great cost”, and Sir John Russell wrote in 1533 that the garden had cost the Cardinal £40 or £50 or 100 marks a year and that now “All the knots are marred”.';
+  const EST = 'Nothing dates the laying out of this garden, and the letters do not say which garden the Cardinal’s was. It is drawn faint from 1522 and solid from 1534, when the surviving accounts begin: they mention a “long gallery in the garden” and earth dug “to be laid in knots in the gardens”, and Thurley’s long gallery runs along this garden. The layout of beds and walks is invented, on the strength of the word “knots” in 1533; only the outline is from the plan.';
+  const g = new THREE.Group(), walkM = M({ color: 0xcfc4a2, roughness: 1 }), bedM = M({ color: 0x6f8a52, roughness: 1 });
+  const walk = flatShape([[248, 200], [690, 203], [690, 740], [262, 740], [248, 700]], .045, walkM); g.add(walk);
+  for (let i = 0; i < 2; i++) for (let j = 0; j < 3; j++) {
+    const x0 = 268 + i * 208, y0 = 220 + j * 172, b = flatShape([[x0, y0], [x0 + 190, y0], [x0 + 190, y0 + 156], [x0, y0 + 156]], .06, bedM); g.add(b);
+  }
+  g.userData.top = 0;
+  register(g, { name: 'Privy garden', label: 'minor', h: 0, flat: true, ghostFrom: 1522, solidFrom: 1534,
+    after: 'Nothing is recorded of the garden after Henry VIII’s reign; it was already “in great ruin” in 1533. It is drawn unchanged to 1603, which almost certainly flatters it.', dates: 'A garden recorded from Wolsey’s time · shown solid from 1534',
+    text: 'A walled or moated garden north of the house, about 44 by 54 m, with the long gallery along its east side.', src: SRC, est: EST });
+  labels.find((l) => l.g === g).lab.position.copy(P(470, 470, 2));
+  const m = new THREE.Group();
+  const w = flatShape(GARDEN_MOAT, .04, M({ color: 0x4f6f6a, roughness: 0.25, metalness: 0.1, transparent: true, opacity: 0.85 })); w.receiveShadow = false; m.add(w);
+  m.userData.top = 0;
+  register(m, { name: 'Garden moat', label: 'minor', h: 0, flat: true, ghostFrom: 1522, solidFrom: 1547, dates: 'Shown on the plan of 1547 · earlier date not established',
+    text: 'A second moat, joining the house moat, along the north and west sides of the privy garden.', src: SRC, est: 'Nothing dates it before Thurley’s Plan 9 of 1547: it is drawn faint from 1522 and solid in 1547. It is laid flat on the ground in the model, without banks.' });
+  labels.find((l) => l.g === m).lab.position.copy(P(180, 420, 2));
+}
+
+// ---------- Phase 3, 1530-1547: Henry VIII ----------
+// WHAT THE SOURCES GIVE: the excavation report's Period VII is "one of minor alterations": a covered walk on the west
+// side of the inner court, partitions in the narrow west court, a brick walk on the east side of the court, soak-aways,
+// and a garderobe let into the east wing. The building accounts (April 1534 to July 1544) add repairs, decoration and
+// in 1538 "two new chambers and a watching chamber", whose position is not known. So the house barely changes shape in
+// these years. What changes in the model: the covered walk; the room names of Thurley's Plan 10; the base court and
+// the garden, which the accounts first attest; and the wider site, which Thurley's Plan 9 records for 1547.
+// DATES: Henry's minor works have no year. They are drawn faint from 1530 and solid in 1544, when the accounts end.
+const H_SPAN = { ghostFrom: 1530, solidFrom: 1544 };
+{
+  const g = new THREE.Group(), L = 23.6, W = 2.2, H = 2.7;
+  g.position.copy(P(581, 1258));
+  const roof = mesh(new THREE.BoxGeometry(W + .3, .18, L), roofs.tile); roof.position.set(0, H + .25, 0); roof.rotation.z = -.28; g.add(roof);
+  for (let z = -L / 2 + .3; z <= L / 2; z += 2.3) { const p = mesh(new THREE.BoxGeometry(.18, H, .18), timberM); p.position.set(W / 2 - .1, H / 2, z); g.add(p); }
+  const sill = mesh(new THREE.BoxGeometry(.3, .35, L), plain.rose); sill.position.set(W / 2 - .1, .17, 0); g.add(sill);
+  g.userData.top = 3.4;
+  register(g, { name: 'Covered walk', label: 'minor', h: 3.4, ...H_SPAN,
+    after: 'Nothing is recorded of it after Henry VIII’s reign. It is drawn unchanged to 1603 with the inner ranges it stood against, which is an assumption.',
+    dates: 'Henry VIII’s time, 1530–47 · year not recorded',
+    text: 'A covered walk along the west side of the inner court, in front of the old west range.',
+    src: 'Position: Thurley, Plan 10, which draws a narrow strip 2.2 m wide along the west side of the inner court. The excavation report found here “a similar underpin of brick … which was, perhaps, the base for a covered walk”, with three floors inside it, and puts it in its Period VII, which “probably dates from the time of Henry VIII”.',
+    est: 'The year is not recorded: it is drawn faint from 1530 and solid in 1544, when the building accounts end. The report says only “perhaps” a covered walk. Its form (timber posts on a low brick sill under a lean-to tiled roof) and its height are estimates.' });
+}
+
+// ---------- The wider site in 1547 (Thurley, Plan 9) ----------
+// Plan 9 is registered to the base plan by its own metre scale (1 native photo px = 1.96 base px) and anchored on the
+// centre line of the long gallery and the north front of the house: native (x, y) -> (708 + (x - 3238)*1.96,
+// 910 + (y - 1195)*1.96). It is a block plan drawn more coarsely than Plan 10 (its house is 66 m wide against 62.5 m),
+// and the photograph was not corrected for camera tilt, so positions far from the house may be several metres out.
+// Everything here is laid flat on the ground, without banks.
+const P9 = ([x, y]) => [708 + (x - 3238) * 1.96, 910 + (y - 1195) * 1.96];
+function ribbon(native, width, y, mat) {   // a channel of the given width (m) along a centre line given in Plan 9 native px
+  const c = native.map(P9).map(([x, py]) => new THREE.Vector2(wx(x), wz(py))), L = [], R = [];
+  for (let i = 0; i < c.length; i++) {
+    const a = c[Math.max(0, i - 1)], b = c[Math.min(c.length - 1, i + 1)], t = b.clone().sub(a).normalize(), n = new THREE.Vector2(-t.y, t.x).multiplyScalar(width / 2);
+    L.push(c[i].clone().add(n)); R.push(c[i].clone().sub(n));
+  }
+  const pos = [], idx = [];
+  for (let i = 0; i < c.length; i++) pos.push(L[i].x, y, L[i].y, R[i].x, y, R[i].y);
+  for (let i = 0; i < c.length - 1; i++) { const k = i * 2; idx.push(k, k + 2, k + 1, k + 1, k + 2, k + 3); }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals();
+  const m = new THREE.Mesh(geo, mat); mat.side = THREE.DoubleSide; return m;
+}
+{
+  const waterM = () => M({ color: 0x4f6f6a, roughness: 0.25, metalness: 0.1, transparent: true, opacity: 0.9 });
+  const P9_SRC = 'Thurley, Plan 9, “Block plan showing the layout of the manor and gardens, 1547”. ';
+  const P9_EST = ' Its position in the model depends on laying Plan 9 over Plan 10 by its scale bar; the photograph of Plan 9 was not corrected for camera tilt and the plan is a coarse block plan, so it may be several metres out. It is laid flat on the ground, without banks; its width is read off the plan.';
+  // River Colne
+  const river = new THREE.Group();
+  river.add(ribbon([[400, 585], [640, 580], [900, 540], [1100, 520], [1300, 560], [1420, 640], [1550, 650], [1680, 570], [1780, 450], [1900, 420], [2000, 470], [2100, 530], [2200, 490], [2330, 420], [2480, 380], [2700, 330]], 10, .041, waterM()));
+  river.userData.top = 0;
+  register(river, { name: 'River Colne', label: 'minor', h: 0, flat: true, from: 1,
+    dates: 'Course as drawn for 1547',
+    text: 'The river north-west of the house, from which the moats and ponds were fed.',
+    src: P9_SRC + 'The excavation report places the site “in the valley of the Colne, on the south side of the river”, and its own site plan shows the river on the same line. The accounts of 1534–44 mention gutters bringing water from the river to the moat.',
+    est: 'The course is that of Plan 9 and is shown unchanged for every year; whether it ran exactly so in 1485 is not known.' + P9_EST });
+  labels.find((l) => l.g === river).lab.position.copy(P(...P9([1900, 420]), 2));
+  // Leats
+  const leats = new THREE.Group();
+  [[[1120, 560], [1000, 800], [880, 1100], [760, 1400], [660, 1690]], [[1420, 650], [1500, 950], [1570, 1230], [1640, 1400], [1700, 1520]],
+   [[660, 1700], [900, 1560], [1200, 1390], [1570, 1240], [2000, 1090], [2400, 930], [2700, 810], [2880, 770], [3000, 745], [3280, 742]],
+   [[2010, 1460], [2300, 1260], [2600, 1080], [2800, 950], [2890, 860], [2900, 775]], [[2740, 770], [2760, 690], [2820, 650], [2950, 650], [3080, 560], [3180, 420], [3230, 350]]]
+    .forEach((line, i) => leats.add(ribbon(line, 5, .042 + i * .001, waterM())));
+  leats.add(ribbon([[660, 1700], [570, 1790], [560, 1880], [640, 1990], [850, 2060], [1100, 2030], [1300, 1900], [1500, 1760], [1700, 1630], [1880, 1590], [1950, 1570], [1985, 1500]], 10, .048, waterM()));
+  leats.userData.top = 0;
+  register(leats, { name: 'Leats', label: 'minor', h: 0, flat: true, solidFrom: 1547,
+    dates: 'Shown on the plan of 1547 · earlier date not established',
+    text: 'Channels cut between the River Colne and the moats, enclosing a long tongue of meadow west of the house.',
+    src: P9_SRC + 'The excavation report’s site plan shows the same channels and labels them “Leats”. The accounts of 1534–44 mention sluices and gutters, and in October 1534 John Clement was made keeper of “the garden, orchards, ponds and sluices” of the manor.',
+    est: 'Nothing dates them, so they are drawn faint until 1547. The broader channel along the south-west is drawn about 10 m wide and the others about 5 m.' + P9_EST });
+  labels.find((l) => l.g === leats).lab.position.copy(P(...P9([1570, 1240]), 2));
+  // The two moated enclosures west of the house
+  const ponds = new THREE.Group();
+  const ring = (outer, inner, y) => { const m = flatShape(outer.map(P9), y, waterM(), false, [inner.map(P9)]); m.receiveShadow = false; ponds.add(m); };
+  ring([[2050, 1640], [2200, 1460], [2270, 1690]], [[2110, 1620], [2190, 1510], [2220, 1650]], .05);
+  ring([[2260, 1390], [2890, 1120], [2900, 1470], [2320, 1700]], [[2340, 1440], [2810, 1240], [2810, 1380], [2370, 1570]], .051);
+  ponds.userData.top = 0;
+  register(ponds, { name: 'Fish-pond moats', label: 'minor', h: 0, flat: true, solidFrom: 1547,
+    dates: 'Shown on the plan of 1547 · earlier date not established',
+    text: 'Two moated enclosures west of the house, one long and four-sided, one small and three-sided.',
+    src: P9_SRC + 'It labels both “Moat”. The excavation report dug them only enough “to prove that there were no buildings on them” and concludes “they are to be considered as fish ponds enclosing gardens”. The accounts of 1534–44 mention “the King’s great fish pond yard and some fish ponds”; whether those are these is not said.',
+    est: 'Nothing dates them, so they are drawn faint until 1547. That they were fish ponds is the excavators’ reading, not a record. The Wessex Archaeology report of 2013 calls them moated garden areas, gives the larger as about 130 m by 60 m, and says they “may have been created” in Wolsey’s time.' + P9_EST });
+  labels.find((l) => l.g === ponds).lab.position.copy(P(...P9([2580, 1400]), 2));
+  // The orchard
+  const orch = new THREE.Group();
+  const patch = flatShape([[1310, 960], [1900, 960], [1900, 1500], [1310, 1500]], .043, M({ color: 0x6f8a52, roughness: 1 })); orch.add(patch);
+  const trunkG = new THREE.CylinderGeometry(.18, .22, 1.8, 6), crownG = new THREE.IcosahedronGeometry(1.7, 0);
+  for (let i = 0; i < 6; i++) for (let j = 0; j < 6; j++) {
+    const p = P(1355 + i * 100 + (j % 2) * 30, 1000 + j * 92);
+    const t = mesh(trunkG, bark); t.position.set(p.x, .9, p.z); orch.add(t);
+    const c = mesh(crownG, leaf); c.position.set(p.x, 3.0, p.z); c.rotation.y = i * 1.3 + j; orch.add(c);
+  }
+  orch.userData.top = 4.5;
+  register(orch, { name: 'Orchard', label: 'minor', h: 4.5, flat: true, solidFrom: 1547,
+    dates: 'Shown on the plan of 1547 · orchards recorded from 1534',
+    text: 'An orchard east of the house, across the moat, reached by the privy bridge.',
+    src: P9_SRC + 'It writes “Orchard” east of the house moat, where the privy bridge lands, and gives it no outline. John Clement was made keeper of “the garden, orchards, ponds and sluices” in October 1534. The sources disagree on where it lay: the excavation report, reading the accounts, says “The orchard was somewhere near the main block of the house, possibly to the north.” The plan is followed.',
+    est: 'Only the word on the plan fixes it: the extent shown (about 60 by 55 m), the rows of trees and their number are invented. It is drawn faint until 1547.' });
+}
+// ---------- Interaction ----------
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+let down = null, selected = null;
+const swapped = new Map();
+function highlight(g, on) {
+  g.traverse((o) => {
+    if (!o.isMesh) return;
+    if (on) {
+      swapped.set(o, o.material);
+      const hl = (m) => { const c = m.clone(); c.emissive = new THREE.Color(0xc79a2e); c.emissiveIntensity = 0.28; return c; };
+      o.material = Array.isArray(o.material) ? o.material.map(hl) : hl(o.material);
+    } else if (swapped.has(o)) { o.material = swapped.get(o); swapped.delete(o); }
+  });
+}
+const info = document.getElementById('info');
+function select(g) {
+  if (selected) highlight(selected, false);
+  selected = g;
+  if (typeof markList === 'function' && typeof listEl !== 'undefined') markList();
+  if (!g) { info.hidden = true; return; }
+  highlight(g, true);
+  const def = g.userData.def;
+  document.getElementById('info-title').textContent = nameAt(def, year).name;
+  const meta = document.getElementById('info-meta'); meta.replaceChildren();
+  const tl = g.userData.tl || {};
+  const chips = [def.dates || (tl.from == null ? 'Date not established' : null), tl.byArea ? 'Dated by area rule' : null, g.userData.ruined ? `Drawn roofless from ${tl.ruinFrom} (estimate)` : null, tl.houseEnd ? 'Removed from the model in 1661 (pulled down 1655–61)' : null];
+  for (const t of chips.filter(Boolean)) { const s = document.createElement('span'); s.textContent = t; meta.append(s); }
+  // The card: a description, what a named source says, what is estimated here, and what is known of it after 1547
+  const body = document.getElementById('info-text'); body.replaceChildren();
+  for (const [lead, t] of [['', def.text], ['From the sources. ', def.src], ['Estimated. ', def.est], ['After 1547. ', def.after]]) {
+    if (!t) continue;
+    const p = document.createElement('p');
+    if (lead) { const b = document.createElement('b'); b.textContent = lead; p.append(b); }
+    p.append(t); body.append(p);
+  }
+  info.hidden = false;
+}
+info.querySelector('.close').addEventListener('click', () => select(null));
+renderer.domElement.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('pointerup', (e) => {
+  if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5) return;
+  ptr.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  ray.setFromCamera(ptr, camera);
+  const hit = ray.intersectObjects(buildings.filter((b) => b.visible), true)[0];
+  let g = hit?.object; while (g && !buildings.includes(g)) g = g.parent;
+  select(g || null);
+});
+
+// Opacity and labels
+const bindRange = (id, fn) => { const el = document.getElementById(id), out = document.getElementById(id + '-out'); const f = () => { out.textContent = el.value + '%'; fn(el.value / 100); }; el.addEventListener('input', f); f(); };
+bindRange('plan-op', (v) => { planMat.opacity = v; planMat.visible = v > 0; });
+bindRange('cover-op', (v) => { for (const m of coverMats) { m.opacity = v; m.visible = v > 0; } });
+bindRange('bld-op', (v) => {
+  const set = (m) => { m.transparent = v < 1; m.opacity = v; m.depthWrite = v >= 1; m.needsUpdate = true; };
+  allMats.forEach(set); swapped.forEach((_, o) => [].concat(o.material).forEach(set));
+  refreshShadows();
+});
+document.getElementById('show-labels').addEventListener('change', (e) => labelRenderer.domElement.classList.toggle('off', !e.target.checked));
+// ---------- Timeline ----------
+// A building's dates come from, in order: its own def.from / def.to; the DATES table by name; an AREA rule by position.
+// A building with no start date from any of these is "undated": it is drawn faint (a ghost) until def.solidFrom, or
+// throughout if it has none. An undated building may carry def.ghostFrom: it is hidden before that year (used for work
+// known only to fall within someone's tenure, such as Wolsey's 1522-29).
+// def.ruinFrom: from that year the building is drawn without its roof and chimneys (the parts tagged roofPart).
+// The excavators conclude that what was left of the house was pulled down between 1655 and 1661. Every building that has
+// no end date of its own is taken out of the model in 1661 (flat features: moats, gardens, river and so on, are kept).
+const HOUSE_END = 1661;
+const DATES = {};                 // by name: { from, to }. None needed yet: every dated building carries its own dates.
+const AREA_RULES = [];            // { test: (px, py) => boolean, from, to }. None needed in this phase.
+const EVENTS = [
+  [1450, 'The More is a moated brick house round a courtyard, built under a licence of 1426 granted to Henry Beaufort, Bishop of Winchester, William Flete and others “to enclose, crenellate, enturret and embattle with stones, lime and brik”.'],
+  [1456, 'By now Sir Ralph Boteler, Lord Sudeley, holds the More. The Abbot of St Albans confirms the manor to him, and later buys the reversion for 3,000 marks.'],
+  [1460, 'The manor is conveyed to the Abbot and convent of St Albans, and afterwards apparently sold to George Neville, Archbishop of York. Between 1460 and 1470 Neville alters the house: a brick-vaulted cellar under the east range, the north-east corner tower rebuilt, and piped water laid on. None of this changes the outline of the house; the conduit head is shown from 1470.'],
+  [1470, 'Neville is living at the More. At Christmas 1471 he entertains John Paston here.'],
+  [1472, 'Edward IV invites himself to the More; Neville brings out his hidden plate, is summoned to Windsor and arrested, and the manor and goods “worthe XX M li. or more” are seized for the King.'],
+  [1475, 'The custody of the park is granted to John Hawdeles, and about now the manor goes to the Dean and Canons of St George’s, Windsor.'],
+  [1483, 'At the King’s wish the Dean and Canons of Windsor grant the manor back to him.'],
+  [1485, 'Henry VII comes to the throne. The manor is in the Crown’s hands.'],
+  [1527, 'The French ambassador du Bellay thinks the More more splendid than Hampton Court (the Wessex Archaeology report dates his visit to this year; the excavation report gives the remark without a date).'],
+  [1568, 'A detailed survey of the buildings is made (British Library, Lansdowne MS 13). It records the decay, and names “the longe gallery one the northe side of the howse into the garden with two tyrrettes on the northende of the same”, 253 feet long, a “principall gatehouse and the lodginges on eyther side”, and the “ynner gate hows”. I know it only through quotations in the Wessex Archaeology report.'],
+  [1574, 'On 4 February a contract sells the house and its buildings to local buyers for the value of their materials, £1,460. It does not say when the pulling down was to happen (Wessex Archaeology report, which gives no reference for the contract). The excavation report does not mention this contract and puts the demolition at 1655–61.'],
+  [1617, 'About now Edward, third Earl of Bedford, and his countess build a new house on the hill three-quarters of a mile away, the forerunner of Moor Park. The old house is left as it is.'],
+  [1631, 'The Earl of Pembroke’s heir sells the manor to Sir Charles Harbord and the park to another buyer; from now on the two descend separately.'],
+  [1641, 'A deed mentions the old manor house of the More.'],
+  [1655, 'In November Sir Charles Harbord sells the manor to Richard Francklyn. The deed mentions the old manor house, for the last time.'],
+  [1661, 'A deed speaks only of a farm “called the old manor house”. The excavators conclude that what was left of the house was pulled down between 1655 and 1661: walls robbed to floor level, the west wing’s foundations grubbed out, and a causeway of rubble left where the bridge had been. Every building is taken out of the model from this year; the moats stay open.'],
+  [1663, 'Sir Richard Francklyn is building himself a new house “in sight of” the park pale, just east of the old moat, probably with material from the old house. It is not modelled.'],
+  [1672, 'Francklyn sells the manor to Sir John Bucknall.'],
+  [1700, 'The model ends. Some time late in the 17th century a pebble roadway was laid across the empty site. It became an orchard in the 19th century; the moats were filled in between 1937 and 1957; the site was excavated in 1952–55 and again, by Time Team, in 2012.'],
+  [1486, 'Henry VII grants the manor to John de Vere, Earl of Oxford, and his wife Margaret, and the heirs of their bodies.'],
+  [1509, 'August: Henry VIII is at the More, his first recorded visit.'],
+  [1513, 'The Earl of Oxford dies without issue and the manor reverts to the Crown. It is at once leased for seventy years to Thomas Ruthall, Bishop of Durham.'],
+  [1515, 'The King grants the manor, subject to Ruthall’s lease, to feoffees in trust for the Abbot of St Albans, who gives 3,000 marks and lands at the Steelyard and Baynard’s Castle in London; in November they convey it to the abbot and convent.'],
+  [1518, 'July: Henry VIII visits again. Bishop Ruthall holds the house, and stays there from time to time, until the middle of this year.'],
+  [1520, 'Before April the Abbot of St Albans, Thomas Ramridge, has bought out the rest of Ruthall’s lease and is in possession.'],
+  [1522, 'Cardinal Wolsey holds the abbey of St Albans from May and is confirmed in it on 8 November; with it he comes into the More. He enlarges the house with new north, west and east ranges. No record gives the years of his building, so his works are drawn faint from now until 1525. The old north-east corner tower, which his east wing replaced, is taken out of the model from this year; when it actually came down is not recorded.'],
+  [1524, 'Wolsey is often at the More from now until 1529, and writes from it. He is said to have enclosed part of a tenant’s land called Tollpotts in the park and turned the road from Rickmansworth to Watford, which had passed in front of the house, on to a new line north of it.'],
+  [1525, 'On 30 August the Treaty of the More, a peace between England and France, is concluded here; the peace is proclaimed from the house on 6 September. Henry VIII is at the More this year. Wolsey’s works are shown complete from this year. That is a chosen date, not a recorded one: the treaty shows the house in use, and the report dates its maiolica floor tiles to about now, but no source says when the building was finished.'],
+  [1530, 'Wolsey resigns the abbey of St Albans on 17 February. Henry VIII is installed at the More by April, and playing tennis there; payments begin for “the King’s building at the More”. Sir John Russell is made keeper of the manor. From this year the outer ranges are labelled with the room names of Thurley’s plan. Henry’s alterations are minor and their years are not recorded: they are drawn faint from now until 1544.'],
+  [1531, 'In February the King’s chaplain Thomas Herytage is paid £100 for buildings to be made at the More. In August Henry sends Catherine of Aragon here during the divorce proceedings. In November the new Abbot of St Albans cedes the manor to the Crown.'],
+  [1533, 'Sir John Russell writes to Cromwell that the park pale is broken and “The garden is in great ruin… It is utterly destroyed. All the knots are marred”; in the Cardinal’s days it had cost £40 or £50 or 100 marks a year.'],
+  [1534, 'The surviving building accounts begin in April and run to July 1544. In October Princess Mary is at the More, and John Clement is made keeper of the garden, orchards, ponds and sluices at 6d. a day. The base court and the garden, which these accounts first attest, are shown solid from this year, and so is the privy bridge, which these accounts are the first to name.'],
+  [1535, 'For 1535–36 a complete account survives: wages £229 13s. 3d., materials £126 15s. The accounts of these years record painting and gilding in the royal rooms, including five small cognizances gilded with H and A.'],
+  [1538, 'In June James Nedeham draws £225 for work at Otford, Knole and Petworth “and for two new chambers and a watching chamber at the More”. Where they were is not recorded, so nothing is added to the model.'],
+  [1539, 'The Count Palatine visits Henry VIII at the More.'],
+  [1540, 'Henry gives the manor to Anne of Cleves for life, and visits it with Catherine Howard on their wedding progress.'],
+  [1542, 'The Privy Council meets often at the More this year. Henry seems not to have used the house again.'],
+  [1544, 'The building accounts end in July (elsewhere the report says workmen were there until September 1543). Henry’s minor works are shown complete from this year.'],
+  [1547, 'Henry VIII dies. His inventory gives twenty-nine pages to the wardrobe at the More, with 131 pieces of hangings. Thurley’s Plan 9 records the layout of the manor and gardens in this year: the leats, the moated enclosures, the garden moat and the orchard are shown solid on its evidence.'],
+  [1548, 'Under Edward VI, between 1547 and 1552, Lawrence Bradshaw spends £114 1s. 4½d. on the More. It is the last work recorded on the house.'],
+  [1551, 'The Earl of Bedford surrenders the More to the Crown; his son Francis follows him as keeper. The family lives at Batchworth Heath Lodge, not in the house.'],
+  [1555, 'About now the house is deserted. The moat, cleaned out regularly until this time, begins to silt up. Squatters later settle in the great hall.'],
+  [1556, 'The estate is annexed to the Duchy of Lancaster. A survey finds the manor place “very much decayed, as well in tiling as in glass, lead and waterwork”, and fears that the rest of the “statlie house will not long continue without great reparations”. (The report dates this survey 1556 here and 1566 in two other places; 1556 is the date it gives with the archive reference.) The model does not change: decay short of ruin is not drawn.'],
+  [1576, 'The manor is granted to Francis, second Earl of Bedford, for £120 a year. The excavators found that about now (“c. 1575 or a little later”) there was demolition on the north side and rubble fell to the edge of the moat, which fits the sale of 1574. Wolsey’s outer ranges, towers and long gallery are drawn roofless from this year; how much was actually pulled down, and when, is not recorded.'],
+  [1598, 'John Norden sees “the auncient ruynes of Morhouse, Rickmansworth”. The gatehouse and the three old ranges round the inner court are still drawn with their roofs, because the excavation shows squatters in the great hall until about 1600; that is an estimate of what “ruins” meant. About now the lead pipes are dug out and the squatters move to the gatehouse.'],
+  [1603, 'Elizabeth I dies. Squatters live on in and around the gatehouse into the 17th century.'],
+  [1529, 'In August Wolsey offers to entertain the King at the More; Henry declines. On 7 October the papal legate Campeggio writes that the Cardinal has “a very fine palace” here. Wolsey falls from power this month. This is the latest date by which his works were certainly complete.'],
+];
+const ghostM = new THREE.MeshStandardMaterial({ color: 0x9aa3a6, transparent: true, opacity: .42, depthWrite: false, roughness: 1 });
+const fixtures = [];
+{
+  const box = new THREE.Box3(), ctr = new THREE.Vector3();
+  const dated = (o, k) => {
+    box.setFromObject(o); box.getCenter(ctr);
+    const px = ctr.x / S + CX, py = ctr.z / S + CY;
+    const rule = k.from == null ? AREA_RULES.find((r) => r.test(px, py)) : null;
+    return { from: k.from ?? rule?.from ?? null, to: k.to ?? rule?.to ?? null, byArea: !!rule, solidFrom: k.solidFrom ?? null, ghostFrom: k.ghostFrom ?? null, ruinFrom: k.ruinFrom ?? null };
+  };
+  for (const g of buildings) { const d = g.userData.def; g.userData.tl = dated(g, { from: d.from, to: d.to, solidFrom: d.solidFrom, ghostFrom: d.ghostFrom, ruinFrom: d.ruinFrom, ...(DATES[d.name] || {}) }); if (!d.flat && g.userData.tl.to == null) { g.userData.tl.to = HOUSE_END; g.userData.tl.houseEnd = true; } }
+  // Walls, yards and other things that are not separate buildings follow the same rules
+  for (const o of scene.children.filter((c) => c.userData.fixture)) { o.userData.tl = dated(o, { from: o.userData.fixtureFrom, to: o.userData.fixtureTo }); fixtures.push(o); }
+}
+const yearEl = document.getElementById('year'), yearOut = document.getElementById('year-out'), yearBadge = document.getElementById('year-badge'), eventEl = document.getElementById('year-event'), playBtn = document.getElementById('play');
+const ghostSaved = new Map();
+function setGhost(g, on) {
+  g.traverse((o) => {
+    if (!o.isMesh) return;
+    if (on && !ghostSaved.has(o)) { ghostSaved.set(o, [o.material, o.castShadow]); o.material = ghostM; o.castShadow = false; o.renderOrder = 2; }   // draw after the translucent plan
+    else if (!on && ghostSaved.has(o)) { const [m, c] = ghostSaved.get(o); o.material = m; o.castShadow = c; o.renderOrder = 0; ghostSaved.delete(o); }
+  });
+}
+let year = YEAR_START;
+const phaseBox = document.getElementById('show-phase'), phaseLbl = document.getElementById('phase-label');
+function updatePhasePlan() {
+  for (const m of planLayers) { const t = m.userData.phase; m.visible = phaseBox.checked && year >= t.from && year < t.to; }
+  const any = planLayers.find((m) => year >= m.userData.phase.from && year < m.userData.phase.to);
+  phaseLbl.textContent = any ? `(${any.userData.phase.label})` : '(none for this year)';
+  document.getElementById('thurley-note').textContent = any ? any.userData.phase.note || '' : '';
+}
+phaseBox.addEventListener('change', updatePhasePlan);
+function setYear(y) {
+  year = y; yearEl.value = y; yearOut.textContent = y; yearBadge.textContent = y;
+  yearBadge.hidden = !playTimer;
+  for (const g of buildings.concat(fixtures)) {
+    const tl = g.userData.tl;
+    const exists = (tl.from == null ? (tl.ghostFrom == null || y >= tl.ghostFrom) : y >= tl.from) && (tl.to == null || y < tl.to);
+    const state = !exists ? 'hidden' : (tl.from == null && (tl.solidFrom == null || y < tl.solidFrom) ? 'ghost' : 'solid');
+    const ruined = tl.ruinFrom != null && y >= tl.ruinFrom;
+    if (ruined !== !!g.userData.ruined) { if (g === selected) select(null); g.traverse((o) => { if (o.userData.roofPart) o.visible = !ruined; if (o.userData.ruinPart) o.visible = ruined; }); g.userData.ruined = ruined; }
+    if (state === g.userData.state) continue;
+    if (g === selected) select(null);
+    g.visible = state !== 'hidden';
+    setGhost(g, state === 'ghost');
+    g.userData.state = state;
+  }
+  for (const g of buildings) { const d = g.userData.def; if (d.names && g.userData.labelEl) g.userData.labelEl.textContent = nameAt(d, y).short; }
+  const ev = EVENTS.filter(([ey]) => ey <= y).sort((a, b) => a[0] - b[0]).at(-1);
+  eventEl.setAttribute('aria-live', playTimer ? 'off' : 'polite');   // not read out year by year while playing
+  eventEl.innerHTML = `<b>${ev[0] === y ? '' : ev[0] + ': '}</b>${ev[1]}`;
+  refreshList();
+  updatePhasePlan();
+  refreshShadows();
+}
+let playTimer = null;
+const PLAY_LABEL = `Play ${YEAR_MIN}–${YEAR_MAX}`;
+const stopPlay = () => { clearInterval(playTimer); playTimer = null; playBtn.textContent = PLAY_LABEL; setYear(year); };
+playBtn.addEventListener('click', () => {
+  if (playTimer) return stopPlay();
+  if (year >= YEAR_MAX) setYear(YEAR_MIN);
+  playBtn.textContent = 'Pause';
+  playTimer = setInterval(() => { if (year >= YEAR_MAX) return stopPlay(); setYear(year + 1); }, 110);
+});
+yearEl.addEventListener('input', () => { if (playTimer) stopPlay(); setYear(+yearEl.value); });
+// A list of the buildings standing in the current year, for keyboard and screen-reader users: it reaches every card
+// that a click on the model reaches, and gives the 3D scene a text equivalent.
+const listWrap = document.getElementById('bld-list-wrap'), listEl = document.getElementById('bld-list');
+const listName = (g) => nameAt(g.userData.def, year).name + (g.userData.state === 'ghost' ? ' (undated, shown faint)' : '') + (g.userData.ruined ? ' (drawn roofless)' : '');
+function flyTo(g) {
+  const box = new THREE.Box3().setFromObject(g), at = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
+  at.y = Math.min(Math.max(at.y, 0), 20);
+  const off = camera.position.clone().sub(controls.target);
+  const d = THREE.MathUtils.clamp(Math.max(size.x, size.z) * 2.2 + 40, 60, controls.maxDistance);
+  moveTo(at.clone().add(off.setLength(d)), at, 700);
+}
+function markList() { for (const b of listEl.querySelectorAll('button')) b.setAttribute('aria-current', String(b._g === selected)); }
+function refreshList() {
+  document.getElementById('bld-list-year').textContent = year;
+  const standing = buildings.filter((b) => b.visible);
+  renderer.domElement.setAttribute('aria-label', `3D model of the manor of the More as it stood in ${year}, with ${standing.length} buildings and features. They are listed under “Buildings standing in ${year}” in the controls; choose one there to read about it.`);
+  if (!listWrap.open || playTimer) return;
+  const rows = standing.map((g) => [listName(g), g]).sort((a, b) => a[0].localeCompare(b[0], 'en', { numeric: true }));
+  listEl.replaceChildren(...rows.map(([n, g]) => {
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button'; b.textContent = n; b._g = g;
+    b.addEventListener('click', () => { select(g); flyTo(g); });
+    li.append(b); return li;
+  }));
+  markList();
+}
+listWrap.addEventListener('toggle', refreshList);
+setYear(YEAR_START);
+
+// Views
+const views = {
+  overview: smallScreen ? { pos: P(1560, 3050, 200), at: P(690, 1400, 0) } : { pos: P(1420, 2900, 150), at: P(430, 1420, 0) },   // on a wide screen the house sits clear of the panel
+  plan:     { pos: P(690, 1451, 250), at: P(690, 1450, 0) },
+  gate:     { pos: P(760, 1800, 7), at: P(697, 1440, 6), fov: 46 },
+  court:    { pos: P(705, 1362, 1.7), at: P(690, 1130, 5.5), fov: 60 },
+  north:    { pos: P(1010, 40, 34), at: P(650, 880, 4), fov: 44 },
+  garden:   { pos: P(120, 420, 30), at: P(640, 620, 3), fov: 46 },
+  site:     { pos: P(-1500, 4100, 420), at: P(-1300, 1100, 0), fov: 46 },
+  base:     { pos: P(560, 2420, 26), at: P(690, 1900, 2), fov: 46 },
+};
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let tween = null;
+function goTo(name, instant = false) {
+  const v = views[name];
+  document.querySelectorAll('.view-btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === name)));
+  const fov = v.fov || 42;
+  if (instant || reduce) { camera.position.copy(v.pos); controls.target.copy(v.at); camera.fov = fov; camera.updateProjectionMatrix(); controls.update(); return; }
+  tween = { t0: performance.now(), from: [camera.position.clone(), controls.target.clone(), camera.fov], to: [v.pos, v.at, fov] };
+}
+document.querySelectorAll('.view-btn').forEach((b) => b.addEventListener('click', () => goTo(b.dataset.view)));
+controls.addEventListener('start', () => { tween = null; });
+goTo('overview', true);
+
+// ---------- Navigation helpers ----------
+// Keep the point the camera looks at on or near the site, so the model can't be lost off-screen
+const SITE = { x0: -260 * K, x1: 260 * K, z0: -190 * K, z1: 270 * K };
+const clampV = new THREE.Vector3();
+function keepOnSite() {
+  const t = controls.target;
+  clampV.set(THREE.MathUtils.clamp(t.x, SITE.x0, SITE.x1), Math.max(-2, Math.min(t.y, 30)), THREE.MathUtils.clamp(t.z, SITE.z0, SITE.z1)).sub(t);
+  if (clampV.lengthSq() > 0) { t.add(clampV); camera.position.add(clampV); }
+  if (camera.position.y < 1.2) camera.position.y = 1.2;
+}
+// Short animated moves for the buttons and double-click
+function moveTo(pos, at, dur = 450) {
+  if (reduce) { camera.position.copy(pos); controls.target.copy(at); controls.update(); return; }
+  tween = { t0: performance.now(), dur, from: [camera.position.clone(), controls.target.clone(), camera.fov], to: [pos, at, camera.fov] };
+}
+function zoomBy(f) {
+  const off = camera.position.clone().sub(controls.target);
+  const d = THREE.MathUtils.clamp(off.length() * f, controls.minDistance, controls.maxDistance);
+  moveTo(controls.target.clone().add(off.setLength(d)), controls.target.clone());
+}
+function turnBy(rad) {
+  const off = camera.position.clone().sub(controls.target).applyAxisAngle(new THREE.Vector3(0, 1, 0), rad);
+  moveTo(controls.target.clone().add(off), controls.target.clone());
+}
+function northUp() {
+  const off = camera.position.clone().sub(controls.target);
+  const h = Math.hypot(off.x, off.z), back = north.clone().multiplyScalar(-h);
+  moveTo(controls.target.clone().add(new THREE.Vector3(back.x, off.y, back.z)), controls.target.clone(), 700);
+}
+document.getElementById('nav-in').addEventListener('click', () => zoomBy(0.6));
+document.getElementById('nav-out').addEventListener('click', () => zoomBy(1 / 0.6));
+document.getElementById('nav-left').addEventListener('click', () => turnBy(Math.PI / 6));
+document.getElementById('nav-right').addEventListener('click', () => turnBy(-Math.PI / 6));
+document.getElementById('nav-north').addEventListener('click', northUp);
+document.getElementById('nav-home').addEventListener('click', () => goTo('overview'));
+// Keys: + and - zoom, [ and ] turn, N faces north (arrow keys move, handled by the controls)
+addEventListener('keydown', (e) => {
+  if (e.target.closest && e.target.closest('input, textarea')) return;
+  if (!document.getElementById('keys-on').checked || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === '+' || e.key === '=') zoomBy(0.7);
+  else if (e.key === '-' || e.key === '_') zoomBy(1 / 0.7);
+  else if (e.key === '[') turnBy(Math.PI / 12);
+  else if (e.key === ']') turnBy(-Math.PI / 12);
+  else if (e.key === 'n' || e.key === 'N') northUp();
+});
+// Double-click (or double-tap) anywhere to fly in towards that spot
+const flyRay = new THREE.Raycaster();
+renderer.domElement.addEventListener('dblclick', (e) => {
+  const r = renderer.domElement.getBoundingClientRect();
+  flyRay.setFromCamera(new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), camera);
+  const hit = flyRay.intersectObjects(scene.children, true).find((h) => h.object.visible && h.object.isMesh);
+  if (!hit) return;
+  const at = hit.point.clone(); at.y = Math.min(at.y, 20);
+  const off = camera.position.clone().sub(controls.target);
+  const d = THREE.MathUtils.clamp(off.length() * 0.45, 25, controls.maxDistance);
+  moveTo(at.clone().add(off.setLength(d)), at, 700);
+});
+
+// Panel collapse (phone) and painting lightbox
+const panel = document.getElementById('panel'), tog = document.getElementById('toggle-panel');
+const setCollapsed = (c) => { panel.classList.toggle('collapsed', c); tog.textContent = c ? 'Show' : 'Hide'; tog.setAttribute('aria-expanded', String(!c)); };
+tog.addEventListener('click', () => setCollapsed(!panel.classList.contains('collapsed')));
+if (matchMedia('(max-width: 720px)').matches) setCollapsed(true);   // phones open on the model, with the panel folded away
+const lb = document.getElementById('lightbox');
+let lbFrom = null;
+function closeLb() { if (lb.hidden) return; lb.hidden = true; (refBtns[lbAt] || lbFrom)?.focus(); lbFrom = null; }   // focus returns to the thumbnail of the image last shown
+const REFS = [
+  { src: 'assets/biddle-fig1-site.jpg', alt: 'Plan of the site of the manor, from the excavation report, 1959', cap: "Biddle, Barfield and Millard, Fig. 1, “The site of the manor”: the house moat, the garden moat to its north, the two moated enclosures to the west (which the excavators took to be fish ponds enclosing gardens) and the leats from the River Colne, with the modern railway, Moor Farm and Sandy Lodge Road. Not used for positions in the model; it agrees in outline with Thurley’s Plan 9." },
+  { src: 'assets/biddle-fig6-periods-iv-viii.jpg', alt: 'Excavation plan of the house, Periods IV to VIII, from the excavation report, 1959', cap: "Biddle, Barfield and Millard, Fig. 6, “The More, Periods IV–VIII”: the walls found in 1952–55. Solid black is the house of 1426, cross-hatching Neville’s work of 1460–70, diagonal hatching Wolsey’s, vertical hatching Henry VIII’s; dashed lines are inferred. It can be laid on the model’s ground under Layers. Its north arrow is about 12° east of the line of the walls, where Thurley’s plans put north square to them." },
+  { src: 'assets/thurley-plan9-block-1547.jpg', alt: 'Thurley, Plan 9: block plan of the manor and gardens in 1547', cap: "Thurley, The Royal Palaces of Tudor England, Plan 9: “The More, Hertfordshire. Block plan showing the layout of the manor and gardens, 1547.” It shows the later state, with the long gallery and a solid base court, so the house is not placed from it; the river, leats, moated enclosures and orchard are, and it can be laid on the ground for 1530–47 under Layers. The feet scale on this plan is mislabelled (its “500” and “100” stand where 250 and 500 ft should be); the metre scale is consistent." },
+  { src: 'assets/thurley-plan10-first-floor.jpg', alt: 'Thurley, Plan 10: conjectural first-floor plan of the More', cap: "Thurley, The Royal Palaces of Tudor England, Plan 10: “The More, Hertfordshire. Conjectural first-floor plan. The shaded areas denote the buildings that pre-dated Cardinal Wolsey’s acquisition of the house.” This is the model’s ground plan, shown here after correction for camera tilt. The shaded rooms round the inner court are the house of 1485–1521; the black outer ranges, the long gallery and the privy bridge are modelled from 1522." },
+];
+// The viewer steps through the images in the order they are listed (by date), with buttons or the left and right arrow keys
+const refBtns = [...document.querySelectorAll('.ref')];
+let lbAt = 0;
+function showRef(i) {
+  lbAt = (i + refBtns.length) % refBtns.length;
+  const r = REFS[+refBtns[lbAt].dataset.ref];
+  const img = document.getElementById('lb-img'); img.src = r.src; img.alt = r.alt;
+  document.getElementById('lb-cap').textContent = r.cap;
+  document.getElementById('lb-count').textContent = `Image ${lbAt + 1} of ${refBtns.length}`;
+}
+refBtns.forEach((b, i) => b.addEventListener('click', () => {
+  showRef(i);
+  lbFrom = b; lb.hidden = false; document.getElementById('close-painting').focus();
+}));
+document.getElementById('lb-prev').addEventListener('click', () => showRef(lbAt - 1));
+document.getElementById('lb-next').addEventListener('click', () => showRef(lbAt + 1));
+addEventListener('keydown', (e) => {   // before the camera controls see the arrow keys
+  if (lb.hidden || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+  e.stopPropagation(); e.preventDefault(); showRef(lbAt + (e.key === 'ArrowLeft' ? -1 : 1));
+}, true);
+document.getElementById('close-painting').addEventListener('click', closeLb);
+lb.addEventListener('click', (e) => { if (e.target === lb) closeLb(); });
+lb.addEventListener('keydown', (e) => {   // Tab moves between the viewer's own buttons and does not leave it
+  if (e.key !== 'Tab') return;
+  const bs = [...lb.querySelectorAll('button')], at = bs.indexOf(document.activeElement);
+  e.preventDefault(); bs[(at + (e.shiftKey ? -1 : 1) + bs.length) % bs.length].focus();
+});
+addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!lb.hidden) closeLb(); else select(null); } });
+
+// Compass: north is up the plan (Thurley's Plans 9 and 10 both put north square to the walls)
+const north = new THREE.Vector3(0, 0, -1);
+const needle = document.querySelector('#compass .needle');
+const right = new THREE.Vector3(), fwd = new THREE.Vector3();
+
+// For checking the model from the browser console (overlaps, dates): not used by the page itself
+window.__model = { THREE, buildings, fixtures, select, setYear, goTo, get year() { return year; } };
+
+SITE.x0 = -470; SITE.z1 = 300;   // the wider site (Thurley's Plan 9) lies west of the house
+controls.maxDistance = 1100;
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight); labelRenderer.setSize(innerWidth, innerHeight);
+});
+
+// Hide labels whose building is hidden or behind another building
+const occl = new THREE.Raycaster(), labPos = new THREE.Vector3(), labDir = new THREE.Vector3();
+let frame = 0;
+function updateLabelOcclusion() {
+  const vis = buildings.filter((b) => b.visible);
+  for (const { lab, g } of labels) {
+    let hide = !g.visible;
+    if (!hide) {
+      lab.getWorldPosition(labPos);
+      labDir.subVectors(labPos, camera.position);
+      const dist = labDir.length();
+      if (lab.element.classList.contains('minor') && dist > 160) { lab.element.style.visibility = 'hidden'; continue; }   // keep distant minor labels out of close views
+      occl.set(camera.position, labDir.normalize()); occl.far = dist - 1;
+      const hit = occl.intersectObjects(vis, true)[0];
+      if (hit) { let o = hit.object; while (o && o !== g) o = o.parent; hide = o !== g; }
+    }
+    lab.element.style.visibility = hide ? 'hidden' : '';
+  }
+}
+const ease = (t) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+renderer.setAnimationLoop((now) => {
+  if (tween) {
+    const t = Math.min(1, (now - tween.t0) / (tween.dur || 1400)), k = ease(t);
+    camera.position.lerpVectors(tween.from[0], tween.to[0], k);
+    controls.target.lerpVectors(tween.from[1], tween.to[1], k);
+    camera.fov = tween.from[2] + (tween.to[2] - tween.from[2]) * k; camera.updateProjectionMatrix();
+    if (t === 1) tween = null;
+  }
+  controls.update();
+  keepOnSite();
+  if (frame++ % 6 === 0) updateLabelOcclusion();
+  right.setFromMatrixColumn(camera.matrixWorld, 0).setY(0).normalize();
+  fwd.set(right.z, 0, -right.x);  // ground-plane "up the screen" direction
+  needle.style.transform = `rotate(${Math.atan2(north.dot(right), north.dot(fwd))}rad)`;
+  renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
+});
+</script>

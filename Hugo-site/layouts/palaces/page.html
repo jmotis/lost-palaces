@@ -1,0 +1,73 @@
+{{ define "title" }}{{ .Title }}, {{ .Params.start }}–{{ .Params.end }} · {{ site.Title }}{{ end }}
+{{ define "description" }}A 3D model of {{ .Title }}, {{ .Params.place }}, {{ .Params.start }}–{{ .Params.end }}.{{ end }}
+
+{{ define "main" }}
+{{ $full := printf "%s, %d–%d" .Title .Params.start .Params.end }}
+{{/* The introduction and bibliography are read from the model's own file, so they never drift apart. */}}
+{{ $lede := "" }}{{ $bib := "" }}
+{{ with resources.Get (strings.TrimPrefix "/" .Params.model) }}
+  {{ $src := .Content }}
+  {{ with findRESubmatch `(?s)<p class="lede">(.*?)</p>` $src 1 }}{{ $lede = index (index . 0) 1 }}{{ end }}
+  {{/* Match up to the </ul> that closes the bibliography's own group, so nested lists (as in Whitehall's) are kept whole. */}}
+  {{ with findRESubmatch `(?s)<ul class="bib">(.*?)</ul>\s*</div>` $src 1 }}{{ $bib = index (index . 0) 1 }}{{ end }}
+{{ else }}
+  {{ warnf "%s: model page %s not found in assets" .File.Path .Params.model }}
+{{ end }}
+{{ $siblings := (where site.RegularPages "Section" "palaces").ByWeight }}
+
+<main id="content" class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <ol>
+      <li><a href="{{ site.Home.RelPermalink }}#palaces">Palaces</a></li>
+      <li><span aria-current="page">{{ .Params.name }}</span></li>
+    </ol>
+  </nav>
+
+  <div class="palace-head">
+    <div>
+      <h1>{{ .Title }}</h1>
+      <p class="sub">{{ .Params.start }}–{{ .Params.end }} · {{ .Params.place }}</p>
+    </div>
+    <a class="btn btn-primary" href="{{ .Params.model | relURL }}">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+      Open the model full screen
+    </a>
+  </div>
+
+  {{ with $lede }}<p class="palace-lede">{{ . | safeHTML }}</p>{{ end }}
+
+  <figure class="model-frame">
+    <iframe src="{{ .Params.model | relURL }}" title="3D model of {{ $full }}" allow="fullscreen" loading="lazy"></iframe>
+    <figcaption>The model’s own panel holds the year slider, views, layers and sources. On a small screen, open the model full screen for more room.</figcaption>
+  </figure>
+
+  <div class="palace-body">
+    <section aria-labelledby="using-title">
+      <h2 id="using-title">Using the model</h2>
+      <p>Drag to move around, scroll or pinch to zoom, and move the year slider in the model’s panel to watch the palace change. Select a building to read where its position, date and appearance come from.</p>
+      <p>With a keyboard, press Tab to move into the model. Its panel has buttons for each view and for zooming and turning, and a list of the buildings standing in the chosen year.</p>
+    </section>
+    <aside aria-labelledby="sources-title">
+      <h2 id="sources-title">Sources</h2>
+      <ul class="bib">
+        {{ with $bib }}{{ . | safeHTML }}{{ else }}<li>Listed in the model’s panel, under Bibliography.</li>{{ end }}
+      </ul>
+      <h3 class="cite-title">Cite this model</h3>
+      {{/* cite.js fills in the page's full web address and the reader's own today. Without JavaScript the address and build date stand in.
+           Once the site has its domain, set baseURL in hugo.toml and the stand-in address becomes the full one too. */}}
+      <p class="cite">“{{ $full }}: a 3D model.” {{ site.Title }}. <span class="cite-url">{{ .Permalink }}</span>. Accessed <time class="cite-accessed" datetime="{{ now.Format "2006-01-02" }}">{{ now.Format "2 January 2006" }}</time>.</p>
+    </aside>
+  </div>
+
+  <nav class="pager" aria-label="Other palaces">
+    {{ with $siblings.Next . }}<a class="prev" href="{{ .RelPermalink }}"><span class="dir">← Previous</span><span class="pname">{{ .Params.name }}</span></a>{{ end }}
+    {{ with $siblings.Prev . }}<a class="next" href="{{ .RelPermalink }}"><span class="dir">Next →</span><span class="pname">{{ .Params.name }}</span></a>{{ end }}
+  </nav>
+</main>
+{{ end }}
+
+{{ define "scripts" }}
+{{ with resources.Get "js/cite.js" | minify | fingerprint }}
+<script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}"></script>
+{{ end }}
+{{ end }}

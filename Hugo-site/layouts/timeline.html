@@ -1,0 +1,80 @@
+{{/* The Timelines page (content/timelines.md, layout: timeline).
+     Three separate timelines, in the map's colours: green for palaces with a model, white for unmodeled
+     palaces (data/planned.yaml), brown for extant palaces (data/extant.yaml).
+     The scale runs from 1400 to 1800. A bar that starts earlier begins at the left edge with an arrow pointing left;
+     one that continues later ends at the right edge with an arrow pointing right. */}}
+{{ define "main" }}
+{{ $T0 := 1400.0 }}{{ $T1 := 1800.0 }}{{ $step := 50 }}
+{{ $range := sub $T1 $T0 }}
+{{ $today := 9999 }}
+
+{{/* Every row as the same shape: name, dates text, link (optional), start, end ($today = still standing). */}}
+{{ $models := slice }}
+{{ range (where site.RegularPages "Section" "palaces").ByWeight }}
+  {{ $models = $models | append (dict "name" .Params.name "dates" (printf "%d–%d" .Params.start .Params.end)
+      "url" .RelPermalink "start" .Params.start "end" .Params.end) }}
+{{ end }}
+{{ $unmodeled := slice }}
+{{ range sort hugo.Data.planned "start" }}
+  {{ $end := default $today .end }}
+  {{ $dates := cond (eq .end nil) (printf "%d–today" .start) (cond (eq .start .end) (printf "%d" .start) (printf "%d–%d" .start .end)) }}
+  {{ $unmodeled = $unmodeled | append (dict "name" .name "dates" $dates "url" "" "start" .start "end" $end) }}
+{{ end }}
+{{ $extant := slice }}
+{{ range sort hugo.Data.extant "start" }}
+  {{ $extant = $extant | append (dict "name" .name "dates" (printf "%s–today" (default (string .start) .start_label))
+      "url" (default "" .visit) "external" (ne (default "" .visit) "") "start" .start "end" $today) }}
+{{ end }}
+
+{{ $groups := slice
+    (dict "id" "models" "label" "Models" "kind" "model" "note" "The years each model covers. Select one to open the model." "rows" $models)
+    (dict "id" "unmodeled" "label" "Unmodeled" "kind" "unmodeled" "note" "Palaces without a model yet." "rows" $unmodeled)
+    (dict "id" "extant" "label" "Extant" "kind" "extant" "note" "Royal palaces still standing today. Select one to visit its website (Tickenhill is a private house)." "rows" $extant) }}
+
+<main id="content" class="wrap section section-last">
+  <h1 class="page-title">{{ .Params.heading | default .Title }}</h1>
+  {{ with .Content }}<div class="section-intro">{{ . }}</div>{{ end }}
+
+  {{ range $groups }}
+  {{ $kind := .kind }}
+  {{/* Each timeline is a collapsible section, closed to start, like the lists under the map (add `open` to start them open).
+       Links to #tl-models etc. open the section they point to (assets/js/timeline.js). */}}
+  <details class="tl-section" id="tl-{{ .id }}">
+    <summary>
+      <h2 class="tl-group"><i class="dot{{ if ne $kind "model" }} {{ $kind }}{{ end }}" aria-hidden="true"></i><span class="tl-label">{{ .label }}</span> <span class="tl-count">({{ len .rows }})</span></h2>
+      <span class="tl-sub">{{ .note }}</span>
+    </summary>
+    <div class="timeline" tabindex="0" role="region" aria-label="{{ .label }} timeline">
+      <div class="timeline-inner" style="--tl-step: {{ printf "%.4f" (div (mul $step 100.0) $range) }}%">
+        <div class="tl-axis" aria-hidden="true">
+          {{ range seq (int $T0) $step (int $T1) }}<span style="left:{{ printf "%.3f" (div (mul (sub . $T0) 100.0) $range) }}%">{{ . }}</span>{{ end }}
+        </div>
+        <ul class="tl-rows">
+          {{ range .rows }}
+          {{ $from := math.Max (float .start) $T0 }}{{ $to := math.Min (float .end) $T1 }}
+          {{ $left := div (mul (sub $from $T0) 100.0) $range }}
+          {{ $width := div (mul (sub $to $from) 100.0) $range }}
+          {{ $cls := slice }}{{ if lt (float .start) $T0 }}{{ $cls = $cls | append "from-earlier" }}{{ end }}{{ if gt (float .end) $T1 }}{{ $cls = $cls | append "to-later" }}{{ end }}
+          {{ $name := printf "<span class=\"tl-name\">%s<span class=\"tl-dates\">%s</span>%s</span>" (htmlEscape .name) (htmlEscape .dates) (cond (default false .external) "<span class=\"sr-only\"> (visitor website)</span>" "") }}
+          {{ $bar := printf "<span class=\"tl-track\" aria-hidden=\"true\"><span class=\"%s\" style=\"left:%.3f%%;width:%.3f%%\"></span></span>" (delimit $cls " ") $left $width }}
+          <li>
+            {{ if .url }}
+            <a class="tl-row is-{{ $kind }}" href="{{ .url }}">{{ $name | safeHTML }}{{ $bar | safeHTML }}</a>
+            {{ else }}
+            <div class="tl-row is-{{ $kind }}">{{ $name | safeHTML }}{{ $bar | safeHTML }}</div>
+            {{ end }}
+          </li>
+          {{ end }}
+        </ul>
+      </div>
+    </div>
+  </details>
+  {{ end }}
+</main>
+{{ end }}
+
+{{ define "scripts" }}
+{{ with resources.Get "js/timeline.js" | minify | fingerprint }}
+<script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}"></script>
+{{ end }}
+{{ end }}

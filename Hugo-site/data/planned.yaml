@@ -1,0 +1,25 @@
+# Palaces without a model yet, shown as white "Unmodeled" pins on the map.
+# Their coordinates are in coordinates.yaml. `far: true` = outside the opening map view.
+# `start`/`end` are the years the map's time filter uses (from each Wikipedia article); no `end` = still standing.
+- id: theobalds
+  name: Theobalds
+  place: Cheshunt, Hertfordshire
+  start: 1564   # built 1564–85; royal from 1607
+  end: 1650     # demolished by the end of 1650
+- id: woking
+  name: Woking
+  place: Old Woking, Surrey
+  start: 1503   # made a palace by Henry VII (royal manor from 1466)
+  end: 1620     # granted away; ruinous by Charles II's reign
+- id: linlithgow
+  name: Linlithgow
+  place: Linlithgow, West Lothian
+  far: true
+  start: 1424   # rebuilt by James I after the fire of 1424
+  end: 1746     # burned out; a ruin since
+- id: fieldofgold
+  name: The Field of Cloth of Gold
+  place: Balinghem, near Calais
+  far: true
+  start: 1520   # the meeting of 7–24 June 1520
+  end: 1520

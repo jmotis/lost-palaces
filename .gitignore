@@ -1,0 +1,61 @@
+# This repository holds the website and the page file of each 3D model.
+# Everything else in the project folder (research PDFs, plan scans, downloads,
+# the archived folder, the royalpalaces.com copy) stays local and is ignored.
+#
+# The models' images are also left out for now, until their copyright status
+# has been checked one by one. To add a model's images later, add lines like:
+#   !/Other Royal Palaces/Greenwich/WikipediaImages/
+# below the model's page file.
+
+# Ignore everything at the top level by default...
+/*
+
+# ...except this file and the website.
+!/.gitignore
+!/README.md
+!/Hugo-site/
+
+# The 3D models: only each model's page file (the file the website publishes).
+!/Other Royal Palaces/
+/Other Royal Palaces/*
+
+!/Other Royal Palaces/Baynards Castle/
+/Other Royal Palaces/Baynards Castle/*
+!/Other Royal Palaces/Baynards Castle/baynardscastle.html
+
+!/Other Royal Palaces/Beaulieu/
+/Other Royal Palaces/Beaulieu/*
+!/Other Royal Palaces/Beaulieu/beaulieu.html
+
+!/Other Royal Palaces/Bridewell/
+/Other Royal Palaces/Bridewell/*
+!/Other Royal Palaces/Bridewell/bridewell.html
+
+!/Other Royal Palaces/Greenwich/
+/Other Royal Palaces/Greenwich/*
+!/Other Royal Palaces/Greenwich/index.html
+
+!/Other Royal Palaces/Nonsuch/
+/Other Royal Palaces/Nonsuch/*
+!/Other Royal Palaces/Nonsuch/index.html
+
+!/Other Royal Palaces/Oatlands/
+/Other Royal Palaces/Oatlands/*
+!/Other Royal Palaces/Oatlands/oatlands.html
+
+!/Other Royal Palaces/Richmond/
+/Other Royal Palaces/Richmond/*
+!/Other Royal Palaces/Richmond/index.html
+
+!/Other Royal Palaces/The More/
+/Other Royal Palaces/The More/*
+!/Other Royal Palaces/The More/index.html
+
+!/ReconstructingWhitehall Fablecopy/
+/ReconstructingWhitehall Fablecopy/*
+!/ReconstructingWhitehall Fablecopy/whitehall/
+/ReconstructingWhitehall Fablecopy/whitehall/*
+!/ReconstructingWhitehall Fablecopy/whitehall/index.html
+
+# macOS Finder folder settings, anywhere
+.DS_Store

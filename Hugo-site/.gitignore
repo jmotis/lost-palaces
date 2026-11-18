@@ -1,0 +1,9 @@
+# macOS Finder folder settings
+.DS_Store
+
+# Hugo's build output and lock file; both are recreated by running `hugo`
+/public/
+.hugo_build.lock
+
+# Hugo's generated image copies; recreated on every build
+/resources/_gen/

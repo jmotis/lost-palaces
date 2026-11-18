@@ -1,0 +1,1659 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nonsuch Palace, 1537–1690: a 3D model</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Layout: full-bleed 3D scene; a slim control panel floats top-left, a building card bottom-right. Phone: panel becomes a bottom sheet. */
+:root {
+  --ink: #1d2830;
+  --ink-soft: #52606a;
+  --panel: rgba(236, 240, 238, 0.94);
+  --panel-line: #c5cdca;
+  --accent: #2f6b66;      /* green */
+  --gilt: #a8822a;        /* selection */
+  --sky-top: #b9c6cb;
+  --sky-bottom: #e6e4da;
+  --chip: #dfe5e2;
+  --ctl-line: #6f7d85;   /* outlines of buttons: at least 3:1 against the panel */
+  --font-display: "IM Fell English SC", "Iowan Old Style", Georgia, serif;
+  --font-italic: "IM Fell English", "Iowan Old Style", Georgia, serif;
+  --font-ui: "Source Sans 3", -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e2e6e3; --ink-soft: #9aa7ae; --panel: rgba(20, 27, 32, 0.93); --panel-line: #33414a;
+    --accent: #84c0b8; --gilt: #d8b45a; --sky-top: #3a4852; --sky-bottom: #77807f; --chip: #26323a; --ctl-line: #73838c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e2e6e3; --ink-soft: #9aa7ae; --panel: rgba(20, 27, 32, 0.93); --panel-line: #33414a;
+  --accent: #84c0b8; --gilt: #d8b45a; --sky-top: #3a4852; --sky-bottom: #77807f; --chip: #26323a; --ctl-line: #73838c;
+  color-scheme: dark;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--sky-bottom); color: var(--ink); font-family: var(--font-ui); overflow: hidden; }
+#scene { position: fixed; inset: 0; background: linear-gradient(var(--sky-top), var(--sky-bottom) 70%); }
+#scene canvas { display: block; touch-action: none; }
+
+#panel {
+  position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px));
+  width: 300px; max-height: calc(100% - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overflow-y: auto; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 6px;
+  padding: 16px 18px; display: grid; gap: 14px; backdrop-filter: blur(6px); z-index: 5;
+}
+.eyebrow { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
+h1 { font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1; margin: 2px 0 0; text-wrap: balance; }
+.lede { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--ink-soft); }
+.group { display: grid; gap: 8px; }
+.group-title { margin: 0; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: var(--ink-soft); }
+.views { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.view-btn { background: var(--chip); border: 1px solid var(--ctl-line); border-radius: 4px; padding: 7px 8px; font-size: 13px; text-align: left; }
+.view-btn:hover { border-color: var(--accent); }
+.view-btn[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); font-weight: 600; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; font-size: 13px; }
+.row input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); }
+.row output { font-variant-numeric: tabular-nums; color: var(--ink-soft); font-size: 12px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.check input { accent-color: var(--accent); }
+figure { margin: 0; display: grid; gap: 6px; }
+figure button { padding: 0; border: 1px solid var(--panel-line); border-radius: 3px; overflow: hidden; background: none; display: block; }
+figure img { display: block; width: 100%; }
+figcaption { font-family: var(--font-italic); font-style: italic; font-size: 13px; color: var(--ink-soft); line-height: 1.35; }
+.refs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.ref { padding: 0; border: 1px solid var(--panel-line); border-radius: 3px; background: var(--chip); display: grid; text-align: left; overflow: hidden; }
+.ref:hover { border-color: var(--accent); }
+.ref img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.ref span { font-size: 11px; line-height: 1.25; padding: 4px 5px; color: var(--ink-soft); }
+.year-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+#year-out { font-family: var(--font-display); font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--ink); }
+.play { background: var(--chip); border: 1px solid var(--ctl-line); border-radius: 4px; padding: 5px 9px; font-size: 12px; }
+.play:hover { border-color: var(--accent); }
+#year { width: 100%; accent-color: var(--accent); }
+.event { margin: 0; font-size: 13px; line-height: 1.45; min-height: 2.9em; }
+.event b { font-weight: 600; }
+#year-badge { position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--panel-line); border-radius: 6px; padding: 4px 12px; font-family: var(--font-display); font-size: 22px; z-index: 4; pointer-events: none; font-variant-numeric: tabular-nums; }
+.hint { margin: 0; font-size: 12px; line-height: 1.45; color: var(--ink-soft); }
+.howto summary { cursor: pointer; list-style: revert; }
+.howto summary .group-title { display: inline; }
+#bld-list { list-style: none; margin: 8px 0 0; padding: 2px; display: grid; gap: 4px; max-height: 260px; overflow-y: auto; }
+#bld-list button { width: 100%; text-align: left; background: var(--chip); border: 1px solid var(--ctl-line); border-radius: 4px; padding: 6px 8px; font-size: 13px; }
+#bld-list button:hover { border-color: var(--accent); }
+#bld-list button[aria-current="true"] { border-color: var(--gilt); box-shadow: inset 0 0 0 1px var(--gilt); font-weight: 600; }
+.howto ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; }
+#thurley-note:empty { display: none; }
+#nav { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); display: grid; gap: 6px; z-index: 5; }
+#nav button { width: 40px; height: 40px; display: grid; place-items: center; background: var(--panel); border: 1px solid var(--ctl-line); border-radius: 6px; color: var(--ink); padding: 0; backdrop-filter: blur(6px); }
+#nav button:hover { border-color: var(--accent); color: var(--accent); }
+#nav svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#nav .sep { height: 4px; }
+.bib { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
+.bib li { padding-left: 1.4em; text-indent: -1.4em; }
+.bib a { color: var(--accent); }
+.bib ul { list-style: none; margin: 4px 0 0; padding: 0 0 0 1.4em; display: grid; gap: 3px; }
+.bib ul li { padding-left: 1.4em; text-indent: -1.4em; }
+.bib a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.note { font-size: 12px; line-height: 1.45; color: var(--ink-soft); border-top: 1px solid var(--panel-line); padding-top: 10px; margin: 0; }
+.swatches { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 12px; color: var(--ink-soft); }
+.swatches span { display: inline-flex; align-items: center; gap: 5px; }
+.swatches i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; border: 1px solid rgba(0,0,0,.2); }
+#toggle-panel { display: none; }
+
+#info {
+  position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  width: 340px; max-width: calc(100% - 32px); background: var(--panel); border: 1px solid var(--panel-line);
+  border-top: 3px solid var(--gilt); border-radius: 6px; padding: 14px 16px 16px; z-index: 6; backdrop-filter: blur(6px);
+  display: grid; gap: 8px;
+  max-height: calc(100% - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); overflow-y: auto; box-sizing: border-box;
+}
+#info h2 { font-family: var(--font-display); font-weight: 400; font-size: 23px; margin: 0; line-height: 1.1; padding-right: 28px; }
+#info .meta { display: flex; flex-wrap: wrap; gap: 6px; }
+#info .meta span { font-size: 12px; background: var(--chip); padding: 2px 7px; border-radius: 3px; font-variant-numeric: tabular-nums; }
+#info p { margin: 0; font-size: 13.5px; line-height: 1.5; }
+#info .close { position: absolute; top: 8px; right: 8px; border: 0; background: none; font-size: 20px; line-height: 1; padding: 4px 8px; color: var(--ink-soft); }
+
+.label {
+  font-family: var(--font-italic); font-style: italic; font-size: 13px; color: #1d2830; background: rgba(244, 241, 232, 0.85);
+  padding: 1px 6px; border-radius: 2px; white-space: nowrap; pointer-events: none; border: 1px solid rgba(29,40,48,.25);
+}
+.label.minor { font-size: 11.5px; opacity: .85; }
+#labels.off .label { display: none; }
+
+#compass {
+  position: fixed; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: calc(max(16px, env(safe-area-inset-left, 0px)) + 316px);
+  width: 54px; height: 54px; border-radius: 50%; background: var(--panel); border: 1px solid var(--panel-line);
+  display: grid; place-items: center; z-index: 4; pointer-events: none;
+}
+#compass .needle { width: 0; height: 0; display: grid; place-items: center; position: relative; }
+#compass .needle::before { content: ""; position: absolute; bottom: 0; left: -5px; border: 5px solid transparent; border-bottom: 17px solid var(--accent); border-top: 0; }
+#compass .needle::after { content: "N"; position: absolute; bottom: 17px; left: -4px; font-size: 10px; font-weight: 600; color: var(--accent); }
+
+#lightbox { position: fixed; inset: 0; background: rgba(10, 14, 18, 0.88); z-index: 20; display: grid; place-items: center; padding: 24px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); }
+#lightbox figure { max-width: 1000px; width: 100%; }
+#lightbox figcaption { color: #d7dcd8; }
+#lightbox .lb-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
+#lb-count { margin-right: auto; color: #d7dcd8; font-size: 13px; font-variant-numeric: tabular-nums; }
+#lightbox button:focus-visible { outline-color: #e6e9e6; }
+#lightbox button { background: none; border: 1px solid #6c7a80; color: #e6e9e6; border-radius: 4px; padding: 4px 12px; }
+
+#loading[hidden] { display: none; }
+#loading { position: fixed; inset: 0; display: grid; place-items: center; font-family: var(--font-italic); font-style: italic; color: var(--ink-soft); z-index: 1; pointer-events: none; }
+
+@media (max-width: 720px) {
+  #panel { top: auto; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); left: max(10px, env(safe-area-inset-left, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); width: auto; max-height: 46%; padding: 12px 14px; }
+  #panel.collapsed > :not(.head) { display: none; }
+  .head { display: flex; align-items: end; justify-content: space-between; gap: 8px; }
+  #toggle-panel { display: inline-block; background: var(--chip); border: 1px solid var(--ctl-line); border-radius: 4px; padding: 5px 10px; font-size: 12px; }
+  h1 { font-size: 24px; }
+  #info { bottom: auto; top: calc(10px + env(safe-area-inset-top, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); left: max(10px, env(safe-area-inset-left, 0px)); width: auto; max-width: none; max-height: 46%; }
+  #nav { top: calc(66px + env(safe-area-inset-top, 0px)); transform: none; right: max(12px, env(safe-area-inset-right, 0px)); }
+  #nav button { width: 44px; height: 44px; }
+  #compass { left: auto; right: max(12px, env(safe-area-inset-right, 0px)); bottom: auto; top: calc(12px + env(safe-area-inset-top, 0px)); width: 44px; height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div id="scene"></div>
+<div id="loading">Laying out the palace…</div>
+
+<aside id="panel" aria-label="Model controls">
+  <div class="head">
+    <div>
+      <div class="eyebrow">A 3D Model, 1537–1690</div>
+      <h1>Nonsuch Palace</h1>
+    </div>
+    <button id="toggle-panel" type="button" aria-expanded="true">Hide</button>
+  </div>
+  <p class="lede">Footprints come from Simon Thurley's conjectural plan of Nonsuch (fig. 85 in <i>The Royal Palaces of Tudor England</i>) and, where that plan is silent, from Martin Biddle's plan of the 1959 excavation. Materials and storeys follow the Parliamentary Survey of 1650; heights and details follow the views listed below. Every height is an estimate. Click a building to read what is evidence and what is estimate.</p>
+
+  <div class="group" id="timeline">
+    <h2 class="group-title">Year</h2>
+    <div class="year-row"><output id="year-out" for="year">1568</output><button id="play" class="play" type="button">Play 1537–1690</button></div>
+    <input id="year" type="range" min="1537" max="1690" step="1" value="1568" list="year-marks" aria-label="Year">
+    <datalist id="year-marks"><option value="1537"></option><option value="1538"></option><option value="1544"></option><option value="1547"></option><option value="1556"></option><option value="1568"></option><option value="1580"></option><option value="1592"></option><option value="1603"></option><option value="1620"></option><option value="1650"></option><option value="1660"></option><option value="1667"></option><option value="1682"></option><option value="1684"></option><option value="1688"></option></datalist>
+    <p id="year-event" class="event" aria-live="polite"></p>
+    <p class="hint">Dates follow Martin Biddle's report on the excavation (1961), which works from the building accounts: begun 22 April 1538; Inner Court probably complete by 1544; Outer Court not entirely finished in 1547 and completed by the Earl of Arundel after 1556; Inner Court demolished by 1684 and Outer Court by about 1688. Buildings are drawn faint while unfinished, or until a dated view confirms them. Where sources disagree, the card says which was followed and why.</p>
+  </div>
+
+  <div class="group">
+    <h2 class="group-title">Views</h2>
+    <p class="hint">Drag to move · right-drag, Shift-drag or two fingers to turn · scroll or pinch to zoom · double-click to fly in</p>
+    <div class="views">
+      <button class="view-btn" data-view="overview" aria-pressed="true" type="button">Overview</button>
+      <button class="view-btn" data-view="plan" aria-pressed="false" type="button">Plan from above</button>
+      <button class="view-btn" data-view="south" aria-pressed="false" type="button">From the south, 1568</button>
+      <button class="view-btn" data-view="northwest" aria-pressed="false" type="button">From the north-west</button>
+      <button class="view-btn" data-view="front" aria-pressed="false" type="button">South front</button>
+      <button class="view-btn" data-view="inner" aria-pressed="false" type="button">Inner court</button>
+      <button class="view-btn" data-view="garden" aria-pressed="false" type="button">Privy garden</button>
+      <button class="view-btn" data-view="grove" aria-pressed="false" type="button">Grove of Diana</button>
+      <button class="view-btn" data-view="banquet" aria-pressed="false" type="button">Banqueting House</button>
+    </div>
+    <label class="check" for="keys-on"><input id="keys-on" type="checkbox" checked> Keyboard shortcuts: + − zoom, [ ] turn, N north</label>
+  </div>
+
+  <details class="group howto" id="bld-list-wrap">
+    <summary><h2 class="group-title">Buildings standing in <span id="bld-list-year">1568</span></h2></summary>
+    <p class="hint">Choose a building to read about it; the view moves to it. The list follows the year.</p>
+    <ul id="bld-list"></ul>
+  </details>
+
+  <div class="group">
+    <h2 class="group-title">Layers</h2>
+    <label class="row" for="plan-op">Plan on the ground <output id="plan-op-out">0%</output>
+      <input id="plan-op" type="range" min="0" max="100" value="0"></label>
+    <label class="row" for="cover-op">Ground cover (estimated) <output id="cover-op-out">100%</output>
+      <input id="cover-op" type="range" min="0" max="100" value="100"></label>
+    <label class="check" for="show-thurley"><input id="show-thurley" type="checkbox"> Thurley's plan, traced in red <span id="thurley-phase" class="hint"></span></label>
+    <p id="thurley-note" class="hint"></p>
+    <label class="check" for="show-biddle"><input id="show-biddle" type="checkbox"> Biddle's plan as excavated, 1959, traced in red</label>
+    <label class="row" for="bld-op">Building opacity <output id="bld-op-out">100%</output>
+      <input id="bld-op" type="range" min="15" max="100" value="100"></label>
+    <label class="check" for="show-labels"><input id="show-labels" type="checkbox" checked> Labels</label>
+    <div class="swatches" aria-label="Colour key">
+      <span><i style="background:#cfc6ad"></i>Stone</span>
+      <span><i style="background:#e9e2cf"></i>Stucco panels</span>
+      <span><i style="background:#7d4a3c"></i>Tudor brick</span>
+      <span><i style="background:#9aa3a6"></i>Faint: not yet built, or not established</span>
+    </div>
+  </div>
+
+  <details class="group howto">
+    <summary><h2 class="group-title">How to read this model</h2></summary>
+    <ul class="hint">
+      <li><b>Where.</b> Thurley's plan (fig. 85) is treated as ground truth for where each building stood and how big it was. It draws the inner court in full and the outer court and the range between the courts in outline only. The north range, the outer gatehouse, the kitchen court and Cuddington church are not on it: those come from Biddle's Fig. 3, “plan as excavated 1959”, laid over Thurley's plan by matching the four sides of the inner court. The two plans agree there to about 0.4 m. Round the outer court Biddle's walls lie about 1 m east of Thurley's; Thurley wins, and what only Biddle draws is moved 1 m west to meet Thurley's ranges. Both plans can be switched on under Layers to compare them. The gardens are on neither plan.</li>
+      <li><b>When.</b> Thurley's pages give no building dates. Dates follow Biddle (1961), with Historic England's scheduling entry and the Victoria County History of Surrey where he is silent. The model now runs to 1690 to take in the Stuart owners, the survey of 1650 and the demolition.</li>
+      <li><b>What it looked like.</b> Materials and the number of storeys come from the Parliamentary Survey of April 1650 and from Biddle's excavation; the survey describes the house 47 years after Elizabeth I's death. Roofs, windows and the towers' shape follow Hoefnagel's drawing of 1568, the painted view of about 1610–20 and Speed's engraving of 1610. No source used gives a measured height, so every height is an estimate.</li>
+      <li><b>Faint buildings</b> are either unfinished (the Inner Court to 1544, the Outer Court to 1556) or have no established date or position.</li>
+      <li><b>Directions</b> on the cards follow Thurley's captions: the outer court is to the north, the King's side is to the west and the privy lodgings face south. These are conventional. Biddle's excavation plan draws north about 25° clockwise from the long axis, and Historic England describes the courts as aligned north-north-west to south-south-east, so the front the cards call “south” really faced south-south-east. The compass on screen follows Biddle. The north point on my photograph of Thurley's fig. 85 measured about 57°, which disagrees with both; I have set that reading aside.</li>
+      <li><b>Ground.</b> The inner court stood eight steps above the outer court (survey of 1650; Biddle). Its surface is raised 1.3 m, an estimate at about 16 cm a step. Biddle says the palace was terraced back into a hillside rising to the south; outside the courts the only rising ground modelled is the hill of the Banqueting House to the west, 4 m high by estimate, with the winding steps up to it from the Grove of Diana. The rise of some 70 ft to the springs on the south, and the gentle fall to the north and east (both Biddle), are not modelled. The courts were paved: the outer and kitchen courts with flint cobbling and flagged paths (Biddle), the inner court with freestone (survey of 1650).</li>
+      <li><b>The plans</b> can be laid on the ground under Layers: Thurley's as the photograph or as a red tracing, and Biddle's as a red tracing. On Biddle's, solid black is wall or foundation, hatching is conjectural or robber trench.</li>
+    </ul>
+  </details>
+
+  <div class="group">
+    <h2 class="group-title">Historical Images</h2>
+    <div class="refs">
+      <button class="ref" type="button" data-ref="0"><img loading="lazy" decoding="async" src="assets/hoefnagel-south-1568.jpg" alt="Joris Hoefnagel, Nonsuch from the south, 1568"><span>Hoefnagel, 1568</span></button>
+      <button class="ref" type="button" data-ref="1"><img loading="lazy" decoding="async" src="assets/speed-south-front-1610.jpg" alt="Engraving of the south front of Nonsuch from John Speed's map of Surrey, 1610"><span>Speed, 1610</span></button>
+      <button class="ref" type="button" data-ref="2"><img loading="lazy" decoding="async" src="assets/painting-north-west-fig52.jpg" alt="Painted view of Nonsuch from the north-west, with a hunt in the foreground"><span>From the north-west, 17th&nbsp;c.</span></button>
+      <button class="ref" type="button" data-ref="3"><img loading="lazy" decoding="async" src="assets/aerial-excavation-1959.jpg" alt="Aerial photograph of the excavation of Nonsuch in 1959"><span>Excavation, 1959</span></button>
+      <button class="ref" type="button" data-ref="4"><img loading="lazy" decoding="async" src="assets/wine-cellar-1959.jpg" alt="The wine cellar of Nonsuch as excavated in 1959"><span>Wine cellar, 1959</span></button>
+      <button class="ref" type="button" data-ref="6"><img loading="lazy" decoding="async" src="assets/thurley-fig85-plan.jpg" alt="Thurley's conjectural plan of the principal floor of Nonsuch"><span>Thurley's plan</span></button>
+      <button class="ref" type="button" data-ref="5"><img loading="lazy" decoding="async" src="assets/biddle-fig3-plan-1959.jpg" alt="Martin Biddle's plan of Nonsuch as excavated in 1959"><span>Biddle's plan, 1959</span></button>
+    </div>
+  </div>
+
+  <p class="note">The ground plan under this model is Thurley's fig. 85, photographed from the book and turned so that the outer court is at the top. Scale is about 0.065&nbsp;m per plan pixel, measured from the plan's own scale bars: the metre bar and the foot bar agree to within 0.5%. Two independent checks agree with it: the scale bar on Biddle's plan, and the survey of 1650, which gives the inner court as 137 by 116 ft against 139 by 117 ft measured on Thurley's plan. The photograph was not corrected for the camera's perspective, so positions are good to perhaps half a metre.</p>
+
+  <div class="group" id="bibliography">
+    <h2 class="group-title">Bibliography</h2>
+    <ul class="bib">
+      <li>Thurley, Simon. <cite>The Royal Palaces of Tudor England: Architecture and Court Life, 1460–1547</cite>. New Haven and London: Yale University Press, 1993. Used: figs 52, 85, 86, 87, 205 and 211 with their captions, and the text beside figs 87–89.</li>
+      <li>Biddle, Martin. “Nonsuch Palace 1959–60: An Interim Report.” <cite>Surrey Archaeological Collections</cite> 58 (1961): 1–20. Read in full from a PDF supplied for this project (Archaeology Data Service). Used for dates, materials, Fig. 3 (plan as excavated) and Cuddington church.</li>
+      <li>Colvin, H. M., ed. <cite>The History of the King's Works</cite>, vol. 4, part 2. London: HMSO, 1982. Fig. 18, plan of Nonsuch, seen only as reproduced on <a href="https://henryviiihouses.byu.edu/nonsuch-surrey/" target="_blank" rel="noopener">Henry VIII Houses (Brigham Young University)<span class="sr"> (opens in a new tab)</span></a>, 16 November 2026. Used for room labels only; the book itself was not consulted.</li>
+      <li>“A Survey of Nonsuch House and Park,” April 1650. The National Archives, E 317/Surrey/41. Read in John Dent's transcript: <cite>The Dent Transcripts of Nonsuch Palace Documents</cite>, vol. 1, prepared by Jeremy Harte, <a href="https://eehe.org.uk/?p=33246" target="_blank" rel="noopener">Epsom &amp; Ewell History Explorer<span class="sr"> (opens in a new tab)</span></a>, 2018. Read 16 November 2026. The original was not consulted.</li>
+      <li>Fitzwilliam Museum, Cambridge. “Nonsuch Palace” (painting no. 95). <a href="https://fitzmuseum.cam.ac.uk/learn-with-us/look-think-do/nonsuch-palace" target="_blank" rel="noopener">fitzmuseum.cam.ac.uk<span class="sr"> (opens in a new tab)</span></a>. Read 16 November 2026. Used for the date of the painted view.</li>
+      <li>Historic England. “Nonsuch Palace, its formal gardens and associated remains, and Cuddington medieval settlement.” National Heritage List for England, scheduled monument, list entry 1017998. <a href="https://historicengland.org.uk/listing/the-list/list-entry/1017998" target="_blank" rel="noopener">historicengland.org.uk<span class="sr"> (opens in a new tab)</span></a>. Read 16 November 2026. Used for the gardens, the true orientation and some dates.</li>
+      <li>Malden, H. E., ed. “Parishes: Cuddington.” In <cite>A History of the County of Surrey</cite>, vol. 3, 266–271. London: Victoria County History, 1911. <a href="https://www.british-history.ac.uk/vch/surrey/vol3/pp266-271" target="_blank" rel="noopener">British History Online<span class="sr"> (opens in a new tab)</span></a>. Read 16 November 2026. Used for dates only.</li>
+    </ul>
+  </div>
+</aside>
+
+<section id="info" hidden aria-live="polite" aria-label="Selected building">
+  <button class="close" type="button" aria-label="Close">×</button>
+  <h2 id="info-title"></h2>
+  <div class="meta" id="info-meta"></div>
+  <p id="info-text"></p>
+</section>
+
+<div id="year-badge" aria-hidden="true">1568</div>
+<div id="compass" aria-hidden="true"><div class="needle"></div></div>
+<nav id="nav" aria-label="Move the view">
+  <button id="nav-in" type="button" title="Zoom in (+)" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button id="nav-out" type="button" title="Zoom out (−)" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+  <span class="sep"></span>
+  <button id="nav-left" type="button" title="Turn left ([)" aria-label="Turn left"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/></svg></button>
+  <button id="nav-right" type="button" title="Turn right (])" aria-label="Turn right"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4h-4"/></svg></button>
+  <button id="nav-north" type="button" title="Face north (N)" aria-label="Face north"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 16V8l6 8V8"/></svg></button>
+  <button id="nav-home" type="button" title="Back to the overview" aria-label="Back to the overview"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6 10v10h12V10"/></svg></button>
+</nav>
+
+<div id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Picture">
+  <figure>
+    <div class="lb-bar">
+      <span id="lb-count" aria-live="polite"></span>
+      <button type="button" id="lb-prev" title="Previous image (←)">← Previous</button>
+      <button type="button" id="lb-next" title="Next image (→)">Next →</button>
+      <button type="button" id="close-painting">Close</button>
+    </div>
+    <img id="lb-img" src="assets/hoefnagel-south-1568.jpg" alt="">
+    <figcaption id="lb-cap"></figcaption>
+  </figure>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { MapControls } from 'three/addons/controls/MapControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+
+// ---------- Plan coordinate system ----------
+// All footprints are written in pixel coordinates of the base plan: Thurley 1993, fig. 85 ("Nonsuch, Surrey. Conjectural
+// plan of the principal floor, from archaeological and documentary evidence"), photographed from the book, cropped and
+// turned so that the outer court is at the top (1240 × 1981 px, assets/thurley-fig85-plan.jpg).
+// Plan top = the outer court (Thurley's north), left = the King's side (his west), bottom = the privy lodgings (south).
+// Buildings the plan does not show (kitchens, garden wall, north range) lie outside or beyond the image: coordinates
+// may be negative or larger than the image.
+const IMG_W = 1240, IMG_H = 1981, MAP_H = 1981;
+// Scale: metres per plan pixel, from the plan's own scale bars. Metre bar: 0 to 30 m = 462 px. Foot bar: 0 to 100 ft
+// (30.48 m) = 468 px. They agree to 0.3%. The photograph is not corrected for perspective.
+const S = 0.065;
+const K = 0.4;                       // size of this site against the template's (camera limits, shadow area)
+const CX = IMG_W / 2, CY = MAP_H / 2;
+const DEG = Math.PI / 180;
+const wx = (x) => (x - CX) * S, wz = (y) => (y - CY) * S;
+const P = (x, y, h = 0) => new THREE.Vector3(wx(x), h, wz(y));
+const BAY = 3.6, STOREY = 3.8;      // facade texture tile in metres
+
+// ---------- Renderer / scene ----------
+const host = document.getElementById('scene');
+// Logarithmic depth: the ground is built in layers a few millimetres apart (plan, ground cover, paving, pebbles), and with
+// an ordinary depth buffer they could not be told apart from far away, so they flickered through each other when zoomed out.
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, logarithmicDepthBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = false;   // the scene is static: shadows are redrawn only when something changes
+const refreshShadows = () => { renderer.shadowMap.needsUpdate = true; };
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+host.appendChild(renderer.domElement);
+
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(innerWidth, innerHeight);
+Object.assign(labelRenderer.domElement.style, { position: 'absolute', top: '0', left: '0', pointerEvents: 'none' });
+labelRenderer.domElement.id = 'labels';
+host.appendChild(labelRenderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 1, 4000);
+// Map-style navigation: drag to move across the ground, right-drag (or Shift/Ctrl-drag, or two fingers) to turn
+// and tilt, scroll or pinch to zoom towards the point under the cursor, arrow keys to move.
+const controls = new MapControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.12;
+controls.zoomToCursor = true;
+controls.zoomSpeed = 1.4;
+controls.rotateSpeed = 0.6;
+controls.panSpeed = 1.1;
+controls.maxPolarAngle = 0.47 * Math.PI;
+controls.minDistance = 6;
+controls.maxDistance = 1300 * K;
+controls.keyPanSpeed = 25;
+// Arrow keys pressed in a slider or other form control belong to that control, not to the camera
+addEventListener('keydown', (e) => { if (e.key.startsWith('Arrow') && e.target.closest?.('input, select, textarea, summary, #bld-list')) e.stopPropagation(); }, true);
+controls.listenToKeyEvents(window);
+renderer.domElement.setAttribute('role', 'img');
+
+scene.add(new THREE.HemisphereLight(0xdfe7ea, 0x6b6250, 1.1));
+const sun = new THREE.DirectionalLight(0xfff1dc, 2.2);
+sun.position.set(-170 * K, 260 * K, -150 * K);           // sun from the plan’s top-left, so the south front and the court faces are both lit
+sun.castShadow = true;
+const smallScreen = matchMedia('(max-width: 720px), (pointer: coarse)').matches;
+sun.shadow.mapSize.setScalar(smallScreen ? 2048 : 4096);   // a lighter shadow map on phones and tablets
+Object.assign(sun.shadow.camera, { left: -260 * K, right: 260 * K, top: 200 * K, bottom: -200 * K, near: 10, far: 900 * K });
+sun.shadow.bias = -0.0004;
+sun.shadow.normalBias = 0.4;
+scene.add(sun);
+
+
+// ---------- Ground: the plan itself ----------
+const texLoader = new THREE.TextureLoader();
+const hideLoading = () => { document.getElementById('loading').hidden = true; };
+const planTex = texLoader.load('assets/thurley-fig85-plan.jpg', hideLoading, undefined, hideLoading);   // also cleared if the plan image fails to load
+setTimeout(hideLoading, 8000);
+planTex.colorSpace = THREE.SRGBColorSpace;
+planTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+function flatShape(pts, y, mat, planUV = false) {
+  const geo = new THREE.ShapeGeometry(new THREE.Shape(pts.map(([x, py]) => new THREE.Vector2(wx(x), -wz(py)))));
+  if (planUV) {   // map the plan image by plan pixel, so the image stays registered
+    const pos = geo.attributes.position, uv = geo.attributes.uv;
+    for (let i = 0; i < pos.count; i++) uv.setXY(i, (pos.getX(i) / S + CX) / IMG_W, 1 - (-pos.getY(i) / S + CY) / IMG_H);
+  }
+  const m = new THREE.Mesh(geo, mat);
+  m.rotation.x = -Math.PI / 2; m.position.y = y; m.receiveShadow = true;
+  scene.add(m); return m;
+}
+const rect = (x0, y0, x1, y1) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+const FAR = rect(-9000, -9000, 10000, 11000), planLand = rect(0, 0, IMG_W, IMG_H);
+flatShape(FAR, -0.05, new THREE.MeshStandardMaterial({ color: 0x8c9468, roughness: 1 }));
+const planMat = new THREE.MeshStandardMaterial({ map: planTex, roughness: 1, transparent: true, opacity: 1 });
+flatShape(planLand, 0.02, planMat, true);
+
+// ---------- The hill of the Banqueting House (estimated) ----------
+// Sources: Biddle 1961 says "To the west, some 300 yards distant, rises a hill of Reading Bed clays", the site of the
+// Banqueting House, which stood "on the highest ground within Nonsuch Park pale". Watson (c. 1590) calls it "a small
+// prominence" and has "winding steps by the Pelican" climbing from the Grove of Diana to the elm walks. Historic England
+// says the banqueting house's compartment adjoined the grove "on higher ground". NO source read gives a height or a shape.
+// Everything here is an estimate: a level top 4 m above the palace's ground, falling to nothing 76 m from the house, with
+// the grove left as a level hollow at its foot and a bank 6 m wide round it. Only this hill is modelled; Biddle's rise of
+// some 70 ft to the south and the fall to the north and east are not, and the palace itself stays on flat ground.
+const BH = [-4577, 1933];                                                    // the Banqueting House: see its own section for the position
+const GROVE = { x0: -4050, x1: -3400, y0: 1100, y1: 1850, stepsX: -3856 };   // the Grove of Diana, kept level; where the winding steps leave it
+const HILL = { h: 4, r0: 37, r1: 76 };
+const sstep = (a, b, v) => { const t = Math.min(1, Math.max(0, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
+function groundH(x, y) {   // height of the ground in metres at a plan-pixel position
+  const d = Math.hypot(x - BH[0], y - BH[1]) * S;
+  if (d >= HILL.r1) return 0;
+  const out = Math.hypot(Math.max(GROVE.x0 - x, 0, x - GROVE.x1), Math.max(GROVE.y0 - y, 0, y - GROVE.y1)) * S;
+  return HILL.h * (1 - sstep(HILL.r0, HILL.r1, d)) * sstep(.5, 6.5, out);
+}
+
+// ---------- Ground cover (all estimated) ----------
+// A layer over the plan, with its own opacity control. No source used here describes the ground surfaces:
+//  - everywhere: grass. Hoefnagel (1568) and the painted view both show open grass around the house.
+//  - the outer court: Historic England says it was cobbled and paved; shown as pale paving. The inner court is assumed
+//    to match. They appear with the palace in 1538.
+//  - the kitchen court: flint cobbling (Biddle), shown as the same paving.
+const coverMats = [];
+{
+  const speck = (base, dots, n, r0, r1) => canvasTex(256, 256, (x, w, h) => {
+    x.fillStyle = base; x.fillRect(0, 0, w, h); let sd = 7;
+    const rnd = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
+    for (let k = 0; k < n; k++) { x.fillStyle = dots[Math.floor(rnd() * dots.length)]; const r = r0 + rnd() * (r1 - r0); x.beginPath(); x.ellipse(rnd() * w, rnd() * h, r, r * (.7 + rnd() * .5), rnd() * 3, 0, 7); x.fill(); }
+  });
+  const mat = (tex, metres) => { tex.repeat.set(1 / metres, 1 / metres); const m = new THREE.MeshStandardMaterial({ map: tex, roughness: 1, transparent: true, opacity: .9, depthWrite: false }); coverMats.push(m); return m; };
+  const earthM = mat(speck('#b9ab8c', ['#a89a7c', '#c7ba9c', '#9d9075', '#cfc4a8'], 2600, .8, 2.2), 6);
+  const paveM = mat(speck('#cfc7b0', ['#c2b99f', '#dad3bf', '#b8af97'], 2400, .8, 1.8), 5);
+  const grassM = mat(speck('#7d9258', ['#718650', '#889d62', '#6a7d4a', '#93a66c'], 3000, .8, 2.4), 7);
+  const lay = (pts, y, m, from, to) => { const o = flatShape(pts, y, m); o.renderOrder = .5 + y; if (from) Object.assign(o.userData, { fixture: true, fixtureFrom: from, fixtureTo: to ?? null }); return o; };
+  lay(rect(-8000, -4000, 4300, 5000), .028, grassM);
+  lay(rect(356, 63, 908, 690), .033, paveM, 1538);       // outer court: flint cobbling and flagged paths (Biddle)
+  lay(rect(365, 805, 917, 1459), .033, paveM, 1538);     // inner court
+  lay(rect(1052, 320, 1154, 802), .033, paveM, 1538);    // kitchen court: flint cobbling (Biddle)
+  { // the hill of the Banqueting House: a grassed surface following groundH(), drawn only where the ground is raised
+    const n = Math.ceil(2 * HILL.r1), x0 = BH[0] - HILL.r1 / S, y0 = BH[1] - HILL.r1 / S, step = 2 * HILL.r1 / S / n, pos = [], uv = [], idx = [], hs = [];
+    for (let j = 0; j <= n; j++) for (let i = 0; i <= n; i++) { const x = x0 + i * step, y = y0 + j * step, h = groundH(x, y); hs.push(h); pos.push(wx(x), h + .045, wz(y)); uv.push(wx(x) / 7, wz(y) / 7); }
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const a = j * (n + 1) + i, b = a + 1, c = a + n + 1, d = c + 1; if (Math.max(hs[a], hs[b], hs[c], hs[d]) < .004) continue; idx.push(a, c, b, b, c, d); }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); geo.setIndex(idx); geo.computeVertexNormals();
+    const tex = grassM.map.clone(); tex.repeat.set(1, 1); tex.needsUpdate = true;
+    const hill = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: tex, roughness: 1 })); hill.receiveShadow = true; scene.add(hill);
+  }
+}
+
+// ---------- Thurley's plan as a red tracing ----------
+// The base plan IS Thurley's plan, so the tracing uses the same image and needs no separate registration:
+// plate pixel (u, v) -> plan pixel (a*u - b*v + tx, b*u + a*v + ty) with a = 1, b = 0.
+// The list can take further plans by date range if more are found.
+const THURLEY = [
+  { from: 1538, to: 1689, label: 'fig. 85, undated', note: "Thurley's conjectural plan of the principal floor. It is not dated and shows the house as Henry VIII designed it: the inner court in full, the outer court and the range between the courts in outline. It does not show the north side of the outer court, the kitchens or the gardens.", src: 'assets/thurley-fig85-plan.jpg', w: 1240, h: 1981, a: 1, b: 0, tx: 0, ty: 0, frame: [0, 0, 1240, 1981] },
+  // Biddle 1961, Fig. 3, cropped from the rendered page at (440, 480): crop pixel (u, v) -> plan pixel (1.508u + 123.5, 1.508v - 140.2)
+  { box: 'show-biddle', from: 1000, to: 3000, label: 'Biddle, Fig. 3', src: 'assets/biddle-fig3-plan-1959.jpg', w: 860, h: 1260, a: 1.508, b: 0, tx: 123.5, ty: -140.2, frame: [0, 0, 860, 1260] },
+];
+const thurleyLayers = THURLEY.map((t) => {
+  const [u0, v0, u1, v1] = t.frame, map = (u, v) => P(t.a * u - t.b * v + t.tx, t.b * u + t.a * v + t.ty, 0.06);
+  const corners = [map(u0, v0), map(u1, v0), map(u1, v1), map(u0, v1)];
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(corners.flatMap((c) => [c.x, c.y, c.z]), 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute([u0 / t.w, 1 - v0 / t.h, u1 / t.w, 1 - v0 / t.h, u1 / t.w, 1 - v1 / t.h, u0 / t.w, 1 - v1 / t.h], 2));
+  geo.setIndex([0, 2, 1, 0, 3, 2]);
+  // clean the photograph: page tone to white, lines to dark red, so it reads over the ground
+  const tex = new THREE.CanvasTexture(document.createElement('canvas'));
+  const img = new Image(); img.src = t.src;
+  img.onload = () => {
+    const c = tex.image; c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+    const d = x.getImageData(0, 0, c.width, c.height), p = d.data;
+    for (let i = 0; i < p.length; i += 4) {
+      const l = (p[i] + p[i + 1] + p[i + 2]) / 3, k = Math.max(0, Math.min(1, (l - 105) / 55));   // 0 = line, 1 = paper
+      p[i] = 255 * k + 200 * (1 - k); p[i + 1] = 255 * k; p[i + 2] = 255 * k;
+    }
+    x.putImageData(d, 0, 0); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8; tex.needsUpdate = true; refreshShadows();
+  };
+  const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tex, blending: THREE.MultiplyBlending, premultipliedAlpha: true, transparent: true, depthWrite: false }));
+  m.renderOrder = 1; m.visible = false; m.userData.phase = t; scene.add(m);
+  return m;
+});
+
+
+// ---------- Materials ----------
+function facadeTexture({ wall, glass = '#2b3338', frame = '#e3dccb', ww = 40, wh = 64, wy = 34, mullions = true, courses = true, checker = false, pediment = false, rustic = false }) {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d');
+  g.fillStyle = wall; g.fillRect(0, 0, 128, 128);
+  if (checker) {
+    for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) if ((i + j) % 2) { g.fillStyle = '#3d4144'; g.fillRect(i * 16, j * 16, 16, 16); }
+  }
+  for (let i = 0; i < 700; i++) {
+    g.fillStyle = `rgba(${Math.random() < .5 ? '0,0,0' : '255,255,255'},${Math.random() * 0.07})`;
+    g.fillRect(Math.random() * 128, Math.random() * 128, 4, 2);
+  }
+  if (courses) { g.fillStyle = 'rgba(0,0,0,0.05)'; for (let y = 0; y < 128; y += 5) g.fillRect(0, y, 128, 1); }
+  if (rustic) { g.fillStyle = 'rgba(0,0,0,0.08)'; for (let y = 0; y < 128; y += 16) g.fillRect(0, y, 128, 2); }
+  const x = (128 - ww) / 2;
+  g.fillStyle = frame; g.fillRect(x - 4, wy - 4, ww + 8, wh + 8);
+  if (pediment) { g.beginPath(); g.moveTo(x - 8, wy - 6); g.lineTo(64, wy - 18); g.lineTo(x + ww + 8, wy - 6); g.closePath(); g.fill(); }
+  g.fillStyle = glass; g.fillRect(x, wy, ww, wh);
+  if (mullions) { g.fillStyle = frame; g.fillRect(63, wy, 3, wh); g.fillRect(x, wy + wh * 0.32, ww, 3); }
+  g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(0, 124, 128, 4);   // storey band
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  return t;
+}
+const allMats = [];
+const M = (opts) => { const m = new THREE.MeshStandardMaterial({ roughness: 0.9, ...opts }); allMats.push(m); return m; };
+const wallColors = { brick: '#9a4f3a', tudor: '#7d4a3c', stone: '#d6ccb4', render: '#c9b893', checker: '#d8d0bc', grey: '#c6c4bb', hall: '#cbc4b2', lime: '#e4dcc8', darkstone: '#8c8679' };
+const mats = {
+  brick:  M({ map: facadeTexture({ wall: wallColors.brick }) }),
+  tudor:  M({ map: facadeTexture({ wall: wallColors.tudor, ww: 34, wh: 48, wy: 44, frame: '#cfc4ad' }) }),
+  stone:  M({ map: facadeTexture({ wall: wallColors.stone, ww: 34, wh: 66, wy: 36, frame: '#efe8d8', glass: '#30373b', pediment: true, rustic: true, courses: false, mullions: false }) }),
+  render: M({ map: facadeTexture({ wall: wallColors.render, ww: 36, wh: 56, wy: 40, frame: '#f0ead9' }) }),
+  hall: M({ map: ashlar('#cbc4b2', 16, false) }),
+  darkstone: M({ map: ashlar('#8c8679', 16, false) }),
+  lime: M({ map: facadeTexture({ wall: '#e4dcc8', ww: 36, wh: 54, wy: 40, frame: '#f2ede0' }) }),
+  grey: M({ map: facadeTexture({ wall: wallColors.grey, ww: 34, wh: 52, wy: 42, frame: '#ece8dc' }) }),
+  checker: M({ map: facadeTexture({ wall: wallColors.checker, ww: 22, wh: 40, wy: 48, checker: true, courses: false }) }),
+};
+const plain = Object.fromEntries(Object.entries(wallColors).map(([k, v]) => [k, M({ color: v })]));
+const roofs = {
+  slate: M({ color: 0x59636b, roughness: 0.8 }),
+  lead:  M({ color: 0x8a9196, roughness: 0.55, metalness: 0.15 }),
+  tile:  M({ color: 0x86493a, roughness: 0.95 }),
+};
+const dark = M({ color: 0x23282b });
+const white = M({ color: 0xe9e5da });
+const gilt = M({ color: 0xc19a3c, metalness: 0.6, roughness: 0.4 });
+const leaf = M({ color: 0x4f6b3a, roughness: 1, flatShading: true });
+const bark = M({ color: 0x5a4632 });
+
+// ---------- Geometry helpers ----------
+function facadeBox(w, h, d) {
+  const geo = new THREE.BoxGeometry(w, h, d);
+  const uv = geo.attributes.uv;
+  const ext = [d, d, 0, 0, w, w];   // +x, -x, +y, -y, +z, -z
+  for (let f = 0; f < 6; f++) for (let k = 0; k < 4; k++) {
+    const i = f * 4 + k;
+    if (!ext[f]) { uv.setXY(i, 0.02, 0.02); continue; }
+    uv.setXY(i, uv.getX(i) * Math.max(1, Math.round(ext[f] / BAY)), uv.getY(i) * Math.max(1, Math.round(h / STOREY)));
+  }
+  return geo;
+}
+// Hip or gable roof, ridge along local x. Group 0 = roof slopes, group 1 = gable ends (wall).
+function roofGeo(w, d, rh, hip) {
+  const r = hip ? Math.max(0, w / 2 - d / 2) : w / 2;
+  const A = [-w / 2, 0, -d / 2], B = [w / 2, 0, -d / 2], C = [w / 2, 0, d / 2], D = [-w / 2, 0, d / 2];
+  const R1 = [-r, rh, 0], R2 = [r, rh, 0];
+  const slopes = [A, R1, R2, A, R2, B, C, R2, R1, C, R1, D];
+  const ends = [B, R2, C, D, R1, A];
+  const pos = [...slopes, ...ends].flat();
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.computeVertexNormals();
+  geo.addGroup(0, slopes.length, 0);
+  geo.addGroup(slopes.length, ends.length, hip ? 0 : 1);
+  return geo;
+}
+function mesh(geo, mat, shadow = true) {
+  const m = new THREE.Mesh(geo, mat);
+  m.castShadow = shadow; m.receiveShadow = true;
+  return m;
+}
+function ogeeCap(r, h, mat) {
+  const pts = [[r * 1.08, 0], [r * 1.12, h * .06], [r * 1.0, h * .25], [r * .7, h * .5], [r * .3, h * .72], [r * .12, h * .86], [r * .08, h], [0, h]]
+    .map(([x, y]) => new THREE.Vector2(x, y));
+  return mesh(new THREE.LatheGeometry(pts, 8), mat);
+}
+function turret(r, h, wallMat, capMat = roofs.lead, capH = r * 2.6) {
+  const g = new THREE.Group();
+  const body = mesh(new THREE.CylinderGeometry(r, r, h, 8), wallMat); body.position.y = h / 2; g.add(body);
+  const cap = ogeeCap(r, capH, capMat); cap.position.y = h; g.add(cap);
+  const fin = mesh(new THREE.SphereGeometry(r * .16, 8, 6), gilt); fin.position.y = h + capH + r * .12; g.add(fin);
+  return g;
+}
+function lantern(r, h, wallMat = white, capMat = roofs.lead) {
+  return turret(r, h, wallMat, capMat, r * 2.2);
+}
+function crenellate(g, w, d, y, mat, size = 0.7) {
+  const merlon = new THREE.BoxGeometry(size, size * 1.2, size);
+  const edge = (len, fn) => { const n = Math.floor(len / (size * 2)); for (let i = 0; i <= n; i++) fn(-len / 2 + i * (len / n)); };
+  const add = (x, z) => { const m = mesh(merlon, mat); m.position.set(x, y + size * .6, z); g.add(m); };
+  edge(w, (x) => { add(x, -d / 2 + size / 2); add(x, d / 2 - size / 2); });
+  edge(d, (z) => { add(-w / 2 + size / 2, z); add(w / 2 - size / 2, z); });
+}
+
+// ---------- Building factory ----------
+// def: c=[px,py] centre on plan, w=length along angle a (plan px), d=depth (plan px), a=degrees (plan, y-down),
+//      h=eaves height (m), roof: gable|hip|flat, rh=roof rise (m), mat, roofMat
+const buildings = [], labels = [];
+function block(def) {
+  const w = def.w * S, d = def.d * S, h = def.h;
+  const g = new THREE.Group();
+  const wallMat = mats[def.mat || 'brick'];
+  const body = mesh(facadeBox(w, h, d), wallMat); body.position.y = h / 2; g.add(body);
+  const roofMat = roofs[def.roofMat || 'slate'];
+  const roof = def.roof || 'gable';
+  let top = h;
+  if (roof === 'flat') {
+    const cap = mesh(new THREE.BoxGeometry(w + .3, .5, d + .3), roofMat); cap.position.y = h + .25; g.add(cap); top = h + .5;
+  } else {
+    const rh = def.rh ?? Math.min(Math.min(w, d) * 0.36, 4.4);   // a single-pile roof: the views show no roofs as tall as a wide block under one steep pitch would need
+    const long = w >= d;
+    const rg = roofGeo(long ? w + .6 : d + .6, long ? d + .6 : w + .6, rh, roof === 'hip');
+    const r = mesh(rg, [roofMat, plain[def.mat || 'brick']]);
+    r.position.y = h; if (!long) r.rotation.y = Math.PI / 2;
+    g.add(r); top = h + rh;
+  }
+  g.position.copy(P(def.c[0], def.c[1]));
+  g.rotation.y = -(def.a || 0) * DEG;
+  g.userData = { def, w, d, h, top };
+  return g;
+}
+// Names that changed over time, from the labels on Thurley's phase plans: def.names = [[from, to, name, short], ...]
+const nameAt = (def, y) => { const n = (def.names || []).find(([a, b]) => y >= a && y < b); return n ? { name: n[2], short: n[3] || n[2] } : { name: def.name, short: def.short || def.name }; };
+function register(g, def) {
+  g.userData.def = def;
+  g.userData.top = g.userData.top ?? def.h;
+  scene.add(g);
+  buildings.push(g);
+  if (def.label) {
+    const el = document.createElement('div');
+    el.className = 'label' + (def.label === 'minor' ? ' minor' : '');
+    el.textContent = def.short || def.name; g.userData.labelEl = el;
+    const lab = new CSS2DObject(el);
+    lab.position.set(0, (g.userData.top || def.h) + 4, 0);
+    g.add(lab);
+    labels.push({ lab, g });
+  }
+  return g;
+}
+const NO_STACKS = /shed|stable|gallery|hall|chapel|banqueting|masquing|tennis|stair|bastion|projection|cloister|gate|kitchen/i;
+const add = (def, extra) => {
+  const g = block(def), u = g.userData;
+  if (extra) extra(g, u);
+  else if (def.h >= 6 && def.roof !== 'flat' && Math.min(u.w, u.d) > 4 && !NO_STACKS.test(def.name || '')) {
+    // every lodging in the views has brick chimney stacks on its roof; plain blocks get one or two on the ridge
+    const long = u.w >= u.d, len = Math.max(u.w, u.d), at = len > 10 ? [-len / 4, len / 4] : [0];
+    chimneys(g, at.map((t) => (long ? [t, 0] : [0, t])), u.h + (u.top - u.h) * .55, 3.2);
+  }
+  return register(g, def);
+};
+// A first-floor gallery over lower storeys. Thurley marks these galleries "(above)": the gallery is on the first floor,
+// over rooms (lower: 'rooms') or over a second gallery (lower: 'gallery'). Shown by a string course at
+// first-floor level, a continuous run of tall gallery windows above, and smaller windows and doors to the rooms below.
+const galFrameM = M({ color: 0xd8cfbc, roughness: .9 }), galGlassM = M({ color: 0x2b3338, roughness: .3 }), galDoorM = M({ color: 0x4a3a2a, roughness: 1 });
+function galleryOverRooms(g, u, { lower = 'rooms', doors = 3, faces = [1, -1] } = {}) {
+  const fl = Math.max(3.2, u.h * .45), up = u.h - fl, bay = 3.4, n = Math.max(2, Math.floor(u.w / bay));
+  const frameG = new THREE.BoxGeometry(2.0, up * .66, .14), glassG = new THREE.BoxGeometry(1.6, up * .58, .16);
+  const lowG = lower === 'gallery' ? new THREE.BoxGeometry(1.5, fl * .5, .16) : new THREE.BoxGeometry(.9, 1.1, .16), doorG = new THREE.BoxGeometry(1.2, 2.3, .18);
+  const parts = [[frameG, galFrameM], [glassG, galGlassM], [lowG, galGlassM], [doorG, galDoorM]].map(([geo, mat]) => ({ geo, mat, m: [] }));
+  const m4 = new THREE.Matrix4();
+  for (const sz of faces) {
+    const z = sz * (u.d / 2 + .08);
+    const band = mesh(new THREE.BoxGeometry(u.w + .25, .32, .2), galFrameM); band.position.set(0, fl, z); g.add(band);
+    for (let i = 0; i < n; i++) {
+      const x = -u.w / 2 + u.w * (i + .5) / n;
+      parts[0].m.push(m4.clone().makeTranslation(x, fl + up * .5, z)); parts[1].m.push(m4.clone().makeTranslation(x, fl + up * .5, z + sz * .02));
+    }
+    const lowN = lower === 'gallery' ? n : Math.max(2, Math.floor(u.w / 5.5));
+    for (let i = 0; i < lowN; i++) parts[2].m.push(m4.clone().makeTranslation(-u.w / 2 + u.w * (i + .5) / lowN, lower === 'gallery' ? fl * .5 : fl * .55, z));
+    if (lower === 'rooms') for (let i = 0; i < doors; i++) parts[3].m.push(m4.clone().makeTranslation(-u.w / 2 + u.w * (i + .5) / doors + 1.6, 1.15, z));
+  }
+  for (const p of parts) if (p.m.length) { const im = new THREE.InstancedMesh(p.geo, p.mat, p.m.length); p.m.forEach((mm, i) => im.setMatrixAt(i, mm)); im.castShadow = true; im.receiveShadow = true; g.add(im); }
+}
+
+const chimneyM = M({ color: 0x8f4b38 }), capM = M({ color: 0x6b382b }), paneM = M({ color: 0x2b3236, roughness: .4 });
+const whiteM = M({ color: 0xebe6d9 });
+const leadedM = M({ roughness: .4, map: canvasTex(64, 128, (x, w, h) => {
+  x.fillStyle = '#2b3236'; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(205,210,200,.3)';
+  for (let i = -h; i < w + h; i += 8) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + h, h); x.moveTo(i + h, 0); x.lineTo(i, h); x.stroke(); }
+  x.fillStyle = '#a8442e'; x.fillRect(w / 2 - 3, 0, 6, h); x.fillRect(0, h * .55, w, 5);
+}) });
+const glazeM = M({ roughness: .3, map: canvasTex(128, 128, (x, w, h) => {
+  x.fillStyle = '#3b474c'; x.fillRect(0, 0, w, h); x.fillStyle = '#e4dfd2';
+  for (let i = 0; i <= w; i += 16) x.fillRect(i - 1, 0, 3, h);
+  for (let j = 0; j <= h; j += 32) x.fillRect(0, j - 1, w, 3);
+}) });
+glazeM.map.repeat.set(6, 1);
+function chimneys(g, pts, base, hgt = 4) {
+  for (const [x, z] of pts) {
+    const c = mesh(new THREE.BoxGeometry(.9, hgt, .75), chimneyM); c.position.set(x, base + hgt / 2, z); g.add(c);
+    const cap = mesh(new THREE.BoxGeometry(1.15, .35, 1.0), capM); cap.position.set(x, base + hgt + .17, z); g.add(cap);
+  }
+}
+// Dormers on the slope of a roof whose ridge runs along local x. side -1 = the -z face.
+function dormers(g, u, n, side = -1, mat = plain.render, rh = 4) {
+  const span = u.w * .8, z = side * u.d * .28, y = u.h + rh * .44;
+  for (let i = 0; i < n; i++) {
+    const x = -span / 2 + span * (i + .5) / n;
+    const b = mesh(new THREE.BoxGeometry(1.3, 1.5, 1.8), mat); b.position.set(x, y + .45, z); g.add(b);
+    const w = mesh(new THREE.PlaneGeometry(.75, .9), paneM, false); w.position.set(x, y + .45, z + side * .91); w.rotation.y = side < 0 ? Math.PI : 0; g.add(w);
+    const r = mesh(roofGeo(1.9, 1.6, .8, false), [roofs.tile, mat]); r.rotation.y = Math.PI / 2; r.position.set(x, y + 1.2, z); g.add(r);
+  }
+}
+// Gables facing the park on a roof whose ridge runs along local x
+function crossGables(g, xs, h, d, mat, width = 3, rise = 2.6, side = -1, roofMat = roofs.tile) {
+  for (const x of xs) {
+    const r = mesh(roofGeo(3.9, width, rise, false), [roofMat, mat]); r.rotation.y = Math.PI / 2; r.position.set(x, h, side * (d / 2 - 1.65)); g.add(r);
+  }
+}
+const traceryM = M({ roughness: .35, map: canvasTex(64, 128, (x, w, h) => {
+  x.fillStyle = '#2a3135'; x.fillRect(0, 0, w, h);
+  x.fillStyle = '#d9d2c0';
+  for (const f of [.25, .5, .75]) x.fillRect(w * f - 2, 0, 4, h);
+  for (const f of [.45, .7]) x.fillRect(0, h * f, w, 3);
+  x.strokeStyle = '#d9d2c0'; x.lineWidth = 3;
+  for (const f of [.25, .5, .75]) { x.beginPath(); x.arc(w * f, h * .18, w * .11, 0, Math.PI * 2); x.stroke(); }
+}) });
+function pointedWindowGeo(w, hgt) {
+  const hs = hgt - w * .62, s = new THREE.Shape();
+  s.moveTo(-w / 2, 0); s.lineTo(w / 2, 0); s.lineTo(w / 2, hs);
+  s.quadraticCurveTo(w / 2, hs + w * .45, 0, hgt); s.quadraticCurveTo(-w / 2, hs + w * .45, -w / 2, hs); s.lineTo(-w / 2, 0);
+  const geo = new THREE.ShapeGeometry(s, 8), pos = geo.attributes.position, uv = geo.attributes.uv;
+  for (let i = 0; i < pos.count; i++) uv.setXY(i, pos.getX(i) / w + .5, pos.getY(i) / hgt);
+  return geo;
+}
+function gothicSides(g, u, n, wW, wH, y0, mat, pin = true) {
+  for (const sz of [-1, 1]) {
+    for (let i = 0; i < n; i++) {
+      const x = -u.w / 2 + u.w * (i + .5) / n;
+      const w = mesh(pointedWindowGeo(wW, wH), traceryM, false); w.position.set(x, y0, sz * (u.d / 2 + .03)); w.rotation.y = sz < 0 ? Math.PI : 0; g.add(w);
+    }
+    for (let i = 0; i <= n; i++) {
+      const x = -u.w / 2 + u.w * i / n;
+      const b = mesh(new THREE.BoxGeometry(.9, u.h + .6, 1.1), mat); b.position.set(x, (u.h + .6) / 2, sz * (u.d / 2 + .5)); g.add(b);
+      if (pin) { const p = mesh(new THREE.ConeGeometry(.38, 2.4, 4), mat); p.position.set(x, u.h + 1.8, sz * (u.d / 2 + .5)); p.rotation.y = Math.PI / 4; g.add(p); }
+    }
+  }
+}
+// Projecting bay window of stone with leaded casements, on the face at z (projecting towards side)
+const casementM = M({ roughness: .4, map: canvasTex(64, 64, (x, w, h) => {
+  x.fillStyle = '#2b3236'; x.fillRect(0, 0, w, h); x.strokeStyle = 'rgba(205,210,200,.3)';
+  for (let i = -h; i < w + h; i += 7) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + h, h); x.moveTo(i + h, 0); x.lineTo(i, h); x.stroke(); }
+  x.fillStyle = '#ddd5c2'; for (const f of [.33, .66]) x.fillRect(w * f - 2, 0, 4, h); x.fillRect(0, h * .35, w, 4);
+  x.lineWidth = 5; x.strokeStyle = '#ddd5c2'; x.strokeRect(0, 0, w, h);
+}) });
+function bayWindow(g, x, z, side, y0, hgt, wid = 2.6, dep = .8, mat = plain.stone) {
+  const b = mesh(new THREE.BoxGeometry(wid, hgt, dep), mat); b.position.set(x, y0 + hgt / 2, z + side * dep / 2); g.add(b);
+  const floors = Math.max(1, Math.round(hgt / 3.4));
+  for (let k = 0; k < floors; k++) {
+    const w = mesh(new THREE.PlaneGeometry(wid - .45, 2.0), casementM, false);
+    w.position.set(x, y0 + 1.5 + k * hgt / floors, z + side * (dep + .02)); w.rotation.y = side < 0 ? Math.PI : 0; g.add(w);
+  }
+  const cap = mesh(new THREE.BoxGeometry(wid + .2, .3, dep + .2), mat); cap.position.set(x, y0 + hgt + .15, z + side * dep / 2); g.add(cap);
+}
+function canvasTex(w, h, draw) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+function ashlar(color, course, rustic) {
+  return canvasTex(128, 128, (g, w, h) => {
+    g.fillStyle = color; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 600; i++) { g.fillStyle = `rgba(${Math.random() < .5 ? '0,0,0' : '255,255,255'},${Math.random() * .06})`; g.fillRect(Math.random() * w, Math.random() * h, 5, 3); }
+    g.fillStyle = rustic ? 'rgba(40,30,20,.35)' : 'rgba(40,30,20,.16)';
+    for (let y = 0, r = 0; y < h; y += course, r++) {
+      g.fillRect(0, y, w, rustic ? 3 : 1);
+      for (let x = (r % 2) * 32; x < w; x += 64) g.fillRect(x, y, rustic ? 2 : 1, course);
+    }
+  });
+}
+function tiledBox(w, h, d, tw, th) {
+  const geo = new THREE.BoxGeometry(w, h, d), uv = geo.attributes.uv, ext = [d, d, w, w, w, w], ver = [h, h, d, d, h, h];
+  for (let f = 0; f < 6; f++) for (let k = 0; k < 4; k++) { const i = f * 4 + k; uv.setXY(i, uv.getX(i) * ext[f] / tw, uv.getY(i) * ver[f] / th); }
+  return geo;
+}
+
+// ---------- Nonsuch ----------
+// Sources.
+// Thurley, The Royal Palaces of Tudor England (1993), as photographed for this project:
+//   fig. 85  conjectural plan of the principal floor            -> position, footprint, room names (GROUND TRUTH)
+//   fig. 86  aerial photograph of the 1959 excavation + caption
+//   fig. 87  Hoefnagel, view from the south, 1568 + caption     -> south front, towers, garden wall, later low roofs
+//   fig. 52  painted view from the north-west (detail of fig. 84) + caption
+//   fig. 211 Speed's engraving of the south front, 1610 + caption
+//   fig. 205 the wine cellar as excavated, 1959 + caption
+// Biddle, "Nonsuch Palace 1959-60: an interim report", Surrey Archaeological Collections 58 (1961), read in full from
+//   the PDF in this folder: dates; Fig. 3 "plan as excavated 1959" -> everything Thurley's plan does not draw (north
+//   range, outer gatehouse, kitchen court, yard, Cuddington church); materials.
+// Parliamentary Survey of April 1650 (TNA E317/Surrey/41), read in the Dent Transcripts, vol. 1 (Epsom & Ewell History
+//   Explorer): materials, storeys, court sizes, the eight steps, towers, garden walls. It is 47 years after the Tudor
+//   period and describes the fabric as it then stood.
+// Colvin, The History of the King's Works iv.2, fig. 18, seen as reproduced on the BYU "Henry VIII Houses" site:
+//   room labels (kitchens, cellar, stairs). Historic England list entry 1017998 and VCH Surrey iii: see the cards.
+//
+// REGISTERING BIDDLE'S FIG. 3. The plan page was rendered at 1589 x 2600 px. Biddle pixel (bx, by) -> base-plan pixel
+// (1.508*bx - 540, 1.508*by - 864), fitted on the four faces of the inner court, which both plans draw. Check: Biddle's
+// own scale bar gives 0.0981 m per Biddle px; 0.065 m * 1.508 = 0.0980. The two plans agree round the inner court to
+// about 6 px (0.4 m). Round the outer court Biddle's walls lie about 15 px (1 m) east of Thurley's. THURLEY WINS wherever
+// he draws a wall; features only Biddle draws (north range, gatehouse, kitchens) are shifted 15 px west to sit against
+// Thurley's ranges. Biddle marks much of the west and north of the outer court as conjectural or robber trench.
+// Dates, from Biddle: begun 22 April 1538; Inner Court probably complete by 1544; Outer Court apparently not entirely
+// finished at Henry VIII's death in 1547; granted 1556 to Arundel, "who completed the building"; warrant to demolish 1682;
+// Inner Court probably demolished before 1684; Outer Court perhaps not until about 1688.
+// No source gives a measured height: all heights are estimates.
+const SRC85 = ' Footprint: from Thurley’s conjectural plan (fig. 85), which rests on the 1959 excavation and documents.';
+const OUTLINE85 = ' Footprint: from Thurley’s plan (fig. 85), which draws this part in outline only.';
+const B61 = 'Biddle’s report on the 1959–60 excavation (1961)';
+const PS = 'the Parliamentary Survey of April 1650';
+const EST_H = ' Height: an estimate; no source used here gives a measured height.';
+const DATE_INNER = ' Dates: ' + B61 + ' says building began on 22 April 1538, that the Inner Court was probably complete by 1544 (Catherine Parr dined at Nonsuch that year), and that it was probably demolished before 1684, after Charles II’s warrant of 1682. It is drawn faint from 1538, solid from 1544 and gone from 1684. Historic England says only that the main buildings were built mainly in 1538–47; the Victoria County History (1911) says the palace was never completed by Henry VIII. Biddle, the excavator, is followed because he works from the building accounts.';
+const DATE_OUTER = ' Dates: ' + B61 + ' says building began on 22 April 1538, that the Outer Court was apparently not entirely finished when Henry VIII died in 1547, that the Earl of Arundel, granted the house in 1556, completed the building, and that the Outer Court may not have been demolished until about 1688. The year Arundel finished it is not recorded: it is drawn faint from 1538 and solid from 1556, the earliest it can have been complete under him, and gone from 1688.';
+const INNER = { from: 1538, solidFrom: 1544, to: 1684, dates: 'Begun 1538 · probably complete by 1544 · demolished by 1684', ghostNote: 'Drawn faint: under construction' };
+const OUTER = { from: 1538, solidFrom: 1556, to: 1688, dates: 'Begun 1538 · unfinished in 1547 · completed after 1556 · demolished about 1688', ghostNote: 'Drawn faint: not entirely finished' };
+const RISE = 1.3;   // the Inner Court stood eight steps above the Outer Court (1650 survey; Biddle). 16 cm a step is an estimate.
+
+mats.tstone = M({ map: facadeTexture({ wall: '#cfc6ad', ww: 34, wh: 48, wy: 44, frame: '#e6dfcc' }) });
+plain.tstone = M({ color: '#cfc6ad' });
+mats.flint = M({ map: ashlar('#8f8d84', 8, false) }); plain.flint = M({ color: '#8f8d84' });
+// Stucco panels in a timber frame: one tile is a bay about 3 m wide and one storey high. Biddle: large panels of
+// uncoloured plaster-stucco in high relief, held by the beams "as in a picture frame"; the beams covered by slate
+// hangings, carved, incised and gilded. The panel colour is an estimate.
+const stuccoTex = canvasTex(128, 128, (x, w, h) => {
+  x.fillStyle = '#474c50'; x.fillRect(0, 0, w, h);   // slate-covered beams
+  const panel = (px, py, pw, ph) => { x.fillStyle = '#e9e2cf'; x.fillRect(px, py, pw, ph); x.fillStyle = '#cdc3a6'; x.beginPath(); x.ellipse(px + pw / 2, py + ph / 2, pw * .22, ph * .34, 0, 0, 7); x.fill(); };
+  panel(5, 5, 55, 50); panel(68, 5, 55, 50); panel(5, 68, 55, 55);
+  x.fillStyle = '#2b3236'; x.fillRect(68, 68, 55, 55); x.fillStyle = '#d8d0bc'; x.fillRect(94, 68, 3, 55); x.fillRect(68, 92, 55, 3);
+  x.strokeStyle = 'rgba(193,154,60,.55)'; x.lineWidth = 1; for (const v of [2, 64, 126]) { x.beginPath(); x.moveTo(v, 0); x.lineTo(v, h); x.moveTo(0, v); x.lineTo(w, v); x.stroke(); }   // gilding on the slate
+});
+const stuccoM = M({ map: stuccoTex });
+const stuccoRound = (rx, ry) => { const t = stuccoTex.clone(); t.needsUpdate = true; t.repeat.set(rx, ry); return M({ map: t }); };
+const archM = M({ color: 0x2a2622, roughness: 1 });
+const oct = (r, h, mat) => { const m = mesh(new THREE.CylinderGeometry(r, r, h, 8), mat); m.rotation.y = Math.PI / 8; m.position.y = h / 2; return m; };
+const loc = (def, x, y) => [(x - def.c[0]) * S, (y - def.c[1]) * S];   // plan pixels -> a block's local metres
+function planBox(g, def, x0, y0, x1, y1, h, mat, y = 0) {
+  const [lx, lz] = loc(def, (x0 + x1) / 2, (y0 + y1) / 2);
+  const m = mesh(new THREE.BoxGeometry(Math.abs(x1 - x0) * S, h, Math.abs(y1 - y0) * S), mat); m.position.set(lx, y + h / 2, lz); g.add(m); return m;
+}
+// One card for a building made of several blocks. parts are block definitions in plan pixels.
+function compound(def, parts, extra) {
+  const g = new THREE.Group(); g.position.copy(P(def.c[0], def.c[1]));
+  let top = 0;
+  for (const p of parts) {
+    const b = block({ mat: def.mat, roofMat: def.roofMat, roof: def.roof, ...p });
+    b.position.sub(g.position); g.add(b); top = Math.max(top, b.userData.top); p.g = b;
+    if ((p.roof || def.roof) === 'flat') crenellate(b, b.userData.w, b.userData.d, p.h + .5, plain[p.mat || def.mat]);
+  }
+  g.userData = { top };
+  if (extra) extra(g, parts);
+  return register(g, { h: top, ...def });
+}
+// A gatehouse tower: a block with an archway through it, four octagonal corner turrets and battlements.
+function gateTower(g, cx, cz, w, d, h, { clock = false } = {}) {
+  const t = new THREE.Group(); t.position.set(cx, 0, cz); g.add(t);
+  const body = mesh(facadeBox(w, h, d), mats.tstone); body.position.y = h / 2; t.add(body);
+  crenellate(t, w, d, h, plain.tstone);
+  for (const sz of [-1, 1]) { const a = mesh(new THREE.BoxGeometry(3.2, 4.4, .3), archM); a.position.set(0, 2.2, sz * d / 2); t.add(a); }
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+    const tu = oct(1.5, h + 2.6, plain.tstone); tu.position.x = sx * (w / 2 - .4); tu.position.z = sz * (d / 2 - .2); t.add(tu);
+    const ring = oct(1.7, .5, plain.tstone); ring.position.set(tu.position.x, h + 2.6, tu.position.z); t.add(ring);
+  }
+  if (clock) {   // "a clock case turreted and leaded all over wherein is placed a clock and a bell" (1650 survey); Speed 1610
+    const base = mesh(new THREE.BoxGeometry(3.4, 4, 3.4), plain.tstone); base.position.y = h + 2; t.add(base);
+    for (const sz of [-1, 1]) { const dial = mesh(new THREE.CircleGeometry(1.1, 20), white, false); dial.position.set(0, h + 2.3, sz * 1.72); dial.rotation.y = sz < 0 ? Math.PI : 0; t.add(dial); }
+    const l = lantern(1.3, 2.2, white, roofs.lead); l.position.y = h + 4; t.add(l);
+    return h + 9;
+  }
+  return h + 3.1;
+}
+// Upper storey of stucco panels all round a block (ground storey stays stone), with the lead-covered timber battlements
+// the 1650 survey describes on the outside of the Inner Court building
+const leadM = M({ color: 0x8a9196, roughness: .55, metalness: .15 });
+function stuccoUpper(g, u, fl = 4.8 + RISE) {
+  const up = u.h - fl;
+  const m = mesh(tiledBox(u.w + .16, up, u.d + .16, 3, up), stuccoM); m.position.y = fl + up / 2; g.add(m);
+  const band = mesh(new THREE.BoxGeometry(u.w + .4, .3, u.d + .4), plain.tstone); band.position.y = fl; g.add(band);
+  crenellate(g, u.w + .5, u.d + .5, u.h - .1, leadM, .55);
+}
+
+// --- Before the palace: Cuddington church ---
+compound({ name: 'Cuddington church (St Mary)', short: 'Cuddington church', label: true, c: [560, 1120], mat: 'flint', roofMat: 'tile',
+  to: 1538, dates: 'Medieval · demolished 1538',
+  text: 'The medieval parish church of Cuddington, dedicated to St Mary. From a source: ' + B61 + ' excavated it completely. It was built of mortared flint with Reigate stone dressings. A simple two-cell church of about the early 12th century was replaced in the first half of the 13th by a larger one with a long chancel, north and south aisles and a west tower; in the mid-14th century the north aisle was doubled in size and the south aisle taken down; a north porch was added later. It was demolished in 1538 and its flint reused in the foundations of the Inner Court, which was laid out round its foundations and over its graveyard; the west tower lay under the palace’s west range. Footprint: the outline of the church on Biddle’s Fig. 3 (plan as excavated), placed on Thurley’s plan as explained in “How to read this model”, good to about half a metre. His detailed plan of the church (Fig. 2) was not used. Estimate: all heights, the roofs and the windowless walls.' },
+  [{ c: [512, 1121.5], w: 174, d: 267, h: 6.5 }, { c: [679.5, 1135.5], w: 161, d: 109, h: 5.5 }, { c: [395, 1137.5], w: 60, d: 83, h: 13, roof: 'flat', roofMat: 'lead' }, { c: [484, 963], w: 64, d: 50, h: 3.2 }]);
+
+// --- Outer court ---
+const OC_TEXT = ' Materials: ' + PS + ' describes “one fayer strong and large structure or building of free stone of two large stories high, well wrought and batteled with stone and covered with blue slate”, round a court 115 by 132 ft paved with stone. ' + B61 + ' found the Outer and Kitchen Courts built of ashlar-faced brickwork, much of the stone reused from Merton Priory, with suites of rooms on the “college staircase” principle opening off the centre of both sides. That explains why Historic England calls these ranges brick and stone while the painted view from the north-west (fig. 52) shows pale stone: the brick was hidden behind stone facing. Biddle also found latrine pits lining the east and west outer walls of the palace.';
+{
+  const def = { name: 'Outer court, west range', short: 'Outer court, west', label: 'minor', c: [292, 434], w: 128, d: 742, h: 8.5, roof: 'flat', mat: 'tstone', roofMat: 'slate', ...OUTER,
+    text: 'The west side of the outer court: lodgings, with a small kitchen at its south end.' + OUTLINE85 + ' Thurley’s line stops short of the north end; the range is carried north to meet the north range as Biddle’s Fig. 3 draws it, though Biddle marks most of this side as conjectural or robber trench. The block that projects at the south end is on Thurley’s plan; Colvin’s plan in The History of the King’s Works labels it “Kitchen”, and Biddle mentions “the smaller kitchen in the west wing”. Biddle found part of the great barn of Cuddington and other manor-house outbuildings beneath this range.' + OC_TEXT + EST_H + DATE_OUTER };
+  add(def, (g, u) => { crenellate(g, u.w, u.d, u.h + .5, plain.tstone); planBox(g, def, 193, 621, 228, 788, u.h, plain.tstone); });
+}
+{
+  const def = { name: 'Outer court, east range', short: 'Outer court, east', label: 'minor', c: [965.5, 434], w: 115, d: 742, h: 8.5, roof: 'flat', mat: 'tstone', roofMat: 'slate', ...OUTER,
+    text: 'The east side of the outer court: lodgings, with the kitchen court behind.' + OUTLINE85 + ' The plan draws three shallow projections on its outer face; they are modelled, and may be the latrine pits Biddle describes, though neither source says so of these three. Thurley’s line is carried north to meet the north range as on Biddle’s Fig. 3.' + OC_TEXT + ' The painted view shows the west side; the east side is assumed to match.' + EST_H + DATE_OUTER };
+  add(def, (g, u) => {
+    crenellate(g, u.w, u.d, u.h + .5, plain.tstone);
+    for (const [y0, y1] of [[79, 150], [260, 337], [454, 527]]) planBox(g, def, 1023, y0, 1052, y1, u.h, plain.tstone);
+  });
+}
+compound({ name: 'Outer gatehouse and north range', short: 'Outer gatehouse', label: true, c: [625.5, 8], mat: 'tstone', roofMat: 'slate', roof: 'flat', ...OUTER,
+  text: 'The entrance front of the palace. Thurley’s plan (fig. 85) does not draw this side; the footprint is from Biddle’s Fig. 3 (plan as excavated), placed on Thurley’s plan and moved about 1 m west to meet Thurley’s side ranges, since the two plans differ by that much round the outer court. It puts the north side of the court 132 ft from the south side, as the survey of 1650 measures it. Biddle marks the west half of this range as conjectural. From sources: Biddle describes “a broad gatehouse, very similar to the Outer Gatehouse at Hampton Court”; ' + PS + ' calls it “very strong and gracefull being three storyes high leaded ouer head, batteled and turreted in euery of the fower Corners”, its top storey one large room “for prospect”; the painted view from the north-west (fig. 52) shows it so. The survey adds that the front was railed in with stone balusters, with a bowling green before it; the green has its own card, and the balusters are not modelled.' + OC_TEXT + EST_H + DATE_OUTER },
+  [{ c: [363.5, 8], w: 271, d: 110, h: 8.5 }, { c: [896.5, 8], w: 253, d: 110, h: 8.5 }],
+  (g) => { g.userData.top = gateTower(g, (634 - 625.5) * S, 0, 271 * S, 150 * S, 14); });
+
+// --- The range between the courts ---
+compound({ name: 'Inner gatehouse range', short: 'Inner gatehouse', label: true, c: [632, 747.5], mat: 'tstone', roofMat: 'slate', roof: 'flat', ...OUTER,
+  text: 'The range between the outer and inner courts, with the inner gatehouse at its centre and the wine cellars to either side.' + OUTLINE85 + ' The plan shows the gatehouse by its pairs of turrets on both faces. From sources: ' + B61 + ' treats this as the south range of the Outer Court, with cellars entered from the outer court and, between them, an Inner Gatehouse “very similar to the Inner Gatehouse at Hampton Court”, which “led by an ascent of eight steps into the Inner Court”. ' + PS + ' says the same: the Inward Court “stands higher then the said outward Court by an assent of eight stepps”, through “a gatehouse of free stone three stories high leaded and turreted in the fower Corners”, with a clock and a bell in a turreted clock case. Thurley’s caption to fig. 205 places the wine cellar here, and Speed’s engraving of 1610 (fig. 211) shows the clock and cupola. Historic England’s entry says the steps led down into the inner court; the survey, Biddle and the painted view (fig. 52) all show it higher, and the “steps down” marked on Colvin’s plan are those into the cellars. The model raises the inner court by 1.3 m: eight steps at about 16 cm each, which is an estimate. The steps themselves are shown as a simple flight in front of the gate on the outer-court side; where in the passage they lay is not recorded in the sources used.' + EST_H + DATE_OUTER + ' This range is dated with the Outer Court because Biddle describes it as part of it.' },
+  [{ c: [451, 747.5], w: 190, d: 115, h: 9 }, { c: [814.5, 747.5], w: 187, d: 115, h: 9 }],
+  (g) => {
+    g.userData.top = gateTower(g, (633.5 - 632) * S, 0, 175 * S, 162 * S, 15, { clock: true });
+    for (let k = 0; k < 8; k++) { const st = mesh(new THREE.BoxGeometry(4, RISE * (k + 1) / 8, .38), plain.tstone); st.position.set((633.5 - 632) * S, RISE * (k + 1) / 16, (666.5 - 747.5) * S - .19 - (7 - k) * .38); g.add(st); }
+  });
+
+// --- Inner court ---
+const IC_LOOK = ' Materials: ' + PS + ' describes a building “of two stories high, the lower story whereof is of good and well wrought free stone and the higher of wood richly adorned and sett forth and garnished with variety of statues pictures and other Antik formes”, covered with blue slate and “batteled on the outside thereof with frames of wood all covered with lead”. ' + B61 + ' found the walls of ashlar up to first-floor level and half-timbered above, the spaces between the timbers filled with large panels of uncoloured plaster-stucco in high relief and the beams covered by carved and gilded slate; the scheme covered the court-facing walls, the whole south front and the outer east and possibly west faces. Hoefnagel’s view of 1568 (fig. 87) and Speed’s engraving of 1610 (fig. 211) show it. The panel designs, the colours and the height of each storey are estimates.';
+const IC_LEVEL = ' The inner court stood eight steps above the outer court (survey of 1650; Biddle); the walls are therefore drawn 1.3 m taller on the outside than towards the court, the 1.3 m being an estimate.';
+const bayM = plain.tstone;
+{
+  const def = { name: 'King’s side (west range of the inner court)', short: 'King’s side', label: true, c: [296.5, 1232], w: 137, d: 854, h: 10 + RISE, mat: 'tstone', roofMat: 'slate', ...INNER,
+    text: 'The King’s lodgings on the principal floor. From north to south Thurley’s plan (fig. 85) names the stair, the Presence Chamber, a Closet and the Privy Chamber. His text says the lodgings were entered by a processional stair from the inner court, that the house had no great hall, and that, unusually, the guard chamber was on the ground floor; ' + PS + ' also lists the guard chamber on the lower storey.' + SRC85 + ' The plan draws small projections on the outer face and two rounded bays towards the court; Biddle notes the window bays facing inwards, and Thurley’s caption to fig. 52 calls the features on this stretch of the west side the original tall chimney stacks and garderobe projections.' + IC_LOOK + IC_LEVEL + EST_H + DATE_INNER };
+  add(def, (g, u) => {
+    stuccoUpper(g, u);
+    for (const [y0, y1] of [[1010, 1100], [1290, 1357]]) { planBox(g, def, 203, y0, 228, y1, u.h + 1, plain.tstone); const [lx, lz] = loc(def, 215, (y0 + y1) / 2); chimneys(g, [[lx, lz]], u.h + 1, 4.5); }
+    for (const [x, y] of [[366, 1150], [366, 1410]]) { const b = mesh(new THREE.CylinderGeometry(1.4, 1.4, u.h, 12), bayM); const [lx, lz] = loc(def, x, y); b.position.set(lx, u.h / 2, lz); g.add(b); }
+    chimneys(g, [[0, -18], [0, -4], [0, 12]], u.h + 1.8, 4.5);
+  });
+}
+{
+  const def = { name: 'Queen’s side (east range of the inner court)', short: 'Queen’s side', label: true, c: [978.5, 1232], w: 123, d: 854, h: 10 + RISE, mat: 'tstone', roofMat: 'slate', ...INNER,
+    text: 'The Queen’s lodgings on the principal floor. From north to south Thurley’s plan (fig. 85) names the stair, the Presence Chamber, a Closet and the Privy Chamber, mirroring the King’s side. His text says the Queen almost certainly had an arrangement identical to the King’s.' + SRC85 + ' The plan draws three projections on the outer face and two rounded bays towards the court.' + IC_LOOK + ' No view used here shows this side from outside; Biddle says the stucco scheme covered the outer east face.' + IC_LEVEL + EST_H + DATE_INNER };
+  add(def, (g, u) => {
+    stuccoUpper(g, u);
+    for (const [y0, y1] of [[1050, 1097], [1297, 1357], [1447, 1500]]) { planBox(g, def, 1040, y0, 1070, y1, u.h + 1, plain.tstone); const [lx, lz] = loc(def, 1055, (y0 + y1) / 2); chimneys(g, [[lx, lz]], u.h + 1, 4.5); }
+    for (const [x, y] of [[916, 1143], [916, 1397]]) { const b = mesh(new THREE.CylinderGeometry(1.4, 1.4, u.h, 12), bayM); const [lx, lz] = loc(def, x, y); b.position.set(lx, u.h / 2, lz); g.add(b); }
+    chimneys(g, [[0, -18], [0, -4], [0, 12]], u.h + 1.8, 4.5);
+  });
+}
+{
+  const def = { name: 'Privy lodgings and Privy Gallery (south range)', short: 'Privy lodgings', label: true, c: [641, 1559], w: 552, d: 200, h: 10 + RISE, mat: 'tstone', roofMat: 'slate', ...INNER,
+    text: 'The south range of the inner court. Thurley’s plan (fig. 85) puts the Privy Gallery along the court side and, behind a thick wall, a row of rooms facing south: the King’s privy lodgings to the west, the King’s Bed Chamber in the centre and the Queen’s Bed Chamber to the east. His text says the Queen had only a single room as her privy lodging on this front, that her bedroom was separated from the King’s by a small room behind the stair turret, and that the turret was set off-centre so that the King’s bedroom could take the central position. ' + PS + ' describes the privy gallery as wainscoted, with a balcony in the middle facing the fountain.' + SRC85 + ' Appearance: Hoefnagel’s view from the south, 1568 (fig. 87), whose caption notes the central staircase, and Speed’s engraving of 1610 (fig. 211). The turret’s height and cap are estimates.' + IC_LOOK + IC_LEVEL + EST_H + DATE_INNER };
+  add(def, (g, u) => {
+    stuccoUpper(g, u);
+    const [lx, lz] = loc(def, 687, 1672);
+    const t = oct(2.4, 13 + RISE, stuccoRound(6, 3)); t.position.x = lx; t.position.z = lz; g.add(t);
+    const cap = ogeeCap(2.4, 3, roofs.lead); cap.rotation.y = Math.PI / 8; cap.position.set(lx, 13 + RISE, lz); g.add(cap);
+    chimneys(g, [[-13, -2], [-5, -2], [7, -2], [14, -2]], u.h + 1.8, 4.5);
+  });
+}
+// The two octagonal towers of the south front: "two large and well built turrestts of fiue stories high each of them
+// conteyning fiue roomes ... the highest of which roomes together with the lanthorns aboue the same are covered with lead
+// and battled round" (1650 survey)
+function nonsuchTower(def, r) {
+  const g = new THREE.Group(); g.position.copy(P(def.c[0], def.c[1]));
+  const H0 = 4.8 + RISE, H1 = 17, H2 = 5.5, R2 = r * 1.18;
+  g.add(oct(r + .05, H0, plain.tstone));                    // ashlar up to first-floor level (Biddle)
+  const shaft = oct(r, H1 - H0, stuccoRound(8, 3)); shaft.position.y = H0 + (H1 - H0) / 2; g.add(shaft);
+  const band = oct(R2 + .15, .4, plain.tstone); band.position.y = H1; g.add(band);
+  const upper = oct(R2, H2, stuccoRound(8, 1)); upper.position.y = H1 + H2 / 2; g.add(upper);
+  const para = oct(R2 + .2, .7, leadM); para.position.y = H1 + H2 + .35; g.add(para);
+  const cap = ogeeCap(R2 * .82, 5.2, roofs.lead); cap.rotation.y = Math.PI / 8; cap.position.y = H1 + H2 + .7; g.add(cap);
+  const fin = mesh(new THREE.SphereGeometry(.35, 10, 8), gilt); fin.position.y = H1 + H2 + 6.2; g.add(fin);
+  g.userData = { top: H1 + H2 + 6.5 };
+  return register(g, { h: H1 + H2, ...def });
+}
+const TOWER_TEXT = ' From sources: ' + PS + ' describes “two large and well built turrestts of fiue stories high each of them conteyning fiue roomes”, the top rooms and the lanterns above them covered with lead and battlemented, commanding the view of both parks: “the cheife ornament of the whole house”. ' + B61 + ' says the upper levels were half-timbered with the stucco and slate scheme, and that the angle-posts may have carried superimposed classical orders (not modelled). Hoefnagel’s view of 1568 (fig. 87) and Speed’s engraving of 1610 (fig. 211) show a wider top stage and an onion-shaped cupola. The height (about 23 m to the foot of the cupola, for five storeys) and the colours are estimates.';
+nonsuchTower({ name: 'South-west tower', label: true, c: [220, 1678], ...INNER,
+  text: 'The octagonal tower at the King’s end of the south front.' + SRC85 + ' The plan draws it about 6.5 m across.' + TOWER_TEXT + ' The water cistern: the survey of 1650 places “a very large cesterne of lead” in the second storey of the west turret, fed by pipes from a conduit in the park, and Biddle places the storage cistern on the second floor of the south-west tower. Thurley’s caption to Speed’s engraving says the tower on the left held the cisterns; all three agree on this tower.' + DATE_INNER }, 3.25);
+nonsuchTower({ name: 'South-east tower', label: true, c: [1055, 1677], ...INNER,
+  text: 'The octagonal tower at the Queen’s end of the south front.' + SRC85 + ' The plan draws it in outline, about 7 m across, slightly larger than the south-west tower; Biddle’s Fig. 3 marks it as a robber trench, so it was not found as standing masonry.' + TOWER_TEXT + DATE_INNER }, 3.55);
+{
+  // The fountain in the middle of the inner court, on the raised court surface
+  const g = new THREE.Group(); g.position.copy(P(636, 1134)); const y0 = RISE;
+  const marble = M({ color: 0xece9e1, roughness: .5 });
+  for (let k = 0; k < 3; k++) { const s = mesh(new THREE.BoxGeometry(4.4 - k * .7, .16, 4.4 - k * .7), marble); s.position.y = y0 + .08 + k * .16; g.add(s); }
+  const basin = mesh(new THREE.BoxGeometry(2.2, .7, 2.2), marble); basin.position.y = y0 + .83; g.add(basin);
+  const stem = mesh(new THREE.CylinderGeometry(.22, .3, 1.6, 10), marble); stem.position.y = y0 + 1.98; g.add(stem);
+  const bowl = mesh(new THREE.CylinderGeometry(.8, .3, .35, 14), marble); bowl.position.y = y0 + 2.95; g.add(bowl);
+  g.userData = { top: y0 + 3.2 };
+  register(g, { name: 'Fountain in the inner court', short: 'Fountain', label: 'minor', h: y0 + 3.2, from: 1556, solidFrom: 1580, to: 1684, dates: 'Made for the Earl of Arundel, 1556–80 · gone by 1684', ghostNote: 'Drawn faint: made at an unknown date between 1556 and 1580',
+    text: 'From sources: ' + PS + ' records “neare about the midle” of the inner court “one fayer fountayne of whyte marble supported with two brass dragons vnder which is a large square cesterne of lead sett within a frame of whyte marble, vnto which cesterne is an assent of three stepps”. ' + B61 + ' adds that the Three Graces held up a marble basin on which pranced the White Horse of Arundel. Colvin’s plan marks it at the centre of the court, and Biddle’s Fig. 3 draws a square there. Dates: the horse is the Earl of Arundel’s badge, so the fountain is taken to be his, made between his grant of 1556 and his death in 1580; that is my inference, not a statement in the sources. It is drawn faint from 1556 and solid from 1580, and removed with the Inner Court. Estimate: its size and form, which are a simplified reading of the description; the figures are not modelled.' });
+}
+
+// --- Kitchen court: from Biddle's Fig. 3 ---
+compound({ name: 'Kitchen court', short: 'Kitchens', label: true, c: [1175, 560], mat: 'tstone', roofMat: 'slate', ...OUTER,
+  text: 'The kitchens, east of the outer court. Thurley’s plan (fig. 85) does not draw them. Footprint: from Biddle’s Fig. 3 (plan as excavated), placed on Thurley’s plan and moved about 1 m west to meet Thurley’s east range; the room divisions are simplified to three blocks, a narrow court and the yard wall to the north. From sources: ' + B61 + ' describes “a smaller Kitchen Court lying to the east”, entered both from the Outer Court and through an archway from the yard to the north, paved with flint cobbling, with two large kitchens, the substructure for a cistern, a well-house and food-preparation rooms round it, built like the Outer Court of ashlar-faced brickwork. ' + PS + ' describes “one other structure or freestone building with two little shedds”, standing in “a little Court called the Kitchen Court” adjoining the east side of the outward court, with a livery kitchen, pastry, boiling house, bottle house, coal house and seven rooms for officers. Colvin’s plan labels the two southern blocks “Kitchen” and marks the well. Thurley’s captions to figs 52, 86 and 87 also place the kitchens on this side. Estimate: heights and roofs; the slate roof is assumed to match the Outer Court.' + EST_H + ' Dates: the kitchens are not dated separately by any source used; they are dated with the Outer Court, which is an assumption.' + DATE_OUTER },
+  [{ c: [1222, 482], w: 136, d: 324, h: 6 }, { c: [1231, 726.5], w: 154, d: 151, h: 8 }, { c: [1121, 889], w: 158, d: 158, h: 8 }],
+  (g, parts) => {
+    const def = { c: [1175, 560] };
+    chimneys(parts[1].g, [[3.5, 0]], 8 + 1.5, 5); chimneys(parts[2].g, [[-3.5, 0]], 8 + 1.5, 5); chimneys(parts[0].g, [[0, -6], [0, 6]], 6 + 1.2, 4);
+    planBox(g, def, 1052, 314, 1154, 322, 3.5, plain.tstone);                                   // north wall of the court
+    planBox(g, def, 1023, -51, 1290, -43, 3.5, plain.tstone); planBox(g, def, 1282, -47, 1290, 320, 3.5, plain.tstone);   // the yard to the north
+    const [lx, lz] = loc(def, 1262, 345); const well = mesh(new THREE.CylinderGeometry(.9, .9, .8, 14), plain.tstone); well.position.set(lx, .4, lz); g.add(well);
+  });
+
+// --- The garden wall ---
+{
+  // 2670 x 2850 plan px = 173.5 x 185 m = 3.2 ha, the area Historic England gives; the shape and position are estimates
+  const pts = [[228, -47], [-701, -47], [-701, 2803], [1969, 2803], [1969, -47], [1290, -47]], WH = 4.27;
+  const g = new THREE.Group(), at = P(634, 2803); g.position.copy(at);
+  const brickM = M({ map: ashlar('#8a4f3c', 12, false) }); brickM.map.repeat.set(1, 1);
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = P(...pts[i]), b = P(...pts[i + 1]), len = a.distanceTo(b);
+    const w = mesh(tiledBox(len + .5, WH, .5, 3, 3), brickM);
+    w.position.set((a.x + b.x) / 2 - at.x, WH / 2, (a.z + b.z) / 2 - at.z); w.rotation.y = -Math.atan2(b.z - a.z, b.x - a.x); g.add(w);
+  }
+  g.userData = { top: WH };
+  register(g, { name: 'Garden wall (line estimated)', short: 'Garden wall', label: 'minor', h: WH, from: 1538, solidFrom: 1568, dates: 'Gardens unfinished in 1547 · wall first shown in 1568', ghostNote: 'Drawn faint: not shown in a dated view until 1568', estimate: true,
+    text: 'The wall of the gardens round the house. From sources: ' + PS + ' describes the privy garden “lying round and adioyning vnto the three outsides of the said Inward Court building compassed round with a brick wall of 14 foote high”, a kitchen garden east of the outer court within a brick wall of the same height, and a wilderness west of the privy garden; it reckons house, courts, gardens, wilderness and orchard at ten acres together. Historic England’s scheduling entry gives the walled gardens as 3.2 hectares within walls over 4 m high. Thurley’s caption to Hoefnagel’s view of 1568 (fig. 87) says the privy garden wall hides the lower part of the south front, and the painted view (fig. 52) shows a red brick wall running out from the outer court on the west. Biddle’s Fig. 3 marks a short length of “privy garden wall” without showing its course. Height: 14 ft (4.27 m), from the survey. Estimate: its line. No plan used here shows the gardens. The wall is drawn as one rectangle of 3.2 hectares (about 174 × 185 m), centred on the house and starting from the entrance front; its true shape and the wall dividing the privy garden from the kitchen garden are not modelled. The fountain, columns, knot beds, porches, maze, Wilderness and Grove of Diana have their own cards; the hundred and forty fruit trees the survey counts, the thorn hedges and the kitchen garden’s planting are not modelled. Dates: Historic England says the gardens were unfinished at Henry VIII’s death in 1547, and Biddle says Lord Lumley, who had the house from 1580, completed them. When this wall was built is therefore not established: it is drawn faint from 1538 and solid from 1568, the year of Hoefnagel’s drawing, the earliest dated view to show it. It is left standing after the house is demolished because no source used says when it came down.' });
+}
+
+// --- Later additions ---
+compound({ name: 'Low buildings west of the house (position estimated)', short: 'Low buildings', label: 'minor', c: [-120, 1670], mat: 'tudor', roofMat: 'tile',
+  from: 1547, solidFrom: 1568, to: 1688, dates: 'Later additions, standing by 1568', ghostNote: 'Drawn faint: built at an unknown date before 1568', estimate: true,
+  text: 'Two low buildings. From a source: Thurley’s caption to Hoefnagel’s view from the south, 1568 (fig. 87), says “the two low roofs on the left are later additions”. Estimate: everything else. Their position is read off the one drawing, where they appear low down to the left of the south-west tower; how far west and how far back they stood cannot be told from it. Their size, brick walls, tiled roofs and use are guesses. Historic England’s scheduling entry mentions a now-demolished stable or coach house in the south-western corner of the privy garden, and Biddle mentions a stable yard west of the outer court; either may be these buildings. That link is my suggestion, not a statement in the sources. When they were built is not known: they are drawn faint from 1547, on the assumption that “later” means after Henry VIII’s work, and solid from 1568, when Hoefnagel drew them. When they went is not known either; they are removed in 1688 with the last of the house, which is an assumption.' },
+  [{ c: [-120, 1605], w: 360, d: 90, h: 3.5 }, { c: [-150, 1735], w: 300, d: 90, h: 3.5 }]);
+{
+  const def = { name: 'Building against the west side of the outer court', short: 'West building', label: 'minor', c: [189, 365], w: 78, d: 226, h: 6, roof: 'flat', mat: 'tstone', roofMat: 'lead',
+    from: 1547, solidFrom: 1620, to: 1688, dates: 'Later addition · shown in a view of about 1610–20', ghostNote: 'Drawn faint: date not established', estimate: true,
+    text: 'A building against the outer face of the west range of the outer court. Thurley’s plan (fig. 85) does not draw it. Footprint: from Biddle’s Fig. 3 (plan as excavated), where it is drawn as a robber trench; Colvin’s plan shows it in thin outline. From a source: Thurley’s caption to the painted view from the north-west (fig. 52) says the west side is shown there “with later projections in the foreground”. Matching this building to those projections is my reading. ' + B61 + ' dates that painting to about 1610–20 and mentions an entrance leading west from the outer court to a stable yard, which may be related. Dates: it is drawn faint from 1547, on the assumption that “later” means after Henry VIII’s work, solid from 1620, the latest date for the painting, and removed in 1688 with the Outer Court. Its height, flat roof and stone walls are guesses.' };
+  add(def, (g, u) => crenellate(g, u.w, u.d, u.h + .5, plain.tstone, .5));
+}
+// The raised surface of the inner court (part of the ground cover, so it fades with that layer)
+{
+  const m = new THREE.Mesh(new THREE.BoxGeometry(552 * S, RISE, 654 * S), coverMats[1]);
+  m.position.copy(P(641, 1132, RISE / 2)); m.receiveShadow = true; m.renderOrder = .6;
+  Object.assign(m.userData, { fixture: true, fixtureFrom: 1538, fixtureTo: 1684 }); scene.add(m);
+}
+
+// ---------- The Banqueting House ----------
+// Sources: Biddle 1961 (text and Fig. 4, "the Banqueting House as excavated 1960"; Fig. 1, map of the estate) and the
+// Parliamentary Survey of 1650.
+// POSITION. Biddle's text says it lay "350 yards west of the palace on the highest ground within Nonsuch Park pale". His
+// Fig. 1, a small-scale map, puts it about 450 yards from the palace centre to centre, on a true bearing of about 232
+// degrees (south-west). The two disagree on distance. The model uses the stated 350 yards (320 m), measured from the
+// middle of the palace's west side, and the bearing from the map. With north 25 degrees clockwise from the top of the plan,
+// a true bearing of 232 degrees is 257 degrees clockwise from plan-top: almost due "west" in Thurley's convention.
+const garden = { marble: M({ color: 0xece9e1, roughness: .5 }), hedge: M({ color: 0x3f5a33, roughness: 1 }), turf: M({ color: 0x86a05e, roughness: 1 }), sand: M({ color: 0xd2c39a, roughness: 1 }), rail: M({ color: 0x8a7558, roughness: 1 }), lilac: M({ color: 0x9c8fb5, roughness: 1, flatShading: true }) };
+let gseed = 41; const grnd = () => { gseed = (gseed * 16807) % 2147483647; return gseed / 2147483647; };
+{
+  const FT = 0.3048, PW = 150 * FT, PD = 140 * FT, PH = 1.07;   // platform 150 x 140 ft, raised 3 to 4 ft (Biddle)
+  const brickM = M({ map: ashlar('#8a4f3c', 12, false) });
+  // the platform and its retaining wall with four corner bastions: these survive, so they are not removed in 1667
+  const plat = new THREE.Group(); plat.position.copy(P(BH[0], BH[1], groundH(BH[0], BH[1])));   // on the hilltop plat.rotation.y = 12.5 * DEG;
+  const slab = mesh(tiledBox(PW, PH, PD, 3, 3), brickM); slab.position.y = PH / 2; plat.add(slab);
+  const top = mesh(new THREE.BoxGeometry(PW - .8, .06, PD - .8), garden.turf); top.position.y = PH + .03; plat.add(top);
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) { const b = mesh(new THREE.CylinderGeometry(4, 4, PH, 20), brickM); b.position.set(sx * PW / 2, PH / 2, sz * PD / 2); plat.add(b); const t = mesh(new THREE.CylinderGeometry(3.6, 3.6, .06, 20), garden.turf); t.position.set(sx * PW / 2, PH + .03, sz * PD / 2); plat.add(t); }
+  const ramp = mesh(new THREE.BoxGeometry(5, PH * .5, 3), plain.tstone); ramp.position.set(PW / 2 + 2.4, PH * .25, 0); plat.add(ramp);
+  Object.assign(plat.userData, { fixture: true, fixtureFrom: 1538, fixtureTo: null }); scene.add(plat);
+  // the house: about 44 x 38 ft, brick cellars, timber-framed above from about 4 ft; two floors over the cellars; tiled roof
+  const g = new THREE.Group(); g.position.copy(P(BH[0], BH[1], groundH(BH[0], BH[1]))); g.rotation.y = 12.5 * DEG;
+  const W = 44 * FT, D = 38 * FT, BASE = 1.2, UP = 6.6;
+  const base = mesh(tiledBox(W, BASE, D, 3, 3), brickM); base.position.y = PH + BASE / 2; g.add(base);
+  const frame = mesh(facadeBox(W, UP, D), mats.lime); frame.position.y = PH + BASE + UP / 2; g.add(frame);
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) {   // lead-covered posts, and a balcony "for prospect" at each corner
+    const post = mesh(new THREE.BoxGeometry(.35, UP, .35), leadM); post.position.set(sx * W / 2, PH + BASE + UP / 2, sz * D / 2); g.add(post);
+    const bal = mesh(new THREE.BoxGeometry(2.2, .9, 2.2), plain.lime); bal.position.set(sx * (W / 2 + .5), PH + BASE + UP * .5 + .45, sz * (D / 2 + .5)); g.add(bal);
+  }
+  const roof = mesh(roofGeo(W + .8, D + .8, 3.4, true), [roofs.tile, plain.lime]); roof.position.y = PH + BASE + UP; g.add(roof);
+  const lan = lantern(1.1, 1.8, white, roofs.lead); lan.position.y = PH + BASE + UP + 3.2; g.add(lan);
+  const porch = mesh(new THREE.BoxGeometry(2.6, 3.4, 3), plain.lime); porch.position.set(W / 2 + 1.3, PH + BASE + 1.7, 0); g.add(porch);
+  for (let k = 0; k < 4; k++) { const st = mesh(new THREE.CylinderGeometry(2.6 + (3 - k) * .45, 2.6 + (3 - k) * .45, BASE / 4, 16, 1, false, -Math.PI / 2 + Math.PI / 2, Math.PI), plain.tstone); st.position.set(W / 2 + 2.6, PH + BASE * (k + .5) / 4, 0); g.add(st); }
+  g.userData = { top: PH + BASE + UP + 7 };
+  register(g, { name: 'Banqueting House', label: true, h: PH + BASE + UP + 3.4, from: 1538, solidFrom: 1546, to: 1667, dates: 'Built 1538–46 · demolished 1667', ghostNote: 'Drawn faint: under construction',
+    text: 'The banqueting house in the park. From sources: ' + B61 + ' excavated it in 1960 (his Fig. 4). It was built between 1538 and 1546 on the highest ground within the park, on clay and gravel dumped to raise a platform of about 150 by 140 ft by 3 to 4 ft, held by a brick-faced chalk wall with a three-quarter-round bastion at each corner. Only the centre was built on: a house of about 44 by 38 ft, with cellars of brick and, from about 4 ft above the ground, of timber. The formal entrance was at the east end, on the palace side, up quarter-round steps to a porch. ' + PS + ' describes a timber building “of a quadrangular forme” of three storeys, the first being three cellars, the second a wainscoted hall and three other rooms, the third five rooms; its “stanchions and outposts” covered with lead; a lantern over the third storey; and “in euery of the foure corners of the whole house a balcone placed for prospect”. Biddle says the lantern rose above a tiled roof, and that the house, already decayed, was demolished in 1667. The cellars were altered into kitchens at some time, probably before 1592. Position: Biddle’s text says 350 yards west of the palace; his small-scale map (Fig. 1) puts it nearer 450 yards away, to the south-west. The model uses 350 yards from the west side of the palace, on the bearing from the map; the two cannot both be right, and the position is good to perhaps 50 m. Estimate: its orientation (the entrance is turned towards the palace), the height of each floor, the form of the roof, lantern and balconies, the limewashed walls and the size of the bastions (read off Fig. 4 at about 8 m across). The platform is drawn as a plain rectangle; Fig. 4 shows its sides slightly bowed. The separate kitchen 50 yards to the north, and the bakehouse and well-house in the survey, are not modelled. The hill: Biddle says that “to the west, some 300 yards distant, rises a hill of Reading Bed clays”, which gave the site for the banqueting house; Watson (c. 1590) calls it “a small prominence”; Historic England says its compartment adjoined the Grove of Diana on higher ground. No source read gives the height or shape of the hill. Estimate: it is drawn as a rounded hill with a level top 4 m above the palace’s ground, falling away to nothing 76 m from the house, with a steeper bank down to the grove; all of those figures are guesses. It is the only rising ground in the model. The platform is left standing after 1667 because part of it survives today.' });
+}
+
+// ---------- Garden features ----------
+// None of these is on a plan. That each existed comes from Anthony Watson's description (c. 1590, in the Dent Transcripts),
+// Speed's engraving (1610), the Parliamentary Survey (1650) and Historic England's scheduling entry; where each stood is
+// an estimate unless its card says otherwise. No source says when they went: all are removed in 1688 with the last of the house.
+const GAR_END = ' No source used says when it was removed; it is taken away in 1688 with the last of the house, which is an assumption.';
+const WATSON = 'Anthony Watson’s description of about 1590 (read in translation in the Dent Transcripts)';
+function gardenGroup(c) { const g = new THREE.Group(); g.position.copy(P(c[0], c[1])); return g; }
+const sandOnHill = M({ color: 0xd2c39a, roughness: 1, side: THREE.DoubleSide });
+function groundRibbon(g, c, ax, az, bx, bz, wid, mat = sandOnHill) {   // a path laid on the ground, following its height; c is the group's origin in plan pixels
+  const len = Math.hypot(bx - ax, bz - az), n = Math.max(1, Math.ceil(len / 1.2)), nx = -(bz - az) / len * wid / 2, nz = (bx - ax) / len * wid / 2, pos = [], idx = [];
+  for (let k = 0; k <= n; k++) for (const s of [-1, 1]) { const x = ax + (bx - ax) * k / n + s * nx, z = az + (bz - az) * k / n + s * nz; pos.push(x, groundH(c[0] + x / S, c[1] + z / S) + .1, z); }
+  for (let k = 0; k < n; k++) { const a = k * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals();
+  const m = new THREE.Mesh(geo, mat); m.receiveShadow = true; g.add(m); return m;
+}
+function column(g, x, z, h, r = .28, mat = garden.marble) {
+  const b = mesh(new THREE.BoxGeometry(r * 4.4, .5, r * 4.4), mat); b.position.set(x, .25, z); g.add(b);
+  const c = mesh(new THREE.CylinderGeometry(r * .85, r, h, 12), mat); c.position.set(x, .5 + h / 2, z); g.add(c);
+  const cap = mesh(new THREE.BoxGeometry(r * 3, .25, r * 3), mat); cap.position.set(x, .5 + h + .12, z); g.add(cap);
+  return .5 + h + .25;
+}
+function smallTree(g, x, z, h = 4, mat = leaf) {
+  const t = mesh(new THREE.CylinderGeometry(.12, .16, h * .45, 6), bark); t.position.set(x, h * .22, z); g.add(t);
+  const c = mesh(new THREE.IcosahedronGeometry(h * .32, 0), mat); c.position.set(x, h * .62, z); g.add(c);
+}
+{ // Lord Lumley's fountain, between the two "Falcon perches", in front of the south front
+  const g = gardenGroup([687, 2110]);
+  for (const [r, y] of [[7, .18], [4.2, .54]]) { const m = mesh(new THREE.CylinderGeometry(r, r + .4, .36, 28), garden.turf); m.position.y = y; g.add(m); }
+  const basin = mesh(new THREE.CylinderGeometry(1.5, 1.3, .6, 20), garden.marble); basin.position.y = 1.02; g.add(basin);
+  const top = column(g, 0, 0, 3.2, .3); const fig = mesh(new THREE.CapsuleGeometry(.28, .9, 4, 8), garden.marble); fig.position.y = top + .75 + .6; g.add(fig);
+  for (let k = 0; k < 6; k++) smallTree(g, Math.cos(k * Math.PI / 3) * 9.2, Math.sin(k * Math.PI / 3) * 9.2, 3.4, garden.lilac);
+  g.userData = { top: top + 2 };
+  register(g, { name: 'Fountain in the privy garden', short: 'Garden fountain', label: 'minor', h: top + 2, from: 1580, solidFrom: 1590, to: 1688, dates: 'Lord Lumley’s, 1580–c. 1590 · described c. 1590', ghostNote: 'Drawn faint: made at an unknown date between 1580 and about 1590', estimate: true,
+    text: 'The fountain in front of the south front. From sources: ' + WATSON + ' says that “in the biggest open part of the grounds three equidistant mounds stand out, in the centre of which everyone admires the beauty of a striking fountain”, for which “the heroic Lumley is responsible”: it is “set inside two circles of grass”, each reached by three steps, and on top “a shining column which carries a high-standing statue of a snow-white nymph, perhaps Venus”, from whose breasts water flows into marble basins. Speed’s engraving of 1610 (fig. 211) shows a figure on a column on a stepped base in the middle of the garden before the south front, between two tall columns. ' + PS + ' records, between the two “Fawlcon perches”, “a fountayne of whyte marble with a lead Cesterne”, “sett round with six trees called Lelack trees”. Treating all three as the same fountain is my reading. Dates: Lumley had the house from 1580; the fountain is drawn faint from 1580 and solid from 1590, the date given to Watson’s text. The lilacs are recorded only in 1650 but are drawn throughout. Estimate: its position (in line with the stair turret, about 27 m from the front, as Speed suggests; no plan shows it), its size and its form, which is a simplified reading of Watson. The two flanking mounds are not modelled.' + GAR_END });
+}
+{ // the two "Falcon perches"
+  const g = gardenGroup([687, 2110]);
+  let top = 0;
+  for (const sx of [-1, 1]) { top = column(g, sx * 13, 0, 6.5, .32); const bird = mesh(new THREE.ConeGeometry(.3, .8, 6), garden.marble); bird.position.set(sx * 13, top + .4, 0); g.add(bird); }
+  g.userData = { top: top + 1 };
+  register(g, { name: 'The Falcon perches', short: 'Falcon perches', label: 'minor', h: top + 1, from: 1580, solidFrom: 1610, to: 1688, dates: 'Shown 1610 · named in 1650', ghostNote: 'Drawn faint: not shown in a dated view until 1610', estimate: true,
+    text: 'Two columns in the privy garden. From sources: ' + PS + ' records “two other marble pinacles or piramides called the Fawlcon perches”, with the fountain between them. Speed’s engraving of 1610 (fig. 211) shows two tall columns, each with a bird on top, to either side of the central fountain before the south front; taking those to be the Falcon perches is my reading. Dates: they are drawn faint from 1580, on the assumption that they belong to Lord Lumley’s completion of the gardens, and solid from 1610. Estimate: their position (about 13 m either side of the fountain), their height (about 7 m, from their proportion to the house in Speed) and their plain form.' + GAR_END });
+}
+{ // the white horse on a column, east of the south-east tower
+  const g = gardenGroup([1210, 1740]);
+  const top = column(g, 0, 0, 4.6, .3);
+  const body = mesh(new THREE.BoxGeometry(1.5, .6, .45), garden.marble); body.position.set(0, top + .75, 0); body.rotation.z = .35; g.add(body);
+  const neck = mesh(new THREE.BoxGeometry(.35, .8, .3), garden.marble); neck.position.set(.65, top + 1.35, 0); neck.rotation.z = -.4; g.add(neck);
+  g.userData = { top: top + 2 };
+  register(g, { name: 'The white horse', label: 'minor', h: top + 2, from: 1556, solidFrom: 1590, to: 1688, dates: 'Described c. 1590 · shown 1610', ghostNote: 'Drawn faint: set up at an unknown date before about 1590', estimate: true,
+    text: 'A statue of a prancing horse on a column, on the Queen’s side of the garden. From sources: ' + WATSON + ' says that “where the lights of the queen’s side open out, there is an easy descent into the other corner of the garden, among the individual little beds of which a snorting white horse prances”. Speed’s engraving of 1610 (fig. 211) shows a rearing horse on a twisted column to the right of the south-east tower. The white horse was the badge of the Earl of Arundel (Biddle names “the White Horse of Arundel” on the courtyard fountain), so it is drawn faint from 1556, when he received the house, and solid from 1590. Estimate: its exact position, its height and its form; the horse is a rough block.' + GAR_END });
+}
+{ // the marble pyramid and the pelican basin, west of the south-west tower
+  const g = gardenGroup([125, 1700]);
+  const bowl = mesh(new THREE.CylinderGeometry(1.1, .5, .9, 16), garden.marble); bowl.position.y = .45; g.add(bowl);
+  const pel = mesh(new THREE.ConeGeometry(.3, .9, 6), garden.marble); pel.position.y = 1.35; g.add(pel);
+  const [px, pz] = [-2.6, 5.6];
+  const b1 = mesh(new THREE.BoxGeometry(2.4, .4, 2.4), plain.tstone); b1.position.set(px, .2, pz); g.add(b1);
+  const b2 = mesh(new THREE.BoxGeometry(1.5, .7, 1.5), garden.marble); b2.position.set(px, .75, pz); g.add(b2);
+  const sp = mesh(new THREE.ConeGeometry(.75, 5, 4), garden.marble); sp.position.set(px, 3.6, pz); sp.rotation.y = Math.PI / 4; g.add(sp);
+  g.userData = { top: 6.4 };
+  register(g, { name: 'Marble pyramid and pelican basin', short: 'Pyramid and pelican', label: 'minor', h: 6.2, from: 1580, solidFrom: 1650, to: 1688, dates: 'Recorded 1650', ghostNote: 'Drawn faint: not recorded until 1650', estimate: true,
+    text: 'From a source: ' + PS + ' records in the privy garden “one piramide or spired pinacle of marble set vppon a basis of marble grounded vppon a rise of free stone neare vnto which and in the west side of the said west turret there is placed one large marble wash boule or bason ouer which stands a marble pellican fed with a pipe of lead”. So the basin stood on the west side of the south-west tower, with the pyramid near it. Dates: they are drawn faint from 1580, on the assumption that they belong to Lord Lumley’s gardens, and solid from 1650. Estimate: their exact positions, sizes and forms.' + GAR_END });
+}
+{ // knot beds before the south front
+  const g = gardenGroup([687, 1855]);
+  for (const [x0, x1] of [[300, 470], [500, 660], [715, 875], [905, 1075]]) {
+    const cx = ((x0 + x1) / 2 - 687) * S, w = (x1 - x0) * S, d = 190 * S;
+    for (const [bx, bz, bw, bd] of [[cx, -d / 2, w, .5], [cx, d / 2, w, .5], [cx - w / 2, 0, .5, d], [cx + w / 2, 0, .5, d]]) { const h = mesh(new THREE.BoxGeometry(bw, .5, bd), garden.hedge); h.position.set(bx, .25, bz); g.add(h); }
+    for (const r of [1.6, 3.4]) { const t = mesh(new THREE.TorusGeometry(r, .22, 6, 28), garden.hedge); t.rotation.x = Math.PI / 2; t.position.set(cx, .22, 0); g.add(t); }
+    for (const sz of [-1, 1]) { const t = mesh(new THREE.TorusGeometry(1.3, .2, 6, 20), garden.hedge); t.rotation.x = Math.PI / 2; t.position.set(cx, .2, sz * 4.2); g.add(t); }
+  }
+  g.userData = { top: .6 };
+  register(g, { name: 'Knot beds before the south front', short: 'Knot beds', label: 'minor', h: 1, from: 1556, solidFrom: 1590, to: 1688, dates: 'Described c. 1590 · shown 1610', ghostNote: 'Drawn faint: laid out at an unknown date before about 1590', estimate: true,
+    text: 'The planted beds of the privy garden. From sources: ' + WATSON + ' says the garden “fills the whole front of the royal court”, with “all kinds of plants and shrubs … mingled in intricate circles as though by the needle of Semiramis”, among them deer, hares, rabbits and dogs, which were presumably clipped or carved figures; he also mentions twelve beds, each with a porch or arbour beside it. Speed’s engraving of 1610 (fig. 211) shows four beds of looping pattern in a row before the south front. ' + PS + ' describes the garden as “cut out and devided into seuerall allyes quarters and rounds set about with thorne hedges”, by then neglected, and Historic England’s scheduling entry mentions knots and topiary. Dates: Historic England says the gardens were unfinished in 1547 and Biddle that Lord Lumley completed them; the beds are drawn faint from 1556 and solid from 1590. Estimate: everything about their layout. Four beds are drawn, after Speed; their size, their pattern of circles and their place between the house and the fountain are guesses. The twelve porches have their own card; the animal figures and the alleys are not modelled.' + GAR_END });
+}
+{ // the maze, in the corner next to the King's side
+  const g = gardenGroup([-330, 2330]);
+  for (const r of [15, 12, 9, 6, 3]) for (let k = 0; k < 4; k++) {
+    const gap = (k === (r / 3) % 4) ? 2.2 : 0, len = 2 * r - gap;
+    const h = mesh(new THREE.BoxGeometry(k % 2 ? .5 : len, 1.6, k % 2 ? len : .5), garden.hedge);
+    const off = gap / 2; h.position.set(k % 2 ? (k === 1 ? r : -r) : off, .8, k % 2 ? off : (k === 0 ? -r : r)); g.add(h);
+  }
+  g.userData = { top: 1.6 };
+  register(g, { name: 'The maze', label: 'minor', h: 2, from: 1556, solidFrom: 1590, to: 1688, dates: 'Described c. 1590', ghostNote: 'Drawn faint: laid out at an unknown date before about 1590', estimate: true,
+    text: 'From sources: ' + WATSON + ' says “the other corner of the garden is next to the king’s side … If you veer to the right, you will enter upon a tortuous path and fall into the hazardous wiles of the labyrinth”. Historic England’s scheduling entry also mentions maze hedges in the privy garden. That places a maze on the King’s (west) side of the privy garden. Dates: drawn faint from 1556 and solid from 1590, as for the knot beds. Estimate: its exact position (the south-west corner of the walled garden is my choice), its size (30 m square), the height of its hedges and its pattern, which is schematic.' + GAR_END });
+}
+{ // the Wilderness, west of the privy garden
+  const X0 = -3371, X1 = -721, Y0 = -47, Y1 = 2803, c = [(X0 + X1) / 2, (Y0 + Y1) / 2];
+  const g = gardenGroup(c), w = (X1 - X0) * S, d = (Y1 - Y0) * S;
+  for (const [z, m] of [[-d / 4, garden.turf], [0, garden.sand], [d / 4, garden.turf]]) { const p = mesh(new THREE.BoxGeometry(w, .05, 3), m, false); p.position.set(0, .06, z); g.add(p); }
+  const N = 260, trunks = new THREE.InstancedMesh(new THREE.CylinderGeometry(.22, .3, 4, 6), bark, N), crowns = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(3, 0), leaf, N), m4 = new THREE.Matrix4();
+  let n = 0;
+  while (n < N) {
+    const x = (grnd() - .5) * (w - 6), z = (grnd() - .5) * (d - 6), s = .8 + grnd() * .7;
+    if ([-d / 4, 0, d / 4].some((pz) => Math.abs(z - pz) < 4)) continue;
+    trunks.setMatrixAt(n, m4.clone().makeScale(1, s, 1).setPosition(x, 2 * s, z)); crowns.setMatrixAt(n, m4.clone().makeScale(s, s, s).setPosition(x, 4 * s + 1.6 * s, z)); n++;
+  }
+  trunks.castShadow = crowns.castShadow = true; g.add(trunks, crowns);
+  g.userData = { top: 10 };
+  register(g, { name: 'The Wilderness', label: true, h: 9, from: 1556, solidFrom: 1590, to: 1650, dates: 'Described c. 1590 · felled 1650', ghostNote: 'Drawn faint: planted at an unknown date before about 1590', estimate: true,
+    text: 'A planted wood beside the privy garden. From sources: ' + WATSON + ' describes “the wilderness itself”, with tree-lined walks to the south and west, and “through the very heart of this wilderness three paths … arranged in three lines”, the middle one “worn and sandy”, the other two grassy; a great plane tree in its northern part; and a long list of trees. ' + PS + ' says “on the west side of the said privie garden there hath beene a willderness growing and severed with a hedge from the said little parke but the wood of the same wilderness is within three Months last past cutt downe”. Historic England’s scheduling entry places the Wilderness against the south-west side of the walled garden, “of identical alignment and dimensions”, enclosed by a tall hedge; in Thurley’s convention that is the west side. Dates: drawn faint from 1556 and solid from 1590; removed in 1650, when the survey says it had just been felled. Estimate: its outline is the garden-wall rectangle repeated to the west, after Historic England, and so inherits that rectangle’s uncertainty. The direction of the three paths, the number and placing of the trees and their size are guesses; the hedge and the plane tree are not modelled. The Grove of Diana beyond it has its own card.' });
+}
+{ // the bowling green before the entrance front, and the walk to the park gate
+  const g = gardenGroup([634, -430]);
+  const gw = 35, turf = mesh(new THREE.BoxGeometry(gw, .08, gw), garden.turf, false); turf.position.y = .07; g.add(turf);
+  for (const [x, z, w, d] of [[0, -gw / 2, gw, .12], [0, gw / 2, gw, .12], [-gw / 2, 0, .12, gw], [gw / 2, 0, .12, gw]]) { const r = mesh(new THREE.BoxGeometry(w, .12, d), garden.rail); r.position.set(x, 1, z); g.add(r); }
+  for (let k = 0; k <= 10; k++) for (const s of [-1, 1]) { for (const [x, z] of [[-gw / 2 + k * gw / 10, s * gw / 2], [s * gw / 2, -gw / 2 + k * gw / 10]]) { const p = mesh(new THREE.BoxGeometry(.16, 1.1, .16), garden.rail); p.position.set(x, .55, z); g.add(p); } }
+  for (let k = 0; k < 12; k++) for (const s of [-1, 1]) smallTree(g, s * 5, -gw / 2 - 6 - k * 8, 7);
+  g.userData = { top: 1.2 };
+  register(g, { name: 'Bowling green and the walk to the park gate', short: 'Bowling green', label: 'minor', h: 2, from: 1538, solidFrom: 1650, to: 1688, dates: 'Recorded 1650', ghostNote: 'Drawn faint: not recorded until 1650', estimate: true,
+    text: 'From a source: ' + PS + ' says that before the front of the house, “about 8 yardes distance from the same is a neate and hansome bouling greene well ordered lying much what vppon a square and rayled with good postes rayles and lattices of wood from whence doth lead a fayer and streight path betwixt two fayre rancks of trees vnto the parke Gate”, the gate standing in a direct line opposite the outer gatehouse. Historic England’s scheduling entry mentions a level platform north-west of the garden wall, interpreted as a Tudor bowling green. Dates: the green is not recorded before 1650; it is drawn faint from 1538 and solid from 1650. Estimate: its size (35 m square), the length of the walk and the number and size of its trees. Its distance from the front (8 yards) and its place on the axis of the gatehouse are from the survey. The stone balustrade the survey describes along the front of the house, and the park gate, are not modelled.' + GAR_END });
+}
+
+{ // The twelve porches, each beside a bed (Watson, c. 1590)
+  const g = gardenGroup([640, 1500]);
+  const paint = M({ map: canvasTex(64, 64, (x, w, h) => { const cs = ['#8c2f27', '#c9a23a', '#2f5d4a', '#e8e0c8']; for (let i = 0; i < 8; i++) { x.fillStyle = cs[i % 4]; x.fillRect(i * 8, 0, 8, h); } }) });
+  const L = (x, y) => [(x - 640) * S, (y - 1500) * S];
+  const porch = (px, py, turn, leadRoof) => {
+    const p = new THREE.Group(); const [lx, lz] = L(px, py); p.position.set(lx, 0, lz); p.rotation.y = turn; g.add(p);
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) { const post = mesh(new THREE.BoxGeometry(.16, 2.3, .16), garden.rail); post.position.set(sx * 1.4, 1.15, sz * .9); p.add(post); }
+    const seat = mesh(new THREE.BoxGeometry(2.6, .1, .5), garden.rail); seat.position.set(0, .5, -.7); p.add(seat);
+    const back = mesh(new THREE.BoxGeometry(2.9, 1.7, .06), leadRoof ? leadM : paint); back.position.set(0, 1.45, -.93); p.add(back);
+    const roof = mesh(roofGeo(3.3, 2.3, .8, false), leadRoof ? [leadM, leadM] : [paint, paint]); roof.position.y = 2.3; p.add(roof);
+  };
+  const bed = (x0, y0, x1, y1) => {
+    const [cx, cz] = L((x0 + x1) / 2, (y0 + y1) / 2), w = (x1 - x0) * S, d = (y1 - y0) * S;
+    for (const [bx, bz, bw, bd] of [[cx, cz - d / 2, w, .5], [cx, cz + d / 2, w, .5], [cx - w / 2, cz, .5, d], [cx + w / 2, cz, .5, d]]) { const h = mesh(new THREE.BoxGeometry(bw, .5, bd), garden.hedge); h.position.set(bx, .25, bz); g.add(h); }
+    const t = mesh(new THREE.TorusGeometry(Math.min(w, d) * .3, .2, 6, 24), garden.hedge); t.rotation.x = Math.PI / 2; t.position.set(cx, .2, cz); g.add(t);
+  };
+  // four beside the knot beds before the south front (those beds have their own card)
+  [[385, 0], [540, 1], [835, 0], [990, 1]].forEach(([x, lead]) => porch(x, 1975, Math.PI, !!lead));
+  // four beds with porches along the King's side, four along the Queen's side
+  for (let k = 0; k < 4; k++) {
+    const y0 = 900 + k * 165; bed(0, y0, 150, y0 + 135); porch(-30, y0 + 67, Math.PI / 2, k % 2 === 0);
+    const q0 = 1010 + k * 150; bed(1115, q0, 1265, q0 + 122); porch(1295, q0 + 61, -Math.PI / 2, k % 2 === 1);
+  }
+  g.userData = { top: 3.2 };
+  register(g, { name: 'The twelve porches and their beds', short: 'Twelve porches', label: 'minor', h: 3.4, from: 1556, solidFrom: 1590, to: 1688, dates: 'Described c. 1590', ghostNote: 'Drawn faint: made at an unknown date before about 1590', estimate: true,
+    text: 'Garden shelters in the privy garden. From a source: ' + WATSON + ' says “twelve porches are built adjoining twelve beds of plants, either to ward off sudden showers or for the sake of shade. They are covered either in fitted boards elaborately painted or in white lead and add wonderful splendour to the other delights of the garden.” That is all the evidence used: no view shows them and the survey of 1650 does not mention them. Estimate: everything else. Twelve are drawn, six with painted boards and six covered in lead. Four stand beside the four knot beds before the south front, which have their own card; the other eight stand beside eight further beds drawn along the King’s and Queen’s sides of the inner court, because the survey of 1650 says the privy garden lay round three sides of it. Where the twelve beds really were, and the size and form of the porches (here an open timber shelter about 3 m wide with a seat), are guesses; the painted pattern is invented. Speed’s engraving of 1610 shows only four beds before the south front and no porches, which neither confirms nor contradicts Watson. Dates: drawn faint from 1556 and solid from 1590, the date given to Watson’s text.' + GAR_END });
+}
+{ // The Grove of Diana, between the Wilderness and the Banqueting House
+  const { x0: X0, x1: X1, y0: Y0, y1: Y1 } = GROVE, c = [(X0 + X1) / 2, (Y0 + Y1) / 2];
+  const g = gardenGroup(c), w = (X1 - X0) * S, d = (Y1 - Y0) * S;
+  const SX = (GROVE.stepsX - c[0]) * S, GAP = 2.6;   // the gap in the south hedge for the winding steps, west of the bower
+  { const p = mesh(new THREE.BoxGeometry(2.2, .05, 7), garden.sand, false); p.position.set(SX, .06, d / 2 - 3.3); g.add(p); }
+  for (const [bx, bz, bw, bd] of [[0, -d / 2, w, .7], [(-w / 2 + SX - GAP / 2) / 2, d / 2, SX - GAP / 2 + w / 2, .7], [(SX + GAP / 2 + w / 2) / 2, d / 2, w / 2 - SX - GAP / 2, .7], [-w / 2, 0, .7, d], [w / 2, 5, .7, d - 10]]) { const h = mesh(new THREE.BoxGeometry(bw, 2.2, bd), garden.hedge); h.position.set(bx, 1.1, bz); g.add(h); }
+  const walk = mesh(new THREE.BoxGeometry(w - 2, .05, 2.6), garden.sand, false); walk.position.set(0, .06, -d / 2 + 5); g.add(walk);
+  const walk2 = mesh(new THREE.BoxGeometry(2.6, .05, d - 12), garden.sand, false); walk2.position.set(-2, .06, 2); g.add(walk2);
+  const oak = new THREE.Group(); oak.position.set(w / 2 - 2, 0, -d / 2 + 5); smallTree(oak, 0, 0, 13); g.add(oak);       // the ancient oak at the way in
+  for (let k = 0; k < 3; k++) { const a = mesh(new THREE.TorusGeometry(1.7, .3, 6, 14, Math.PI), garden.hedge); a.position.set(w / 2 - 9 - k * 7, 1.1, -d / 2 + 5); a.rotation.y = Math.PI / 2; g.add(a); for (const s of [-1, 1]) { const leg = mesh(new THREE.BoxGeometry(.6, 1.1, .6), garden.hedge); leg.position.set(w / 2 - 9 - k * 7, .55, -d / 2 + 5 + s * 1.7); g.add(leg); } }
+  // the rock-well: a rock with a pool, Diana bathing, and Actaeon turned to a stag
+  const rockM = M({ color: 0x8c8a80, roughness: 1, flatShading: true }), waterM = M({ color: 0x5f8792, roughness: .2, transparent: true, opacity: .85 });
+  const rock = mesh(new THREE.DodecahedronGeometry(3.2, 0), rockM); rock.scale.set(1.3, .8, 1); rock.position.set(-2, 1.6, 4); g.add(rock);
+  const pool = mesh(new THREE.CylinderGeometry(3.4, 3.4, .25, 22), waterM, false); pool.position.set(-2, .13, 8.5); g.add(pool);
+  const rim = mesh(new THREE.TorusGeometry(3.5, .22, 6, 26), rockM); rim.rotation.x = Math.PI / 2; rim.position.set(-2, .2, 8.5); g.add(rim);
+  const diana = mesh(new THREE.CapsuleGeometry(.26, .95, 4, 8), garden.marble); diana.position.set(-2, 1.0, 8.5); g.add(diana);
+  const stag = mesh(new THREE.BoxGeometry(1.3, .55, .4), garden.marble); stag.position.set(3.2, 1.0, 10.5); g.add(stag);
+  for (const s of [-1, 1]) { const leg = mesh(new THREE.BoxGeometry(.14, .75, .3), garden.marble); leg.position.set(3.2 + s * .5, .38, 10.5); g.add(leg); }
+  const head = mesh(new THREE.ConeGeometry(.2, .9, 5), garden.marble); head.position.set(3.95, 1.6, 10.5); g.add(head);
+  // the bower: an arch with an eagle, and two pinnacles with the pelican and the phoenix
+  const bx = -2, bz = 17.5;
+  for (const s of [-1, 1]) { column(g, bx + s * 1.6, bz, 3.4, .26); const top = column(g, bx + s * 4.2, bz, 4.6, .22); const bird = mesh(new THREE.ConeGeometry(.28, .8, 6), garden.marble); bird.position.set(bx + s * 4.2, top + .4, bz); g.add(bird); }
+  const arch = mesh(new THREE.TorusGeometry(1.6, .28, 6, 14, Math.PI), garden.marble); arch.position.set(bx, 4.15, bz); g.add(arch);
+  const eagle = mesh(new THREE.ConeGeometry(.32, .9, 6), garden.marble); eagle.position.set(bx, 6.4, bz); g.add(eagle);
+  const tablet = mesh(new THREE.BoxGeometry(2.6, .5, .12), gilt); tablet.position.set(bx, 3.75, bz); g.add(tablet);
+  // the pyramid in the orchard, with heads that spout water
+  const py = mesh(new THREE.ConeGeometry(1.1, 5.5, 4), garden.marble); py.position.set(-13.5, 3.3, 12); py.rotation.y = Math.PI / 4; g.add(py);
+  const pb = mesh(new THREE.BoxGeometry(2.4, .55, 2.4), garden.marble); pb.position.set(-13.5, .28, 12); g.add(pb);
+  for (let k = 0; k < 9; k++) smallTree(g, -18.5 + (k % 3) * 5, 6 + Math.floor(k / 3) * 5 + (k === 4 ? 2.5 : 0), 3.6);
+  // the grove itself
+  const N = 70, trunks = new THREE.InstancedMesh(new THREE.CylinderGeometry(.22, .3, 4, 6), bark, N), crowns = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(3, 0), leaf, N), m4 = new THREE.Matrix4();
+  let n = 0, tries = 0;
+  while (n < N && tries++ < 4000) {
+    const x = (grnd() - .5) * (w - 5), z = (grnd() - .5) * (d - 5), s = .8 + grnd() * .6;
+    if (Math.abs(z + d / 2 - 5) < 4 || (Math.abs(x + 2) < 9 && z > -4) || (x < -9 && x > -24 && z > 2 && z < 20)) continue;   // keep the walks, the rock-well, the bower and the orchard clear
+    trunks.setMatrixAt(n, m4.clone().makeScale(1, s, 1).setPosition(x, 2 * s, z)); crowns.setMatrixAt(n, m4.clone().makeScale(s, s, s).setPosition(x, 5.6 * s, z)); n++;
+  }
+  trunks.count = crowns.count = n; trunks.castShadow = crowns.castShadow = true; g.add(trunks, crowns);
+  g.userData = { top: 13 };
+  register(g, { name: 'The Grove of Diana', short: 'Grove of Diana', label: true, h: 10, from: 1580, solidFrom: 1590, to: 1688, dates: 'Lord Lumley’s, 1580–c. 1590 · described c. 1590', ghostNote: 'Drawn faint: made at an unknown date between 1580 and about 1590', estimate: true,
+    text: 'A wooded garden with a fountain group of Diana and Actaeon. From sources: ' + WATSON + ' says that in the woodland walk “an ancient oak … shows the way straight into the shady grove of Diana”, where there are “places arched over by the skill of topiary, walls erected and sandy walks”. He describes the vale of Gargaphy with its spring; Actaeon turned from a man into a stag; “the rock-well”, where the goddess bathes, a rock with “the rush of spraying water”; and beyond it, through the middle of the vale, “a stately bower”, with an eagle on “a form of lofty arch”, the Pelican on one pinnacle, looking “to the insignia of Lumley”, and the Phoenix on the other, and an inscription that Lumley “fixed on the bower in letters of gold”. “In the grassy space of an orchard a handsome pyramid rises, set off with divers heads” which spout water; winding steps by the Pelican lead up to walks of elms; and the banqueting house stands “on a small prominence, neighbouring these pleasant places”. Historic England’s scheduling entry identifies the grove with a smaller, roughly square compartment immediately south-west of the Wilderness, on a slightly different alignment, known to have held a grotto or pool, a temple and a group of statuary of Actaeon’s punishment, with the banqueting house’s compartment adjoining it on higher ground. Dates: Watson credits Lumley, who had the house from 1580, so the grove is drawn faint from 1580 and solid from 1590. Estimate: nearly everything. Its place between the Wilderness and the banqueting house follows Historic England, but its outline (about 42 by 49 m), its exact position and its alignment (drawn parallel to the house, though Historic England says it differed slightly) are guesses, and it depends on the estimated outlines of the Wilderness and the placing of the banqueting house. The arrangement inside it is schematic: the oak at the entrance, three topiary arches over a sandy walk, the rock and pool with a figure for Diana and a rough stag for Actaeon, the arched bower with its two pinnacles and gilt tablet, and the pyramid among a few orchard trees. Their sizes, forms and relative positions are invented to match Watson’s order of description. The elm walks and the trout pond he mentions beyond have their own cards. The grove is drawn as a level hollow at the foot of the banqueting-house hill, with a bank about 6 m wide rising round its south and west sides. Watson calls the place a vale and Historic England puts the banqueting house on higher ground beside it, but the depth and shape of the hollow are estimates. Its west side was moved 6.5 m east when the hill was added, to leave room for the bank below the banqueting house platform, so it is no longer drawn square. The winding steps have their own card.' + GAR_END });
+}
+
+{ // The elm walks by the Grove of Diana (Watson, c. 1590)
+  const g = gardenGroup([-3800, 1500]);
+  const L = (x, y) => [(x + 3800) * S, (y - 1500) * S];
+  const vineM = M({ color: 0x5d7a3c, roughness: 1 });
+  const gh = (x, z) => groundH(-3800 + x / S, 1500 + z / S);   // the walks follow the estimated hill
+  const walk = (x0, y0, x1, y1) => {
+    const [ax, az] = L(x0, y0), [bx, bz] = L(x1, y1), len = Math.hypot(bx - ax, bz - az), along = Math.abs(bx - ax) > Math.abs(bz - az);
+    groundRibbon(g, [-3800, 1500], ax, az, bx, bz, 3.2);
+    const n = Math.round(len / 7);
+    for (let k = 0; k <= n; k++) for (const s of [-1, 1]) {
+      const t = k / n, x = ax + (bx - ax) * t + (along ? 0 : s * 4), z = az + (bz - az) * t + (along ? s * 4 : 0);
+      const tr = new THREE.Group(); tr.position.set(x, gh(x, z), z); smallTree(tr, 0, 0, 11); g.add(tr);
+      if (k < n) {   // vines trained between the elms, left open where the winding steps come up
+        const vx = x + (along ? 3.5 : 0), vz = z + (along ? 0 : 3.5);
+        if (along && s < 0 && Math.abs(-3800 + vx / S - GROVE.stepsX) * S < 3.2) continue;
+        const v = mesh(new THREE.BoxGeometry(along ? 3 : .5, 1.3, along ? .5 : 3), vineM); v.position.set(vx, gh(vx, vz) + .65, vz); g.add(v);
+      }
+    }
+  };
+  walk(-4130, 2010, -3480, 2010);   // along the south side of the grove, towards the banqueting house
+  walk(-4200, 1080, -4200, 1440);   // along its west side
+  g.userData = { top: 15 };
+  register(g, { name: 'The elm walks', short: 'Elm walks', label: 'minor', h: 9, from: 1580, solidFrom: 1590, to: 1688, dates: 'Described c. 1590', ghostNote: 'Drawn faint: planted at an unknown date before about 1590', estimate: true,
+    text: 'Walks planted with elms and vines beside the Grove of Diana. From a source: ' + WATSON + ', having described the bower with its Pelican, says “If we climb the winding steps by the Pelican, there are brought together delightful promenades and handsome elms in the most perfect order. Here grape-vines adjoin the elms”; the next thing he describes is the banqueting house, “on a small prominence, neighbouring these pleasant places”. That is all the evidence used. It puts the walks above the grove, on the way to the banqueting house; it does not say how many there were, how long, or which way they ran. Estimate: everything else. Two walks are drawn, each a sandy path between two rows of elms with a line of vines between the trees: one along the south side of the grove leading to the east side of the banqueting house platform, where Biddle found the way up to it, and one along the grove’s west side. Their positions, lengths, the spacing and height of the elms and the form of the vines are guesses, and they depend on the estimated outline of the grove. The walks are laid on the estimated hill of the banqueting house (see its card, and the card of the winding steps), so they slope: the south walk falls from about 4 m at its west end to almost nothing at its east end. That slope is a consequence of my estimate of the hill, not something Watson says. Dates: Watson credits the grove to Lord Lumley, who had the house from 1580; the walks are dated with it, faint from 1580 and solid from 1590. Mature elms would have been older than that, so they may have been planted earlier, or Watson may be flattering young trees.' + GAR_END });
+}
+{ // The winding steps by the Pelican (Watson, c. 1590): from the grove up the bank to the south elm walk
+  const O = [GROVE.stepsX, GROVE.y1], g = gardenGroup(O);
+  const gh = (x, z) => groundH(O[0] + x / S, O[1] + z / S);
+  const line = (u) => [1.5 * Math.sin(u * Math.PI * 2), .5 + u * 6.2];   // an S-shaped line up the bank
+  const RISE = .16; let next = RISE, count = 0, topY = 0;
+  for (let k = 0; k <= 800; k++) {
+    const u = k / 800, [x, z] = line(u);
+    if (gh(x, z) < next) continue;
+    const [x2, z2] = line(Math.min(1, u + .01)), [x1, z1] = line(Math.max(0, u - .01));
+    const st = mesh(new THREE.BoxGeometry(2, .6, .7), plain.tstone); st.position.set(x, next - .3, z); st.rotation.y = Math.atan2(x2 - x1, z2 - z1); g.add(st);
+    topY = next; next += RISE; count++;
+  }
+  for (const s of [-1, 1]) column(g, s * 1.25, .35, .7, .14, plain.tstone);   // a low post each side at the foot
+  groundRibbon(g, O, 0, 6.6, 0, (2010 - GROVE.y1) * S - 1.5, 2);                 // from the head of the steps to the walk
+  g.userData = { top: topY + 1.5 };
+  register(g, { name: 'The winding steps (position and form estimated)', short: 'Winding steps', label: 'minor', h: topY + 1, from: 1580, solidFrom: 1590, to: 1688, dates: 'Described c. 1590', ghostNote: 'Drawn faint: made at an unknown date between 1580 and about 1590', estimate: true,
+    text: 'Steps from the Grove of Diana up to the elm walks. From a source: ' + WATSON + ' says that on one pinnacle of Diana’s bower “the Pelican sits”, and later: “If we climb the winding steps by the Pelican, there are brought together delightful promenades and handsome elms in the most perfect order.” That is all the evidence used. It says there were winding steps beside the Pelican and that they led up to the elm walks; Historic England’s scheduling entry adds that the banqueting house’s compartment adjoined the grove on higher ground. Estimate: everything else. Watson does not say which of the two pinnacles carried the Pelican; the western one is assumed, and the steps leave the grove through a gap in its south hedge beside it. They are drawn as ' + count + ' stone steps about 2 m wide, on an S-shaped line up a bank about 6 m wide, rising ' + topY.toFixed(1) + ' m to the south elm walk. The height comes from my estimate of the hill (see the Banqueting House card); no source gives it, so the number of steps is a consequence of that guess. “Winding” might equally mean a spiral or a single curved flight; the side on which they left the grove, their width, material and the two posts at the foot are guesses. Dates: dated with the grove, which Watson credits to Lord Lumley: faint from 1580, solid from 1590.' + GAR_END });
+}
+{ // The trout pond (Watson, c. 1590)
+  const g = gardenGroup([-3780, 760]);
+  const waterM = M({ color: 0x5f8792, roughness: .2, transparent: true, opacity: .85 }), bankM = M({ color: 0x6f7d4c, roughness: 1 });
+  const pond = mesh(new THREE.CylinderGeometry(1, 1, .12, 36), waterM, false); pond.scale.set(16, 1, 8.5); pond.position.y = .07; g.add(pond);
+  const bank = mesh(new THREE.TorusGeometry(1, .035, 6, 40), bankM); bank.rotation.x = Math.PI / 2; bank.scale.set(16.3, 8.8, 9); bank.position.y = .12; g.add(bank);
+  const stream = mesh(new THREE.BoxGeometry(1.1, .08, 15), waterM, false); stream.position.set(1, .06, 15.5); g.add(stream);   // where the water "breaks out", from the direction of the grove
+  for (const [x, z] of [[-17, -6], [-12, 9], [15, -8], [18, 5]]) smallTree(g, x, z, 5);
+  g.userData = { top: 5 };
+  register(g, { name: 'The trout pond (position estimated)', short: 'Trout pond', label: 'minor', h: 3, from: 1556, solidFrom: 1590, to: 1688, dates: 'Described c. 1590', ghostNote: 'Drawn faint: made at an unknown date before about 1590', estimate: true,
+    text: 'From a source: ' + WATSON + ', under the heading “trowte ponde”, says “The courses of water run hidden through the inmost parts of the wilderness and the grove, and break out gently in a neighbouring valley”, where “tender shoals of trout … give pleasure to the eyes, palate, rod, or what you will”. That is all the evidence used. It says there was water stocked with trout in a valley near the Wilderness and the grove; the heading calls it a pond, but the text does not give its shape, size or position. Estimate: everything else. The pond is drawn as an oval of about 32 by 17 m just north of the grove, with a short stream running into it from the grove. North was chosen because Biddle says the ground falls away to the north and east of the palace and rises to the south, where the springs were, so water leaving the grove would run that way; that is my reasoning, not a statement in any source. The valley is not cut into the ground: the pond lies on the level ground below the banqueting-house hill, which is the only rising ground modelled. The survey of 1650 mentions several fishponds in the Great Park, which was a different park; they are not taken to be this pond. Dates: Watson does not say who made it; it is drawn faint from 1556 and solid from 1590.' + GAR_END });
+}
+
+// ---------- Interaction ----------
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+let down = null, selected = null;
+const swapped = new Map();
+function highlight(g, on) {
+  g.traverse((o) => {
+    if (!o.isMesh) return;
+    if (on) {
+      swapped.set(o, o.material);
+      const hl = (m) => { const c = m.clone(); c.emissive = new THREE.Color(0xc79a2e); c.emissiveIntensity = 0.28; return c; };
+      o.material = Array.isArray(o.material) ? o.material.map(hl) : hl(o.material);
+    } else if (swapped.has(o)) { o.material = swapped.get(o); swapped.delete(o); }
+  });
+}
+const info = document.getElementById('info');
+function select(g) {
+  if (selected) highlight(selected, false);
+  selected = g;
+  if (typeof markList === 'function' && typeof listEl !== 'undefined') markList();
+  if (!g) { info.hidden = true; return; }
+  highlight(g, true);
+  const def = g.userData.def;
+  document.getElementById('info-title').textContent = nameAt(def, year).name;
+  const meta = document.getElementById('info-meta'); meta.replaceChildren();
+  const tl = g.userData.tl || {};
+  const chips = [def.dates || (tl.from == null ? 'Date not established' : null), g.userData.state === 'ghost' ? (def.ghostNote || 'Drawn faint: date not established') : null, def.estimate ? 'Position and size estimated' : null];
+  for (const t of chips.filter(Boolean)) { const s = document.createElement('span'); s.textContent = t; meta.append(s); }
+  document.getElementById('info-text').textContent = def.text || '';
+  info.hidden = false;
+}
+info.querySelector('.close').addEventListener('click', () => select(null));
+renderer.domElement.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('pointerup', (e) => {
+  if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5) return;
+  ptr.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  ray.setFromCamera(ptr, camera);
+  const hit = ray.intersectObjects(buildings.filter((b) => b.visible), true)[0];
+  let g = hit?.object; while (g && !buildings.includes(g)) g = g.parent;
+  select(g || null);
+});
+
+// Opacity and labels
+const bindRange = (id, fn) => { const el = document.getElementById(id), out = document.getElementById(id + '-out'); const f = () => { out.textContent = el.value + '%'; fn(el.value / 100); }; el.addEventListener('input', f); f(); };
+bindRange('plan-op', (v) => { planMat.opacity = v; planMat.visible = v > 0; });
+bindRange('cover-op', (v) => { for (const m of coverMats) { m.opacity = v; m.visible = v > 0; } });
+bindRange('bld-op', (v) => {
+  const set = (m) => { m.transparent = v < 1; m.opacity = v; m.depthWrite = v >= 1; m.needsUpdate = true; };
+  allMats.forEach(set); swapped.forEach((_, o) => [].concat(o.material).forEach(set));
+  refreshShadows();
+});
+document.getElementById('show-labels').addEventListener('change', (e) => labelRenderer.domElement.classList.toggle('off', !e.target.checked));
+// ---------- Timeline ----------
+// Each building carries its own dates: from (first year shown), to (first year gone), and solidFrom (drawn faint
+// before this year: under construction, or date or position not established). See DATE_NOTE above for what the
+// dates rest on.
+const HOME_YEAR = 1568;   // the year of Hoefnagel's drawing, the earliest dated view
+const EVENTS = [
+  [1537, 'Before the palace: the village of Cuddington, with its church of St Mary, manor-house and great barn. The church stands where the inner court will be (Biddle 1961).'],
+  [1538, 'Henry VIII obtains the manor from Richard Codington in exchange for Ixworth in Suffolk, and begins to build on 22 April. The church, part of the manor-house and other buildings are demolished at once; flint from the church goes into the foundations of the Inner Court (Biddle 1961). The palace is drawn faint while it is being built.'],
+  [1544, 'The Inner Court is probably complete: Catherine Parr dines at Nonsuch this year (Biddle 1961). Nicholas Modena is paid for carving slate here in 1541–44.'],
+  [1546, 'The Banqueting House, built between 1538 and 1546, stands on the hill 350 yards west of the palace (Biddle 1961). It is shown in its place west of the house; see its card for how that place was fixed.'],
+  [1547, 'Henry VIII dies, having spent at least £24,500 and leaving Nonsuch unfinished: the Outer Court is apparently not entirely complete, and the gardens are unfinished (Biddle 1961; Historic England). His craftsmen move to Somerset House.'],
+  [1556, 'Nonsuch, threatened with demolition under Mary I, is granted to Henry FitzAlan, Earl of Arundel, “who completed the building” (Biddle 1961). The Outer Court is shown solid from this year; the year he finished it is not recorded.'],
+  [1559, 'The Earl of Arundel entertains Elizabeth I at Nonsuch (VCH Surrey).'],
+  [1568, 'Joris Hoefnagel draws Nonsuch from the south (Thurley, fig. 87). By now two low buildings have been added to the left of the south-west tower, and the garden wall stands.'],
+  [1580, 'The Earl of Arundel dies; Nonsuch passes to his son-in-law John, Lord Lumley, who continues its embellishment and completes the gardens (Biddle 1961).'],
+  [1590, 'About now Anthony Watson, rector of Cheam, writes his Latin description of Nonsuch: the knot beds, the twelve porches, the white horse, Lord Lumley’s fountain, the maze, the Wilderness, the Grove of Diana, the elm walks and the trout pond are all in being (Dent Transcripts; Biddle dates the text “sometime before” 1592).'],
+  [1592, 'Lord Lumley, in financial difficulty, surrenders Nonsuch to the Crown (Biddle 1961; VCH Surrey dates the exchange “1590–2”). It stays Crown property until the Commonwealth.'],
+  [1603, 'Elizabeth I dies. Nonsuch passes to Anne of Denmark (Biddle 1961).'],
+  [1610, 'John Speed publishes his engraving of the south front on his map of Surrey (Thurley, fig. 211).'],
+  [1620, 'By now the painted view from the north-west has been made: Biddle dates it about 1610–20, the Fitzwilliam Museum to the early 17th century. It shows a later building against the west side of the outer court.'],
+  [1627, 'Nonsuch is granted to Henrietta Maria (Biddle 1961, citing the State Papers for 1627–28).'],
+  [1650, 'The Wilderness has just been felled. In April the Parliamentary Commissioners survey Nonsuch for sale. Their survey describes every part of the house and is the source for many details of this model. The house is sold to George Smythson and others (Biddle 1961).'],
+  [1654, 'Major-General Lambert buys Nonsuch (Biddle 1961).'],
+  [1660, 'At the Restoration the Commons return Nonsuch to Henrietta Maria, now Queen Mother. It is in bad repair (Biddle 1961).'],
+  [1665, 'The Exchequer moves to Nonsuch on account of the plague, which forces the first repairs; it returns in 1666 after the Fire of London (Biddle 1961).'],
+  [1667, 'The Banqueting House, already decayed, is demolished (Biddle 1961).'],
+  [1671, 'After Henrietta Maria’s death in 1669, Charles II grants Nonsuch and both parks in trust for Barbara, Duchess of Cleveland (Biddle 1961; VCH Surrey gives 1670).'],
+  [1682, 'Charles II issues a warrant allowing the Duchess of Cleveland to pull down Nonsuch and sell the materials; she sells the house the same year to George, Lord Berkeley (Biddle 1961).'],
+  [1684, 'The Inner Court has probably been demolished by now (Biddle 1961). The London Museum and the Fitzwilliam Museum date the demolition 1682–3; Historic England, 1682–88.'],
+  [1688, 'The Outer Court has gone by about this year (Biddle 1961). Part of the palace was still standing in 1702; only foundations were visible in 1757. The garden wall is left standing here because no source used says when it came down.'],
+];
+const ghostM = new THREE.MeshStandardMaterial({ color: 0x9aa3a6, transparent: true, opacity: .42, depthWrite: false, roughness: 1 });
+const fixtures = [];
+for (const g of buildings) { const d = g.userData.def; g.userData.tl = { from: d.from ?? null, to: d.to ?? null, solidFrom: d.solidFrom }; }
+for (const o of scene.children.filter((c) => c.userData.fixture)) { o.userData.tl = { from: o.userData.fixtureFrom ?? null, to: o.userData.fixtureTo ?? null }; fixtures.push(o); }
+const yearEl = document.getElementById('year'), yearOut = document.getElementById('year-out'), yearBadge = document.getElementById('year-badge'), eventEl = document.getElementById('year-event'), playBtn = document.getElementById('play');
+const ghostSaved = new Map();
+function setGhost(g, on) {
+  g.traverse((o) => {
+    if (!o.isMesh) return;
+    if (on && !ghostSaved.has(o)) { ghostSaved.set(o, [o.material, o.castShadow]); o.material = ghostM; o.castShadow = false; o.renderOrder = 2; }   // draw after the translucent plan
+    else if (!on && ghostSaved.has(o)) { const [m, c] = ghostSaved.get(o); o.material = m; o.castShadow = c; o.renderOrder = 0; ghostSaved.delete(o); }
+  });
+}
+let year = HOME_YEAR;
+const thurleyBox = document.getElementById('show-thurley'), thurleyLbl = document.getElementById('thurley-phase');
+function updateThurley() {
+  for (const m of thurleyLayers) { const t = m.userData.phase; m.visible = document.getElementById(t.box || 'show-thurley').checked && year >= t.from && year < t.to; }
+  const any = thurleyLayers.find((m) => !m.userData.phase.box && year >= m.userData.phase.from && year < m.userData.phase.to);
+  thurleyLbl.textContent = any ? `(${any.userData.phase.label})` : '(none for this year)';
+  document.getElementById('thurley-note').textContent = any ? any.userData.phase.note || '' : '';
+}
+document.getElementById('show-biddle').addEventListener('change', () => { updateThurley(); refreshShadows(); });
+thurleyBox.addEventListener('change', updateThurley);
+function setYear(y) {
+  year = y; yearEl.value = y; yearOut.textContent = y; yearBadge.textContent = y;
+  yearBadge.hidden = y === HOME_YEAR && !playTimer;
+  for (const g of buildings.concat(fixtures)) {
+    const tl = g.userData.tl;
+    const exists = (tl.from == null || y >= tl.from) && (tl.to == null || y < tl.to);
+    const state = !exists ? 'hidden' : (y < (tl.solidFrom ?? -Infinity) ? 'ghost' : 'solid');
+    if (state === g.userData.state) continue;
+    if (g === selected) select(null);
+    g.visible = state !== 'hidden';
+    setGhost(g, state === 'ghost');
+    g.userData.state = state;
+  }
+  for (const g of buildings) { const d = g.userData.def; if (d.names && g.userData.labelEl) g.userData.labelEl.textContent = nameAt(d, y).short; }
+  const ev = EVENTS.filter(([ey]) => ey <= y).at(-1);
+  eventEl.setAttribute('aria-live', playTimer ? 'off' : 'polite');   // not read out year by year while playing
+  eventEl.innerHTML = `<b>${ev[0] === y ? '' : ev[0] + ': '}</b>${ev[1]}`;
+  refreshList();
+  updateThurley();
+  refreshShadows();
+}
+let playTimer = null;
+const stopPlay = () => { clearInterval(playTimer); playTimer = null; playBtn.textContent = 'Play 1537–1690'; yearBadge.hidden = year === HOME_YEAR; setYear(year); };
+playBtn.addEventListener('click', () => {
+  if (playTimer) return stopPlay();
+  if (year >= 1690) setYear(1537);
+  playBtn.textContent = 'Pause';
+  playTimer = setInterval(() => { if (year >= 1690) return stopPlay(); setYear(year + 1); }, 80);
+});
+yearEl.addEventListener('input', () => { if (playTimer) stopPlay(); setYear(+yearEl.value); });
+// A list of the buildings standing in the current year, for keyboard and screen-reader users: it reaches every card
+// that a click on the model reaches, and gives the 3D scene a text equivalent.
+const listWrap = document.getElementById('bld-list-wrap'), listEl = document.getElementById('bld-list');
+const listName = (g) => { const d = g.userData.def; return nameAt(d, year).name; };
+function flyTo(g) {
+  const box = new THREE.Box3().setFromObject(g), at = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
+  at.y = Math.min(at.y, 20);
+  const off = camera.position.clone().sub(controls.target);
+  const d = THREE.MathUtils.clamp(Math.max(size.x, size.z) * 2.2 + 40, 60, controls.maxDistance);
+  moveTo(at.clone().add(off.setLength(d)), at, 700);
+}
+function markList() { for (const b of listEl.querySelectorAll('button')) b.setAttribute('aria-current', String(b._g === selected)); }
+function refreshList() {
+  document.getElementById('bld-list-year').textContent = year;
+  const standing = buildings.filter((b) => b.visible);
+  renderer.domElement.setAttribute('aria-label', `3D model of Nonsuch Palace as it stood in ${year}, with ${standing.length} buildings. They are listed under “Buildings standing in ${year}” in the controls; choose one there to read about it.`);
+  if (!listWrap.open || playTimer) return;
+  const rows = standing.map((g) => [listName(g), g]).sort((a, b) => a[0].localeCompare(b[0], 'en', { numeric: true }));
+  listEl.replaceChildren(...rows.map(([n, g]) => {
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button'; b.textContent = n; b._g = g;
+    b.addEventListener('click', () => { select(g); flyTo(g); });
+    li.append(b); return li;
+  }));
+  markList();
+}
+listWrap.addEventListener('toggle', refreshList);
+setYear(HOME_YEAR);
+
+// Views
+const views = {
+  overview:  { pos: P(-1500, 3900, 135), at: P(380, 1150, 0) },
+  plan:      { pos: P(640, 1001, 230), at: P(640, 1000, 0) },
+  south:     { pos: P(250, 3750, 3.5), at: P(301, 3478, 1.8), fov: 36 },       // Hoefnagel, 1568: over the garden wall
+  northwest: { pos: P(-950, -750, 5), at: P(520, 500, 8), fov: 34 },         // the painted view, fig. 52
+  front:     { pos: P(640, 2400, 8), at: P(640, 1650, 11), fov: 44 },        // Speed, 1610: square to the south front
+  inner:     { pos: P(636, 1400, 16), at: P(636, 800, 7), fov: 55 },
+  garden:    { pos: P(1500, 2750, 38), at: P(560, 1950, 0), fov: 46 },
+  grove:     { pos: P(-3560, 2620, 30), at: P(-3870, 1760, 1), fov: 46 },   // from the south, over the elm walk and the winding steps
+  banquet:   { pos: P(-3300, 2900, 38), at: P(-4300, 1950, 0), fov: 44 },
+};
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let tween = null;
+function goTo(name, instant = false) {
+  const v = views[name];
+  document.querySelectorAll('.view-btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === name)));
+  const fov = v.fov || 42;
+  if (instant || reduce) { camera.position.copy(v.pos); controls.target.copy(v.at); camera.fov = fov; camera.updateProjectionMatrix(); controls.update(); return; }
+  tween = { t0: performance.now(), from: [camera.position.clone(), controls.target.clone(), camera.fov], to: [v.pos, v.at, fov] };
+}
+document.querySelectorAll('.view-btn').forEach((b) => b.addEventListener('click', () => {
+  if (b.dataset.view === 'south') setYear(1568);   // the year of Hoefnagel's drawing
+  goTo(b.dataset.view);
+}));
+controls.addEventListener('start', () => { tween = null; });
+goTo('overview', true);
+
+// ---------- Navigation helpers ----------
+// Keep the point the camera looks at on or near the site, so the model can't be lost off-screen
+const SITE = { x0: -400, x1: 130, z0: -130, z1: 175 };   // metres: the gardens, the Wilderness and the Banqueting House to the west
+const clampV = new THREE.Vector3();
+function keepOnSite() {
+  const t = controls.target;
+  clampV.set(THREE.MathUtils.clamp(t.x, SITE.x0, SITE.x1), Math.max(-2, Math.min(t.y, 30)), THREE.MathUtils.clamp(t.z, SITE.z0, SITE.z1)).sub(t);
+  if (clampV.lengthSq() > 0) { t.add(clampV); camera.position.add(clampV); }
+  if (camera.position.y < 1.2) camera.position.y = 1.2;
+}
+// Short animated moves for the buttons and double-click
+function moveTo(pos, at, dur = 450) {
+  if (reduce) { camera.position.copy(pos); controls.target.copy(at); controls.update(); return; }
+  tween = { t0: performance.now(), dur, from: [camera.position.clone(), controls.target.clone(), camera.fov], to: [pos, at, camera.fov] };
+}
+function zoomBy(f) {
+  const off = camera.position.clone().sub(controls.target);
+  const d = THREE.MathUtils.clamp(off.length() * f, controls.minDistance, controls.maxDistance);
+  moveTo(controls.target.clone().add(off.setLength(d)), controls.target.clone());
+}
+function turnBy(rad) {
+  const off = camera.position.clone().sub(controls.target).applyAxisAngle(new THREE.Vector3(0, 1, 0), rad);
+  moveTo(controls.target.clone().add(off), controls.target.clone());
+}
+function northUp() {
+  const off = camera.position.clone().sub(controls.target);
+  const h = Math.hypot(off.x, off.z), back = north.clone().multiplyScalar(-h);
+  moveTo(controls.target.clone().add(new THREE.Vector3(back.x, off.y, back.z)), controls.target.clone(), 700);
+}
+document.getElementById('nav-in').addEventListener('click', () => zoomBy(0.6));
+document.getElementById('nav-out').addEventListener('click', () => zoomBy(1 / 0.6));
+document.getElementById('nav-left').addEventListener('click', () => turnBy(Math.PI / 6));
+document.getElementById('nav-right').addEventListener('click', () => turnBy(-Math.PI / 6));
+document.getElementById('nav-north').addEventListener('click', northUp);
+document.getElementById('nav-home').addEventListener('click', () => goTo('overview'));
+// Keys: + and - zoom, [ and ] turn, N faces north (arrow keys move, handled by the controls)
+addEventListener('keydown', (e) => {
+  if (e.target.closest && e.target.closest('input, textarea')) return;
+  if (!document.getElementById('keys-on').checked || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === '+' || e.key === '=') zoomBy(0.7);
+  else if (e.key === '-' || e.key === '_') zoomBy(1 / 0.7);
+  else if (e.key === '[') turnBy(Math.PI / 12);
+  else if (e.key === ']') turnBy(-Math.PI / 12);
+  else if (e.key === 'n' || e.key === 'N') northUp();
+});
+// Double-click (or double-tap) anywhere to fly in towards that spot
+const flyRay = new THREE.Raycaster();
+renderer.domElement.addEventListener('dblclick', (e) => {
+  const r = renderer.domElement.getBoundingClientRect();
+  flyRay.setFromCamera(new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), camera);
+  const hit = flyRay.intersectObjects(scene.children, true).find((h) => h.object.visible && h.object.isMesh);
+  if (!hit) return;
+  const at = hit.point.clone(); at.y = Math.min(at.y, 20);
+  const off = camera.position.clone().sub(controls.target);
+  const d = THREE.MathUtils.clamp(off.length() * 0.45, 25, controls.maxDistance);
+  moveTo(at.clone().add(off.setLength(d)), at, 700);
+});
+
+// Panel collapse (phone) and painting lightbox
+const panel = document.getElementById('panel'), tog = document.getElementById('toggle-panel');
+const setCollapsed = (c) => { panel.classList.toggle('collapsed', c); tog.textContent = c ? 'Show' : 'Hide'; tog.setAttribute('aria-expanded', String(!c)); };
+tog.addEventListener('click', () => setCollapsed(!panel.classList.contains('collapsed')));
+if (matchMedia('(max-width: 720px)').matches) setCollapsed(true);   // phones open on the model, with the panel folded away
+const lb = document.getElementById('lightbox');
+let lbFrom = null;
+function closeLb() { if (lb.hidden) return; lb.hidden = true; (refBtns[lbAt] || lbFrom)?.focus(); lbFrom = null; }   // focus returns to the thumbnail of the image last shown
+const REFS = [
+  { src: 'assets/hoefnagel-south-1568.jpg', alt: 'Joris Hoefnagel, Nonsuch from the south, 1568', cap: "Joris Hoefnagel, view of Nonsuch from the south, 1568 (Thurley 1993, fig. 87). Thurley's caption: the wall of the privy garden hides the lower part of the elevation; the central staircase can be seen, and above it the tower on the inner gatehouse; the buildings on the right are the kitchens; the two low roofs on the left are later additions; the panels of stucco decoration fitted to the timber frame are clearly visible. The model's south front, towers, garden wall and low buildings follow this drawing. Compare with the “From the south, 1568” view." },
+  { src: 'assets/speed-south-front-1610.jpg', alt: "Engraving of the south front of Nonsuch from John Speed's map of Surrey, 1610", cap: "Engraving of the south front from John Speed's map of Surrey, 1610 (Thurley 1993, fig. 211). Thurley's caption: it shows the stucco decorations and the heraldic beasts in some detail and gives a glimpse of the inner court; the tower on the left contained the water cisterns that supplied the whole house with running water. It is seven years later than the end of this model. The clock turret on the inner gatehouse and the panelled towers follow it; the garden in the foreground is not modelled." },
+  { src: 'assets/painting-north-west-fig52.jpg', alt: 'Painted view of Nonsuch from the north-west, with a hunt in the foreground', cap: "Painted view of Nonsuch from the north-west (Thurley 1993, fig. 52, a detail of his fig. 84). Thurley's caption: the outer gatehouse, with the inner gatehouse on slightly higher ground behind; on the left the gateway to the kitchen range; the whole length of the west side, with later projections in the foreground but the original tall chimney stacks and garderobe projections in the background. Fig. 84 itself was not photographed. The painting is in the Fitzwilliam Museum, Cambridge (no. 95, oil on canvas, 151.8 × 302.5 cm), which dates it to the early 17th century; Biddle (1961) dates it about 1610–20. The stone outer court and its gatehouse follow this view." },
+  { src: 'assets/aerial-excavation-1959.jpg', alt: 'Aerial photograph of the excavation of Nonsuch in 1959', cap: "Aerial view of the site during the excavations of 1959 (Thurley 1993, fig. 86). Thurley's caption: in the foreground are the kitchens; to the right, the outer court; to the left, the inner court; in the middle of the inner court are the footings of the medieval parish church of Cuddington, demolished by Henry VIII to make way for his new residence." },
+  { src: 'assets/wine-cellar-1959.jpg', alt: 'The wine cellar of Nonsuch as excavated in 1959', cap: "The wine cellar as excavated in 1959 (Thurley 1993, fig. 205). Thurley's caption: the cellar lay east–west beneath the central inner gatehouse range; the photograph is taken from the east, with the steps in the foreground." },
+  { src: 'assets/biddle-fig3-plan-1959.jpg', alt: "Martin Biddle's plan of Nonsuch as excavated in 1959", cap: "Martin Biddle, “Nonsuch Palace, plan as excavated 1959” (Surrey Archaeological Collections 58, 1961, Fig. 3), cropped. Solid black is wall or foundation; hatching is conjectural or robber trench. It shows what Thurley's plan leaves out: the north range and outer gatehouse, the kitchen block and yard with its well, the cellar, and the outline of Cuddington church under the inner court. North is to the upper right. The model takes those parts from this plan." },
+  { src: 'assets/thurley-fig85-plan.jpg', alt: "Thurley's conjectural plan of the principal floor of Nonsuch", cap: "Simon Thurley, “Nonsuch, Surrey. Conjectural plan of the principal floor, from archaeological and documentary evidence” (1993, fig. 85), turned so that the outer court is at the top. This is the base plan of the model. The inner court is drawn in full, with its room names; the outer court and the range between the courts are in outline only." },
+];
+// The viewer steps through the images in the order they are listed (by date), with buttons or the left and right arrow keys
+const refBtns = [...document.querySelectorAll('.ref')];
+let lbAt = 0;
+function showRef(i) {
+  lbAt = (i + refBtns.length) % refBtns.length;
+  const r = REFS[+refBtns[lbAt].dataset.ref];
+  const img = document.getElementById('lb-img'); img.src = r.src; img.alt = r.alt;
+  document.getElementById('lb-cap').textContent = r.cap;
+  document.getElementById('lb-count').textContent = `Image ${lbAt + 1} of ${refBtns.length}`;
+}
+refBtns.forEach((b, i) => b.addEventListener('click', () => {
+  showRef(i);
+  lbFrom = b; lb.hidden = false; document.getElementById('close-painting').focus();
+}));
+document.getElementById('lb-prev').addEventListener('click', () => showRef(lbAt - 1));
+document.getElementById('lb-next').addEventListener('click', () => showRef(lbAt + 1));
+addEventListener('keydown', (e) => {   // before the camera controls see the arrow keys
+  if (lb.hidden || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+  e.stopPropagation(); e.preventDefault(); showRef(lbAt + (e.key === 'ArrowLeft' ? -1 : 1));
+}, true);
+document.getElementById('close-painting').addEventListener('click', closeLb);
+lb.addEventListener('click', (e) => { if (e.target === lb) closeLb(); });
+lb.addEventListener('keydown', (e) => {   // Tab moves between the viewer's own buttons and does not leave it
+  if (e.key !== 'Tab') return;
+  const bs = [...lb.querySelectorAll('button')], at = bs.indexOf(document.activeElement);
+  e.preventDefault(); bs[(at + (e.shiftKey ? -1 : 1) + bs.length) % bs.length].focus();
+});
+addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!lb.hidden) closeLb(); else select(null); } });
+
+
+// Compass: Biddle's Fig. 3 (plan as excavated) draws north about 25 degrees clockwise from the top of the plan, which agrees with
+// Colvin's plan (about 20) and Historic England's "NNW-SSE" alignment. The north point on the photograph of Thurley's fig. 85
+// measured about 57 degrees; that reading is set aside as the odd one out. Thurley's captions call the outer-court end north.
+const north = new THREE.Vector3(Math.sin(25 * DEG), 0, -Math.cos(25 * DEG));
+const needle = document.querySelector('#compass .needle');
+const right = new THREE.Vector3(), fwd = new THREE.Vector3();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight); labelRenderer.setSize(innerWidth, innerHeight);
+});
+
+// Hide labels whose building is hidden or behind another building
+const occl = new THREE.Raycaster(), labPos = new THREE.Vector3(), labDir = new THREE.Vector3();
+let frame = 0;
+function updateLabelOcclusion() {
+  const vis = buildings.filter((b) => b.visible);
+  for (const { lab, g } of labels) {
+    let hide = !g.visible;
+    if (!hide) {
+      lab.getWorldPosition(labPos);
+      labDir.subVectors(labPos, camera.position);
+      const dist = labDir.length();
+      if (lab.element.classList.contains('minor') && dist > 160) { lab.element.style.visibility = 'hidden'; continue; }   // keep distant minor labels out of close views
+      occl.set(camera.position, labDir.normalize()); occl.far = dist - 1;
+      const hit = occl.intersectObjects(vis, true)[0];
+      if (hit) { let o = hit.object; while (o && o !== g) o = o.parent; hide = o !== g; }
+    }
+    lab.element.style.visibility = hide ? 'hidden' : '';
+  }
+}
+const ease = (t) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+renderer.setAnimationLoop((now) => {
+  if (tween) {
+    const t = Math.min(1, (now - tween.t0) / (tween.dur || 1400)), k = ease(t);
+    camera.position.lerpVectors(tween.from[0], tween.to[0], k);
+    controls.target.lerpVectors(tween.from[1], tween.to[1], k);
+    camera.fov = tween.from[2] + (tween.to[2] - tween.from[2]) * k; camera.updateProjectionMatrix();
+    if (t === 1) tween = null;
+  }
+  controls.update();
+  keepOnSite();
+  if (frame++ % 6 === 0) updateLabelOcclusion();
+  right.setFromMatrixColumn(camera.matrixWorld, 0).setY(0).normalize();
+  fwd.set(right.z, 0, -right.x);  // ground-plane "up the screen" direction
+  needle.style.transform = `rotate(${Math.atan2(north.dot(right), north.dot(fwd))}rad)`;
+  renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
+});
+// For checking the model from the browser console (overlaps, dates): not used by the page itself
+window.NONSUCH = { buildings, fixtures, setYear, select, goTo, S, CX, CY };
+</script>

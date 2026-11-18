@@ -1,0 +1,15 @@
+<footer class="site-footer">
+  <div class="wrap">
+    {{/* Partner logos, each linking to its website. Both are the white-lettered versions, made for the dark footer. Scaled to twice their shown height for sharp screens. */}}
+    <div class="footer-logos">
+      {{ with resources.Get "images/logo.png" }}
+      {{ $img := .Resize "x88 png" }}
+      <a class="footer-logo" href="https://rrchnm.org/"><img class="logo-chnm" src="{{ $img.RelPermalink }}" width="{{ div $img.Width 2 }}" height="{{ div $img.Height 2 }}" alt="Roy Rosenzweig Center for History and New Media"></a>
+      {{ end }}
+      {{ with resources.Get "images/gmu-logo-light.png" }}
+      {{ $img := .Resize "x160 png" }}
+      <a class="footer-logo" href="https://historyarthistory.gmu.edu/"><img class="logo-gmu" src="{{ $img.RelPermalink }}" width="{{ div $img.Width 2 }}" height="{{ div $img.Height 2 }}" alt="George Mason University, College of Humanities and Social Sciences, Department of History and Art History"></a>
+      {{ end }}
+    </div>
+  </div>
+</footer>

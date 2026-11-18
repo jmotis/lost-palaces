@@ -1,0 +1,22 @@
+{{ $home := site.Home.RelPermalink }}
+{{ $here := . }}
+<header class="site-header">
+  <div class="wrap">
+    {{/* Wordmark: the favicon's palace icon beside the site name. The icon is decorative; the name is the link text. */}}
+    <a class="brand" href="{{ $home }}"{{ if .IsHome }} aria-current="page"{{ end }}>
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect class="bm-tile" width="32" height="32" rx="6"/><path class="bm-palace" d="M6 26V14l3-3 3 3v-4l4-4 4 4v4l3-3 3 3v12z"/><path class="bm-tile" d="M14 26v-5a2 2 0 0 1 4 0v5z"/></svg>
+      <span>{{ site.Title }}</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        {{/* "Palaces" is the list of cards on the home page; it is current on the home page and on each palace page. */}}
+        <li><a href="{{ cond .IsHome "" $home }}#palaces"{{ if eq .Section "palaces" }} aria-current="page"{{ end }}>Palaces</a></li>
+        {{ range slice "/map" "/timelines" "/about" }}
+        {{ with site.GetPage . }}
+        <li><a href="{{ .RelPermalink }}"{{ if eq .RelPermalink $here.RelPermalink }} aria-current="page"{{ end }}>{{ .Title }}</a></li>
+        {{ end }}
+        {{ end }}
+      </ul>
+    </nav>
+  </div>
+</header>

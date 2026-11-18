@@ -1,0 +1,114 @@
+# Royal palaces that still stand, shown as brown "Extant" pins on the map for comparison.
+# Their coordinates are in coordinates.yaml. `visit` is the official visitor page, linked from the map
+# as "Visit <title>"; `visit_label` replaces that wording where it needs to read differently.
+# `start` is shown on the Timeline (with `start_label` where the year is approximate); the bar runs to today.
+# Start years from each palace's Wikipedia article.
+- id: hamptoncourt
+  name: Hampton Court
+  title: Hampton Court Palace
+  place: East Molesey, on the Thames
+  visit: https://www.hrp.org.uk/hampton-court-palace/
+  start: 1514   # when building began, for Wolsey (it became a royal palace in 1529)
+- id: tower
+  name: Tower of London
+  title: Tower of London
+  place: City of London, on the Thames
+  visit: https://www.hrp.org.uk/tower-of-london/
+  visit_label: Visit the Tower of London
+  start: 1066   # founded late 1066; White Tower begun c. 1078
+- id: eltham
+  name: Eltham
+  title: Eltham Palace
+  place: Eltham, south-east London
+  visit: https://www.english-heritage.org.uk/visit/places/eltham-palace-and-gardens/
+  start: 1305   # given to Edward II
+- id: windsor
+  name: Windsor Castle
+  title: Windsor Castle
+  place: Windsor, on the Thames
+  visit: https://www.rct.uk/visit/windsor-castle
+  start: 1070
+  start_label: c. 1070   # built in the decade after 1066
+- id: stjames
+  name: St James's
+  title: St James's Palace
+  place: Westminster, London
+  visit: https://www.rct.uk/visit/st-jamess-palace
+  start: 1531   # built for Henry VIII, 1531–36
+- id: holyrood
+  name: Holyroodhouse
+  title: Palace of Holyroodhouse
+  visit_label: Visit the Palace of Holyroodhouse
+  place: Edinburgh
+  visit: https://www.rct.uk/visit/palace-of-holyroodhouse
+  start: 1501   # James IV began the palace beside the abbey; rebuilt 1671–78
+  far: true
+- id: audleyend
+  name: Audley End
+  title: Audley End
+  place: Saffron Walden, Essex
+  visit: https://www.english-heritage.org.uk/visit/places/audley-end-house-and-gardens/
+  start: 1603
+  start_label: c. 1603   # begun after 1603, completed 1614; royal 1666–1701
+- id: kensington
+  name: Kensington
+  title: Kensington Palace
+  place: Kensington, London
+  visit: https://www.hrp.org.uk/kensington-palace/
+  start: 1605   # built as Nottingham House; royal from 1689
+- id: westminster
+  name: Westminster
+  title: Palace of Westminster
+  visit_label: Visit the Palace of Westminster
+  place: Westminster, on the Thames
+  visit: https://www.parliament.uk/visiting/
+  start: 1045
+  start_label: c. 1045   # Edward the Confessor's palace; royal residence until the fire of 1512
+- id: edinburghcastle
+  name: Edinburgh Castle
+  title: Edinburgh Castle
+  place: Edinburgh
+  visit: https://www.edinburghcastle.scot
+  start: 1093
+  start_label: c. 1093   # royal castle since Malcolm III; first mentioned 1093
+  far: true
+- id: kew
+  name: Kew
+  title: Kew Palace
+  place: Kew, on the Thames
+  visit: https://www.hrp.org.uk/kew-palace/
+  start: 1631   # the Dutch House; royal from about 1728
+- id: buckingham
+  name: Buckingham
+  title: Buckingham Palace
+  place: Westminster, London
+  visit: https://www.rct.uk/visit/buckingham-palace
+  start: 1703   # built as Buckingham House; bought by George III in 1761
+- id: royalpavilion
+  name: Royal Pavilion
+  title: Royal Pavilion
+  place: Brighton, Sussex
+  visit: https://brightonmuseums.org.uk/visit/royal-pavilion-garden/
+  visit_label: Visit the Royal Pavilion
+  start: 1787   # Holland's Marine Pavilion for the Prince of Wales; Nash rebuilt it 1815–22
+  far: true
+- id: dover
+  name: Dover Castle
+  title: Dover Castle
+  place: Dover, Kent
+  visit: https://www.english-heritage.org.uk/visit/places/dover-castle/
+  start: 1066   # English Heritage: William the Conqueror fortified Dover in 1066, after Hastings (no remains survive);
+                # the castle visible today is Henry II's, built 1179–89
+  far: true
+- id: leeds
+  name: Leeds Castle
+  title: Leeds Castle
+  place: near Maidstone, Kent
+  visit: https://www.leeds-castle.com/
+  start: 1119   # first stone castle; royal from 1278
+- id: tickenhill
+  name: Tickenhill
+  title: Tickenhill Palace
+  place: Bewdley, Worcestershire
+  start: 1460   # timbers dated to the 1460s; remodelled 1738. A private house: no visitor website
+  far: true

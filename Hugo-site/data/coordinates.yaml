@@ -1,0 +1,183 @@
+# Every map coordinate on the site, in one place (decimal degrees; west and south are negative).
+#
+# Checked 2026-11-17 against three sources:
+#   - wikipedia: the coordinates on each palace's English Wikipedia article (the article named in `source`).
+#     These are used for the map, because they mark the specific site.
+#   - csv:       ../henry_viii_residences.csv, kept here for reference where the CSV has the palace.
+#                The CSV's figures are rounder and sit 0.2–4 km from the site; see `csv_km_off`.
+#   - The site's earlier estimates sat 0.04–1.8 km from the Wikipedia positions and are no longer used.
+#
+# To move a pin, change `lat` and `lon` here and rebuild.
+
+# Where the map opens: Whitehall.
+map_centre:
+  lat: 51.50444
+  lon: -0.12556
+
+sites:
+  baynards:
+    lat: 51.51139
+    lon: -0.10000
+    source: "Wikipedia: Baynard's Castle"
+    # Not in the CSV.
+  richmond:
+    lat: 51.46117
+    lon: -0.30888
+    source: "Wikipedia: Richmond Palace"
+    csv: { name: "Richmond Palace (formerly Sheen)", lat: 51.4613, lon: -0.3058 }
+    csv_km_off: 0.21
+  more:
+    lat: 51.634014
+    lon: -0.438408
+    source: "Wikipedia: The More"
+    csv: { name: "The More (Rickmansworth)", lat: 51.64, lon: -0.46 }
+    csv_km_off: 1.63
+  greenwich:
+    lat: 51.48222
+    lon: -0.00667
+    source: "Wikipedia: Palace of Placentia"
+    csv: { name: "Greenwich Palace", lat: 51.4834, lon: -0.0098 }
+    csv_km_off: 0.25
+  bridewell:
+    lat: 51.51167
+    lon: -0.10583
+    source: "Wikipedia: Bridewell Palace"
+    csv: { name: "Bridewell Palace", lat: 51.5134, lon: -0.1037 }
+    csv_km_off: 0.24
+  whitehall:
+    lat: 51.50444
+    lon: -0.12556
+    source: "Wikipedia: Palace of Whitehall"
+    csv: { name: "Whitehall Palace", lat: 51.5027, lon: -0.1246 }
+    csv_km_off: 0.20
+  beaulieu:
+    lat: 51.76307
+    lon: 0.51241
+    source: "Wikipedia: New Hall School (on the site of the palace of Beaulieu)"
+    csv: { name: "New Hall (Palace of Beaulieu)", lat: 51.7348, lon: 0.4746 }
+    csv_km_off: 4.08
+  nonsuch:
+    lat: 51.35444
+    lon: -0.23833
+    source: "Wikipedia: Nonsuch Palace"
+    csv: { name: "Nonsuch Palace", lat: 51.3486, lon: -0.2355 }
+    csv_km_off: 0.68
+  oatlands:
+    lat: 51.375072
+    lon: -0.442392
+    source: "Wikipedia: Oatlands Palace"
+    csv: { name: "Oatlands Palace", lat: 51.3762, lon: -0.4221 }
+    csv_km_off: 1.41
+
+  # Unmodeled palaces
+  theobalds:
+    lat: 51.69222
+    lon: -0.04139
+    source: "Wikipedia: Theobalds House"
+    # Not in the CSV.
+  woking:
+    lat: 51.3033
+    lon: -0.5245
+    source: "Wikipedia: Woking Palace"
+    csv: { name: "Woking (Old Palace)", lat: 51.3168, lon: -0.56 }
+    csv_km_off: 2.89
+  tickenhill:
+    lat: 52.3734
+    lon: -2.3176
+    source: "Wikipedia: Tickenhill Palace"
+    # Not in the CSV.
+  linlithgow:
+    lat: 55.9785
+    lon: -3.601111
+    source: "Wikipedia: Linlithgow Palace"
+    # Not in the CSV.
+  fieldofgold:
+    lat: 50.8523
+    lon: 1.9229
+    source: "Wikipedia: Field of the Cloth of Gold"
+    # Not in the CSV.
+
+  # Extant palaces
+  hamptoncourt:
+    lat: 51.40333
+    lon: -0.3375
+    source: "Wikipedia: Hampton Court Palace"
+    csv: { name: "Hampton Court", lat: 51.4036, lon: -0.3376 }
+    csv_km_off: 0.03
+  tower:
+    lat: 51.50806
+    lon: -0.07611
+    source: "Wikipedia: Tower of London"
+    csv: { name: "Tower of London", lat: 51.5081, lon: -0.0759 }
+    csv_km_off: 0.02
+  eltham:
+    lat: 51.44722
+    lon: 0.04806
+    source: "Wikipedia: Eltham Palace"
+    csv: { name: "Eltham Palace", lat: 51.4505, lon: 0.0531 }
+    csv_km_off: 0.51
+  windsor:
+    lat: 51.4839
+    lon: -0.6044
+    source: "Wikipedia: Windsor Castle"
+    csv: { name: "Windsor Castle", lat: 51.4839, lon: -0.6044 }
+    csv_km_off: 0.00
+  stjames:
+    lat: 51.50472
+    lon: -0.13778
+    source: "Wikipedia: St James's Palace"
+    csv: { name: "St. James's Palace", lat: 51.5041, lon: -0.1388 }
+    csv_km_off: 0.10
+  holyrood:
+    lat: 55.9525
+    lon: -3.1725
+    source: "Wikipedia: Holyrood Palace"
+    # Not in the CSV.
+  audleyend:
+    lat: 52.02083
+    lon: 0.22056
+    source: "Wikipedia: Audley End House"
+    # Not in the CSV.
+  kensington:
+    lat: 51.50528
+    lon: -0.18833
+    source: "Wikipedia: Kensington Palace"
+    # Not in the CSV.
+  westminster:
+    lat: 51.49917
+    lon: -0.12472
+    source: "Wikipedia: Palace of Westminster"
+    csv: { name: "Westminster Palace", lat: 51.4993, lon: -0.1273 }
+    csv_km_off: 0.18
+  edinburghcastle:
+    lat: 55.94861
+    lon: -3.20083
+    source: "Wikipedia: Edinburgh Castle"
+    # Not in the CSV.
+  kew:
+    lat: 51.48389
+    lon: -0.295
+    source: "Wikipedia: Kew Palace"
+    # Not in the CSV.
+  buckingham:
+    lat: 51.50083
+    lon: -0.14194
+    source: "Wikipedia: Buckingham Palace"
+    # Not in the CSV.
+  royalpavilion:
+    lat: 50.82306
+    lon: -0.1375
+    source: "Wikipedia: Royal Pavilion"
+    # Not in the CSV.
+  dover:
+    lat: 51.1297
+    lon: 1.3214
+    source: "Wikipedia: Dover Castle"
+    csv: { name: "Dover Castle", lat: 51.1273, lon: 1.3217 }
+    csv_km_off: 0.27
+  leeds:
+    lat: 51.24889
+    lon: 0.63
+    source: "Wikipedia: Leeds Castle"
+    csv: { name: "Leeds Castle", lat: 51.247, lon: 0.6286 }
+    csv_km_off: 0.23

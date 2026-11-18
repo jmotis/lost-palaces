@@ -1,0 +1,101 @@
+baseURL = "/"
+locale = "en-GB"
+title = "Lost Palaces Project"
+disableKinds = ["taxonomy", "term", "rss"]
+
+[params]
+  description = "Interactive 3D models of England’s vanished royal palaces, 1428–1703, rebuilt from surviving plans, surveys, excavations and views."
+
+[module]
+  [[module.mounts]]
+    source = "content"
+    target = "content"
+  [[module.mounts]]
+    source = "layouts"
+    target = "layouts"
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "data"
+    target = "data"
+  [[module.mounts]]
+    source = "static"
+    target = "static"
+
+# The 3D models stay in their own working folders, one level up from this site.
+# Each is mounted into the built site at /models/<id>/, leaving out backups,
+# source PDFs and photos of books. Its main page is also mounted under assets/,
+# so palace pages can read the model's introduction and bibliography at build time.
+  [[module.mounts]]
+    source = "../ReconstructingWhitehall Fablecopy/whitehall"
+    target = "static/models/whitehall"
+    files = ["! index.before*.html", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
+  [[module.mounts]]
+    source = "../ReconstructingWhitehall Fablecopy/whitehall"
+    target = "assets/models/whitehall"
+    files = ["index.html"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/Baynards Castle"
+    target = "static/models/baynards"
+    files = ["! backups/**", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/Baynards Castle"
+    target = "assets/models/baynards"
+    files = ["baynardscastle.html"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/Beaulieu"
+    target = "static/models/beaulieu"
+    files = ["! backups/**", "! *-backup-*.html", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/Beaulieu"
+    target = "assets/models/beaulieu"
+    files = ["beaulieu.html"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/Bridewell"
+    target = "static/models/bridewell"
+    files = ["! backups/**", "! *-backup-*.html", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/Bridewell"
+    target = "assets/models/bridewell"
+    files = ["bridewell.html"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/Greenwich"
+    target = "static/models/greenwich"
+    files = ["! backups/**", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/Greenwich"
+    target = "assets/models/greenwich"
+    files = ["index.html"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/Nonsuch"
+    target = "static/models/nonsuch"
+    files = ["! backups/**", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/Nonsuch"
+    target = "assets/models/nonsuch"
+    files = ["index.html"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/Oatlands"
+    target = "static/models/oatlands"
+    files = ["! backups/**", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/Oatlands"
+    target = "assets/models/oatlands"
+    files = ["oatlands.html"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/Richmond"
+    target = "static/models/richmond"
+    files = ["! backups/**", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/Richmond"
+    target = "assets/models/richmond"
+    files = ["index.html"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/The More"
+    target = "static/models/more"
+    files = ["! backups/**", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
+  [[module.mounts]]
+    source = "../Other Royal Palaces/The More"
+    target = "assets/models/more"
+    files = ["index.html"]
