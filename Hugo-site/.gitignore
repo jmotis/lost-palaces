@@ -7,3 +7,6 @@
 
 # Hugo's generated image copies; recreated on every build
 /resources/_gen/
+
+# The earlier hand-written site: kept on this computer for reference, not published
+/archive/

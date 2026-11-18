@@ -31,7 +31,7 @@ The map and the timelines share one colour code: **green** for palaces with a mo
   - `cite.js`: fills in each palace page's "Cite this model" with the page's full address and the reader's own access date.
 - `assets/images/`: the home page image (`whitehall-1547-static.png`) and the two footer logos (`logo.png` for RRCHNM, `gmu-logo-light.png` for GMU History and Art History). Hugo makes the smaller copies the pages use.
 - `static/`: files copied as they are: `favicon.svg` and `favicon.ico`.
-- `archive/static-site-2026-11-17/`: the earlier hand-written version of the site, kept for reference. It is not part of the build.
+- `archive/static-site-2026-11-17/`: the earlier hand-written version of the site, kept on the project computer for reference. It is not part of the build or of the repository.
 
 ## The palace icon
 
