@@ -196,8 +196,10 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; line-height: 1.
 .lpp-label::before { display: none; }
 .leaflet-container { font-family: var(--font-ui); }
 .leaflet-container a.leaflet-control-zoom-in, .leaflet-container a.leaflet-control-zoom-out { width: 44px; height: 44px; line-height: 44px; color: #1d2830; }
-.leaflet-control-attribution { font-size: var(--fs-small); color: #1d2830; }
+.leaflet-control-attribution { font-size: var(--fs-small); color: #1d2830; background: #f4f1e8 !important; }
 .leaflet-control-attribution a { color: #2f6b66; }
+/* The map tiles are light in both modes, so focus rings on the zoom buttons and credit links stay dark, like the pins'. */
+.leaflet-container :focus-visible { outline-color: #1d2830; }
 
 /* Timeline */
 .timeline { margin-top: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 20px 24px; overflow-x: auto; }
