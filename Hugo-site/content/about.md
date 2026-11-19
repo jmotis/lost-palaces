@@ -1,15 +1,17 @@
 ---
 title: "About"
-heading: "About the models"
+heading: "About the project"
 ---
-## How the models are made
+## Lost Palaces Project
 
-Footprints are traced from scholars’ plans, chiefly Simon Thurley’s in *The Royal Palaces of Tudor England*, and from excavation reports. Dates come from those reports, Historic England’s list entries and contemporary surveys. Heights and details come from surviving views and drawings.
+This project is an experiment in using Claude Code (Fable 5.2 and Opus 5.5) for 3D modeling. All models have been built from a combination of historical paintings, archeological records, and plans created by scholars who have studied these buildings in depth. The amount of evidence varies from residence to residence and much of these models is estimated or conjectural. Every building in a model provides information about the evidence used to create it and every model page lists its sources.
 
-## Evidence and estimate
+This project owes a particular debt of gratitude to Simon Thurley, whose books on Whitehall Palace was the inspiration for this project long before I had the capability of creating the models and whose scholarship forms the basis for many of the building plans used here. Not every residence that is modeled here was technically a palace, but every one was home to a king or a queen during the sixteenth or seventeenth century.
 
-Few of these buildings were ever measured, so much in each model is estimate. Every building in a model says where its position, date and appearance come from, and each palace page lists its sources.
+## Roy Rosenzweig Center for History and New Media
 
-## Using the models
+[RRCHNM](https://rrchnm.org) was founded in 1994 with a mission to democratize access to history. As part of the Department of [History and Art History](https://historyarthistory.gmu.edu) at George Mason University, RRCHNM combines the focused expertise of a research center dedicated to digital history with the intellectual breadth of a large history department and a doctoral program. Contact us at [chnm@gmu.edu](mailto:chnm@gmu.edu)
 
-Drag to move around, scroll or pinch to zoom, and use the year slider to move through time. Every model also has buttons and keyboard shortcuts for moving the view.
+## George Mason University
+
+[GMU](https://gmu.edu) is a public R-1 university located in the Commonwealth of Virginia. Its primary campus, where RRCHNM is located, is in Fairfax, Virginia.

@@ -5,8 +5,8 @@
   <section class="hero" aria-labelledby="hero-title">
     <div class="wrap hero-grid">
       <div class="hero-text">
-        <h1 id="hero-title">Walk through palaces that no longer stand</h1>
-        <p class="lead">Each palace is rebuilt as an interactive 3D model from surviving plans, surveys, excavations and views. Move the year slider to watch it grow, change and disappear, and select any building to read what is evidence and what is estimate.</p>
+        <h1 id="hero-title">Explore the Lost Royal Residences of the Tudors & Stuarts</h1>
+        <p class="lead">Each residence is rebuilt as an interactive 3D model from building plans, archeological evidence, and historical paintings. Move the year slider to watch a model change over time. Select any building to read about the evidence (or lack thereof) for its location and appearance.</p>
         <div class="actions">
           <a class="btn btn-primary" href="#palaces">Explore the palaces</a>
           {{ with site.GetPage "/map" }}<a class="btn btn-secondary" href="{{ .RelPermalink }}">Find them on the map</a>{{ end }}
@@ -24,7 +24,7 @@
               alt="Bird’s-eye view of the 3D model of Whitehall Palace in 1547: the Privy Garden’s knot beds, the river front on the Thames with its water stairs, the Holbein Gate, the Great Hall and the Chapel Royal.">
           </picture>
         </a>
-        <figcaption>Whitehall Palace in 1547, from the 3D model. <a href="{{ with $wh }}{{ .RelPermalink }}{{ end }}">Explore Whitehall</a></figcaption>
+        <figcaption>Whitehall Palace in 1547, from the 3D model. <a href="{{ with $wh }}{{ .RelPermalink }}{{ end }}">Explore Whitehall Palace</a></figcaption>
       </figure>
       {{ end }}
     </div>
@@ -33,7 +33,7 @@
   <section id="palaces" class="section section-last" aria-labelledby="palaces-title">
     <div class="wrap">
       <div class="palaces-head">
-        <h2 id="palaces-title">The palaces</h2>
+        <h2 id="palaces-title">The residences</h2>
         <div class="segmented" role="group" aria-label="Sort palaces" data-sort-group hidden>
           <button type="button" data-sort="name" aria-pressed="true">A–Z</button>
           <button type="button" data-sort="date" aria-pressed="false">By date</button>
