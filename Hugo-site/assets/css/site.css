@@ -148,7 +148,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 400; line-height: 1.
   .yf-reset { position: static; float: right; margin: 4px 0 4px 8px; }
 }
 .year-filter output { font-weight: 400; color: var(--gilt); font-variant-numeric: tabular-nums; }
-.yf-slider { clear: both; position: relative; height: 44px; margin: 0 14px; }
+.yf-slider { clear: both; position: relative; height: 44px; margin: 0 14px; cursor: pointer; }
 .yf-track { position: absolute; left: 0; right: 0; top: 50%; height: 6px; margin-top: -3px; border-radius: 3px; background: var(--chip); box-shadow: inset 0 0 0 1px var(--ctl); }
 .yf-range { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: var(--accent); }
 .yf-slider input[type="range"] { position: absolute; left: -14px; right: -14px; width: calc(100% + 28px); top: 0; height: 44px; margin: 0; background: none; pointer-events: none; -webkit-appearance: none; appearance: none; z-index: 2; }
@@ -280,6 +280,8 @@ div.tl-row:hover .tl-name { text-decoration: none; }
 @media (max-width: 480px) { .palace-body > aside { padding: 20px 18px; } }
 .palace-body h2 { font-size: var(--fs-section); }
 .bib { margin: 16px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 12px; font-size: var(--fs-small); line-height: 1.55; overflow-wrap: break-word; }
+/* Links in a nested list (Whitehall's Survey of London volumes) get a gap too, so each is a 24px target (WCAG 2.5.8). */
+.bib ul { display: flex; flex-direction: column; gap: 4px; }
 .cite-title { margin-top: 28px; font-size: var(--fs-heading); }
 .cite { margin: 12px 0 0; font-size: var(--fs-small); overflow-wrap: break-word; }
 .pager { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; }

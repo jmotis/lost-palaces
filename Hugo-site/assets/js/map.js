@@ -273,6 +273,19 @@
     fromIn.addEventListener('change', () => apply(true));
     toIn.addEventListener('change', () => apply(true));
     reset.addEventListener('click', () => { fromIn.value = MIN; toIn.value = MAX; apply(true); fromIn.focus(); });
+    // A click or tap on the track moves the nearer handle to that year, so the filter works without dragging (WCAG 2.5.7).
+    const slider = fromIn.parentElement;
+    slider.addEventListener('click', (e) => {
+      if (e.target === fromIn || e.target === toIn) return; // a handle was dragged or clicked
+      const box = slider.getBoundingClientRect();
+      const year = Math.round(MIN + Math.min(1, Math.max(0, (e.clientX - box.left) / box.width)) * (MAX - MIN));
+      const from = Number(fromIn.value), to = Number(toIn.value);
+      const moveFrom = year < from || (year <= to && year - from < to - year);
+      const input = moveFrom ? fromIn : toIn;
+      input.value = year;
+      apply(true);
+      input.focus();
+    });
     refilter = () => apply(false);
     apply(true);
   }
