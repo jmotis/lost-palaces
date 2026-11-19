@@ -24,8 +24,8 @@ disableKinds = ["taxonomy", "term", "rss"]
     target = "static"
 
 # The 3D models live in their own folders, one level up from this site.
-# Each is mounted into the built site at /models/<id>/, leaving out backups,
-# source PDFs and photos of books. Its main page is also mounted under assets/,
+# Each is mounted into the built site at /models/<id>/ (leaving out any stray backups,
+# PDFs or photos). Its main page is also mounted under assets/,
 # so palace pages can read the model's introduction and bibliography at build time.
   [[module.mounts]]
     source = "../Whitehall"

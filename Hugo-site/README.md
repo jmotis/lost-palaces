@@ -1,6 +1,6 @@
 # Lost Palaces Project website
 
-A Hugo site that presents the 3D palace models. It lives in `Hugo-site/`; each model has its own folder one level up (`../Whitehall/`, `../Greenwich/` and so on), holding its page and an `assets/` folder of images.
+A Hugo site that presents the 3D palace models. It lives in `Hugo-site/`. The models are not copied into it: each has its own folder one level up (`../Whitehall/`, `../Greenwich/` and so on), holding its page file and an `assets/` folder of images, and Hugo reads them from there when the site is built.
 
 ## Pages
 
@@ -13,8 +13,8 @@ The map and the timelines share one colour code: **green** for palaces with a mo
 
 ## Layout
 
-- `hugo.toml`: site settings. Each model folder is mounted twice:
-  - into the built site at `/models/<id>/`, leaving out backups, `index.before*.html` snapshots, PDFs and HEIC photos;
+- `hugo.toml`: site settings. Each model folder (`../<Palace>/`) is mounted twice:
+  - into the built site at `/models/<id>/`, page and `assets/` together (any stray PDFs, HEIC photos or backups in the folder are left out);
   - its main page only, under `assets/models/<id>/`, so the palace page can read the model's introduction (`.lede`) and bibliography (`ul.bib`) when the site is built. They always match the model.
 - `content/palaces/<id>.md`: one file per palace, holding its dates, place and the model's address in the site (`model`).
 - `content/map.md`, `content/timelines.md`, `content/about.md`: the Map, Timelines and About pages. Their text (the intro under each heading, and all of About) is written in Markdown in these files; `heading` sets the large heading if it differs from the menu name.
@@ -32,6 +32,7 @@ The map and the timelines share one colour code: **green** for palaces with a mo
 - `assets/images/`: the home page image (`whitehall-1547-static.png`) and the two footer logos (`logo.png` for RRCHNM, `gmu-logo-light.png` for GMU History and Art History). Hugo makes the smaller copies the pages use.
 - `static/`: files copied as they are: `favicon.svg` and `favicon.ico`.
 - `archive/static-site-2026-11-17/`: the earlier hand-written version of the site, kept on the project computer for reference. It is not part of the build or of the repository.
+- `public/` and `resources/`: made by Hugo when it builds (the finished site, and its cache of resized images). Both are left out of the repository and can be deleted at any time.
 
 ## The palace icon
 
@@ -39,10 +40,12 @@ The palace icon appears in three places, all drawn from the same shape: `static/
 
 ## Adding a palace
 
-1. Add the two mounts for its folder in `hugo.toml`, following the existing ones.
-2. Add `content/palaces/<id>.md`, copying an existing one.
-3. Make sure `data/coordinates.yaml` has an entry with the same id (the build warns if it doesn't).
-4. If it was listed in `data/unmodeled.yaml`, remove it from there.
+1. Put the model in its own folder at the project root (`../<Palace>/`), with its page file and an `assets/` folder for its images.
+2. Add the two mounts for its folder in `hugo.toml`, following the existing ones.
+3. Add the folder and its page file to the root `.gitignore`, following the existing ones (the images stay out until their copyright is cleared).
+4. Add `content/palaces/<id>.md`, copying an existing one.
+5. Make sure `data/coordinates.yaml` has an entry with the same id (the build warns if it doesn't).
+6. If it was listed in `data/unmodeled.yaml`, remove it from there.
 
 ## Building
 
