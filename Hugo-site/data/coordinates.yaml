@@ -3,7 +3,7 @@
 # Checked 2026-11-17 against three sources:
 #   - wikipedia: the coordinates on each palace's English Wikipedia article (the article named in `source`).
 #     These are used for the map, because they mark the specific site.
-#   - csv:       ../henry_viii_residences.csv, kept here for reference where the CSV has the palace.
+#   - csv:       henry_viii_residences.csv (in the research files, outside this repository); its figures are kept here for reference where the CSV has the palace.
 #                The CSV's figures are rounder and sit 0.2–4 km from the site; see `csv_km_off`.
 #   - The site's earlier estimates sat 0.04–1.8 km from the Wikipedia positions and are no longer used.
 #

@@ -1,6 +1,6 @@
 # Lost Palaces Project website
 
-A Hugo site that presents the 3D palace models. It lives in `Hugo-site/`; the models stay in their own folders one level up (`../Other Royal Palaces/…`, `../ReconstructingWhitehall Fablecopy/whitehall`).
+A Hugo site that presents the 3D palace models. It lives in `Hugo-site/`; each model has its own folder one level up (`../Whitehall/`, `../Greenwich/` and so on), holding its page and an `assets/` folder of images.
 
 ## Pages
 
@@ -19,7 +19,7 @@ The map and the timelines share one colour code: **green** for palaces with a mo
 - `content/palaces/<id>.md`: one file per palace, holding its dates, place and the model's address in the site (`model`).
 - `content/map.md`, `content/timelines.md`, `content/about.md`: the Map, Timelines and About pages. Their text (the intro under each heading, and all of About) is written in Markdown in these files; `heading` sets the large heading if it differs from the menu name.
 - `content/palaces/_index.md`: groups the palace pages. It is not built as a page of its own; the palace cards live on the home page.
-- `data/coordinates.yaml`: every map coordinate in one place: the point the map opens on (Whitehall) and one entry per palace, keyed by its id. Positions come from each palace's Wikipedia article; the matching figures from `../henry_viii_residences.csv` are kept beside them for reference only.
+- `data/coordinates.yaml`: every map coordinate in one place: the point the map opens on (Whitehall) and one entry per palace, keyed by its id. Positions come from each palace's Wikipedia article; the matching figures from `henry_viii_residences.csv` (kept with the research files, outside this repository) are kept beside them for reference only.
 - `data/unmodeled.yaml`: palaces without a model yet, shown as white "Unmodeled" pins and hollow timeline bars. `start`/`end` are the years the map's year filter uses (no `end` = still standing).
 - `data/extant.yaml`: palaces that still stand (Hampton Court, the Tower, Eltham, Windsor, St James's, Holyroodhouse, Audley End, Kensington, Westminster, Edinburgh Castle, Kew, Buckingham, the Royal Pavilion, Dover, Leeds and Tickenhill), shown as brown "Extant" pins and brown timeline bars. Each links to its official visitor page (`visit`), except Tickenhill, a private house. `start` is the year building began; `far: true` marks sites outside the opening map view.
 - `layouts/`: page templates: `home.html`, `map.html`, `timeline.html` (used by the Timelines page), `page.html` (plain Markdown pages such as About), `palaces/page.html`, `404.html`, `baseof.html` (the frame around every page) and `_partials/` (header and footer).

@@ -23,79 +23,79 @@ disableKinds = ["taxonomy", "term", "rss"]
     source = "static"
     target = "static"
 
-# The 3D models stay in their own working folders, one level up from this site.
+# The 3D models live in their own folders, one level up from this site.
 # Each is mounted into the built site at /models/<id>/, leaving out backups,
 # source PDFs and photos of books. Its main page is also mounted under assets/,
 # so palace pages can read the model's introduction and bibliography at build time.
   [[module.mounts]]
-    source = "../ReconstructingWhitehall Fablecopy/whitehall"
+    source = "../Whitehall"
     target = "static/models/whitehall"
     files = ["! index.before*.html", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
   [[module.mounts]]
-    source = "../ReconstructingWhitehall Fablecopy/whitehall"
+    source = "../Whitehall"
     target = "assets/models/whitehall"
     files = ["index.html"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/Baynards Castle"
+    source = "../Baynards Castle"
     target = "static/models/baynards"
     files = ["! backups/**", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/Baynards Castle"
+    source = "../Baynards Castle"
     target = "assets/models/baynards"
     files = ["baynardscastle.html"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/Beaulieu"
+    source = "../Beaulieu"
     target = "static/models/beaulieu"
     files = ["! backups/**", "! *-backup-*.html", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/Beaulieu"
+    source = "../Beaulieu"
     target = "assets/models/beaulieu"
     files = ["beaulieu.html"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/Bridewell"
+    source = "../Bridewell"
     target = "static/models/bridewell"
     files = ["! backups/**", "! *-backup-*.html", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/Bridewell"
+    source = "../Bridewell"
     target = "assets/models/bridewell"
     files = ["bridewell.html"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/Greenwich"
+    source = "../Greenwich"
     target = "static/models/greenwich"
     files = ["! backups/**", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/Greenwich"
+    source = "../Greenwich"
     target = "assets/models/greenwich"
     files = ["index.html"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/Nonsuch"
+    source = "../Nonsuch"
     target = "static/models/nonsuch"
     files = ["! backups/**", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/Nonsuch"
+    source = "../Nonsuch"
     target = "assets/models/nonsuch"
     files = ["index.html"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/Oatlands"
+    source = "../Oatlands"
     target = "static/models/oatlands"
     files = ["! backups/**", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/Oatlands"
+    source = "../Oatlands"
     target = "assets/models/oatlands"
     files = ["oatlands.html"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/Richmond"
+    source = "../Richmond"
     target = "static/models/richmond"
     files = ["! backups/**", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/Richmond"
+    source = "../Richmond"
     target = "assets/models/richmond"
     files = ["index.html"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/The More"
+    source = "../The More"
     target = "static/models/more"
     files = ["! backups/**", "! **.pdf", "! **.HEIC", "! **.heic", "! **.DS_Store"]
   [[module.mounts]]
-    source = "../Other Royal Palaces/The More"
+    source = "../The More"
     target = "assets/models/more"
     files = ["index.html"]
