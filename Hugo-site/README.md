@@ -34,13 +34,43 @@ The map and the timelines share one colour code: **green** for palaces with a mo
 - `archive/static-site-2026-11-17/`: the earlier hand-written version of the site, kept on the project computer for reference. It is not part of the build or of the repository.
 - `public/` and `resources/`: made by Hugo when it builds (the finished site, and its cache of resized images). Both are left out of the repository and can be deleted at any time.
 
+## What a model page must contain
+
+Each palace page copies two things out of its model's page file when the site is built, so they always match the model. It finds them by their exact markup:
+
+- **Introduction:** `<p class="lede">…</p>`. The first one in the file is used.
+- **Bibliography:** `<ul class="bib">…</ul>`, followed directly by the `</div>` that closes its group. Matching up to that `</div>` keeps nested lists (as in Whitehall's) whole.
+
+If a model's markup changes so that either one no longer matches, the build still succeeds, but the palace page silently loses its introduction, and its Sources list falls back to "Listed in the model’s panel, under Bibliography." After editing a model's page, check its palace page.
+
+## Palace fields
+
+Each `content/palaces/<id>.md` holds:
+
+- the file name (`<id>`): the palace's id. It must match the palace's entry in `data/coordinates.yaml`.
+- `title`: the full name ("Greenwich Palace"), used as the palace page heading, in its browser title and in "Cite this model".
+- `name`: the short name ("Greenwich"), used on the home page cards, the map and the timelines. The A–Z sort ignores a leading "The".
+- `slug`: the palace page's address, `/palaces/<slug>/`.
+- `start`, `end`: the years the model covers, shown on cards and used by the map's year filter and the timelines.
+- `place`: where it stood ("Greenwich, on the Thames").
+- `model`: the model's address in the built site (`/models/<id>/<page file>`), shown in the palace page's frame.
+- `weight`: sets the date order everywhere on the site. It is the start year × 10 plus a tie-break digit (Greenwich, 1500, is `15003`), so palaces starting in the same year keep a fixed order.
+
+## Requirements and outside services
+
+- Built and tested with **Hugo v0.161.1 (extended)**. Hugo makes the WebP and resized copies of the home page image and the footer logos.
+- In the browser, the site loads three things from other servers, so it needs an internet connection, and those services see visitors' requests:
+  - **Google Fonts**: IM Fell English SC and Source Sans 3 (every page).
+  - **Leaflet 1.9.4** from unpkg.com (Map page only), checked with an integrity hash.
+  - **OpenStreetMap map tiles** from tile.openstreetmap.org (Map page only), credited in the map's corner as OpenStreetMap's terms require.
+
 ## The palace icon
 
 The palace icon appears in three places, all drawn from the same shape: `static/favicon.svg`, `static/favicon.ico`, and the header wordmark in `layouts/_partials/header.html`. If the icon changes, update all three.
 
 ## Adding a palace
 
-1. Put the model in its own folder at the project root (`../<Palace>/`), with its page file and an `assets/` folder for its images.
+1. Put the model in its own folder at the project root (`../<Palace>/`), with its page file and an `assets/` folder for its images. Its page needs the introduction and bibliography markup described above.
 2. Add the two mounts for its folder in `hugo.toml`, following the existing ones.
 3. Add the folder and its page file to the root `.gitignore`, following the existing ones (the images stay out until their copyright is cleared).
 4. Add `content/palaces/<id>.md`, copying an existing one.
